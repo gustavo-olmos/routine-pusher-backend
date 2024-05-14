@@ -1,13 +1,22 @@
 package com.routine.pusher.model;
 
+import com.routine.pusher.model.enums.StatusConclusao;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Tarefa
 {
-    private String tituloTarefa;
-    private boolean isConcluido;
+    private static Long id;
 
-    public Tarefa( String tituloTarefa, boolean isConcluido )
-    {
-        this.tituloTarefa = tituloTarefa;
-        this.isConcluido = isConcluido;
+    private String titulo;
+    private String comentario;
+    private StatusConclusao status;
+
+    public Tarefa( String titulo, String comentario, StatusConclusao status ) {
+        this.titulo = titulo;
+        this.comentario = comentario;
+        this.status = status;
     }
 }

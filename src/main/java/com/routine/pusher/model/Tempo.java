@@ -1,34 +1,19 @@
 package com.routine.pusher.model;
 
-import com.routine.pusher.model.enums.CondicaoRepeticao;
-import com.routine.pusher.model.enums.Frequencia;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+@Getter(AccessLevel.PROTECTED)
+@Setter(AccessLevel.PROTECTED)
 public class Tempo
 {
     private LocalDateTime momentoNotificacao;
     private Frequencia frequencia;
-    private CondicaoRepeticao condicaoRepeticao;
+    private List<LocalDateTime> intervaloPersonalizado;
 
-    public Tempo( LocalDateTime momentoNotificacao )
-    {
-        this.momentoNotificacao = momentoNotificacao;
-    }
-
-    public Tempo( LocalDateTime momentoNotificacao, Frequencia frequencia, CondicaoRepeticao condicaoRepeticao )
-    {
-        this.momentoNotificacao = momentoNotificacao;
-        this.frequencia = frequencia;
-        this.condicaoRepeticao = condicaoRepeticao;
-    }
-
-    public LocalDateTime getMomentoNotificacao( ) { return momentoNotificacao; }
-    public void setMomentoNotificacao( LocalDateTime momentoNotificacao ) {this.momentoNotificacao = momentoNotificacao; }
-
-    public Frequencia getFrequencia( ) { return frequencia; }
-    public void setFrequencia( Frequencia frequencia ) { this.frequencia = frequencia; }
-
-    public CondicaoRepeticao getCondicaoRepeticao() { return condicaoRepeticao; }
-    public void setCondicaoRepeticao( CondicaoRepeticao condicaoRepeticao ) { this.condicaoRepeticao = condicaoRepeticao; }
+    protected Tempo( ) { }
 }

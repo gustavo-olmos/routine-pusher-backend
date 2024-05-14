@@ -1,4 +1,4 @@
-package com.routine.pusher.service;
+package com.routine.pusher.service.interfaces;
 
 import com.routine.pusher.model.Tempo;
 
