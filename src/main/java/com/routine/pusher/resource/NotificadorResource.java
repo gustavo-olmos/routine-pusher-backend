@@ -1,12 +1,15 @@
 package com.routine.pusher.resource;
 
-import com.routine.pusher.model.Tempo;
 import com.routine.pusher.service.interfaces.NotificadorService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+import java.time.LocalDateTime;
+
+@RestController
+@RequestMapping(path = "api/v1/notificador")
 public class NotificadorResource
 {
     private NotificadorService service;
@@ -16,7 +19,7 @@ public class NotificadorResource
     }
 
     @PostMapping
-    public ResponseEntity notificar( Tempo tempo ) {
+    public ResponseEntity notificar( LocalDateTime tempo ) {
         return ResponseEntity.ok( ).body( service.notificar( tempo ) );
     }
 }

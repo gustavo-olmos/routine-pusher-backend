@@ -5,26 +5,21 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
 @Entity
-@Table(name = "tarefa")
-public class TarefaEntity
+@Table(name = "subtarefa")
+public class SubtarefaEntity
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue( strategy = GenerationType.IDENTITY )
     private Long id;
 
     @OneToOne
-    private LembreteEntity lembrete;
-
-    @OneToOne(mappedBy = "tarefa")
-    private SubtarefaEntity subTarefa;
+    private TarefaEntity tarefa;
 
     @Column(name = "titulo", nullable = false)
     private String titulo;
-
-    @Column(name = "comentario")
-    private String comentario;
 
     @Column(name = "status")
     private StatusConclusao status;

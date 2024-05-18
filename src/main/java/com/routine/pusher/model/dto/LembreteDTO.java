@@ -1,16 +1,27 @@
 package com.routine.pusher.model.dto;
 
-import com.routine.pusher.model.Categoria;
-import com.routine.pusher.model.Tarefa;
-import com.routine.pusher.model.Tempo;
-import com.routine.pusher.model.Duracao;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-public record LembreteDTO(
-        Long id,
-        List<Tarefa> tarefas,
-        Categoria categoria,
-        Tempo tempo,
-        Duracao duracao ){
+@Getter
+@Setter
+public class LembreteDTO
+{
+    private Long id;
+    private TarefaDTO tarefa;
+    private CategoriaDTO categoria;
+    private List<LocalDateTime> momentoNotificacao;
+    private LocalDateTime intervaloRepeticao;
+    private int quantidade;
+    private LocalDateTime validade;
+
+
+    public LembreteDTO( ) { }
+
+    public static LembreteDTO builder( ) {
+        return new LembreteDTO( );
+    }
 }

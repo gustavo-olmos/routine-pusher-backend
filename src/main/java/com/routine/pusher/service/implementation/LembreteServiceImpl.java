@@ -11,11 +11,9 @@ import java.util.List;
 @Service
 public class LembreteServiceImpl implements LembreteService
 {
-    private SortInfo sortInfo;
     private LembreteRepository repository;
 
-    public LembreteServiceImpl( SortInfo sortInfo, LembreteRepository repository ) {
-        this.sortInfo = sortInfo;
+    public LembreteServiceImpl( LembreteRepository repository ) {
         this.repository = repository;
     }
 
@@ -30,7 +28,7 @@ public class LembreteServiceImpl implements LembreteService
     }
 
     @Override
-    public LembreteDTO updateLembrete(LembreteDTO lembrete ) {
+    public LembreteDTO updateLembrete( LembreteDTO lembrete ) {
         return null;
     }
 

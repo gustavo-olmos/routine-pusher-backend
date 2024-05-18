@@ -3,10 +3,7 @@ package com.routine.pusher.model.enums;
 public enum StatusConclusao
 {
     CONCLUIDO(1),
-    INCOMPLETO(2),
-    ATRASADO(3),
-    CANCELADO(4),
-    NAO_INICIADO(0);
+    ABERTO(2);
 
     private int value;
 

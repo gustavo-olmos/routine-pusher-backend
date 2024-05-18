@@ -4,15 +4,12 @@ import com.routine.pusher.model.dto.LembreteDTO;
 import com.routine.pusher.service.interfaces.LembreteService;
 import com.routine.pusher.util.SortInfo;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping(path = "api/v1/lembretes")
 public class LembreteResource
 {
     private LembreteService service;

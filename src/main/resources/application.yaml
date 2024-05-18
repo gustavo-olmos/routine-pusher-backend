@@ -1,1 +1,16 @@
-spring.application.name=Routine-Pusher
+spring:
+  application:
+    name: Routine-Pusher
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/routine-pusher
+    username: postgres
+    password: PgreWsl
+    hikari:
+      pool-size: 30
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true

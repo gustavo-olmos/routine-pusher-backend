@@ -1,8 +1,8 @@
 package com.routine.pusher.service.interfaces;
 
-import com.routine.pusher.model.Tempo;
+import java.time.LocalDateTime;
 
 public interface NotificadorService
 {
-    String notificar( Tempo tempo );
+    String notificar( LocalDateTime tempo );
 }

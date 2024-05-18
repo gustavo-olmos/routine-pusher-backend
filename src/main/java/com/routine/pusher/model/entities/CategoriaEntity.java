@@ -1,28 +1,30 @@
-package com.routine.pusher.model;
+package com.routine.pusher.model.entities;
+
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter @Setter
+@Entity
 @Table(name = "categoria")
-@Entity(name = "Categoria")
-public class Categoria
+public class CategoriaEntity
 {
     @Id
-    @Column(name = "categoria_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private static Long id;
+    private Long id;
 
-    @Column(name = "nome", nullable = false )
+    @Column(name = "nome", nullable = false)
     private String nome;
 
-    @Column(name = "cor", unique = true, nullable = false )
+    @Column(name = "cor", unique = true, nullable = false)
     private String cor;
 
+    @Column(name = "fatorOrdem", unique = true, nullable = false)
+    private int fatorOrdem;
 
-    public Categoria( String nome, String cor ) {
-        this.nome = nome;
-        this.cor = cor;
-    }
+    @OneToMany(mappedBy = "categoria")
+    private List<LembreteEntity> lembrete;
 }
