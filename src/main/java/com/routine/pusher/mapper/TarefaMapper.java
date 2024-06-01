@@ -8,9 +8,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface TarefaMapper
 {
-//    @Mapping(source = "", target = "")
-//    TarefaDTO entityToDto( TarefaEntity tarefa );
-//
-//    @Mapping(source = "", target = "")
-//    TarefaEntity dtoToEntity( TarefaDTO tarefa );
+    @Mapping(source = "comentario", target = "descricao")
+    TarefaDTO entityToDto( TarefaEntity tarefa );
+
+    @Mapping(source = "descricao", target = "comentario")
+    TarefaEntity dtoToEntity( TarefaDTO tarefa );
 }

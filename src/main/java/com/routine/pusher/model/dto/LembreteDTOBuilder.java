@@ -1,8 +1,4 @@
-package com.routine.pusher.model;
-
-import com.routine.pusher.model.dto.CategoriaDTO;
-import com.routine.pusher.model.dto.LembreteDTO;
-import com.routine.pusher.model.dto.TarefaDTO;
+package com.routine.pusher.model.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,7 +36,7 @@ public class LembreteDTOBuilder
     }
 
     public LembreteDTOBuilder intervaloRepeticao( LocalDateTime intervalo ) {
-        this.lembrete.setIntervaloRepeticao( intervalo );
+        this.lembrete.setIntervalo( intervalo );
         return this;
     }
 

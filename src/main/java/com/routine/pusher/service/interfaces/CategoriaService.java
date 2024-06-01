@@ -1,16 +1,17 @@
 package com.routine.pusher.service.interfaces;
 
 import com.routine.pusher.model.dto.CategoriaDTO;
+import com.routine.pusher.util.SortInfo;
 
 import java.util.List;
 
 public interface CategoriaService
 {
-    List<CategoriaDTO> listar( );
+    List<CategoriaDTO> listar( SortInfo sortInfo );
 
-    CategoriaDTO adicionar( String nome, String cor );
+    CategoriaDTO adicionar( CategoriaDTO dto );
 
-    CategoriaDTO editar( CategoriaDTO categoria, Long id );
+    CategoriaDTO editar( CategoriaDTO dto );
 
-    String excluir( Long id );
+    boolean excluir( Long id );
 }

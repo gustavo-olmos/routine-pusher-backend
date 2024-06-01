@@ -24,7 +24,7 @@ public class LembreteEntity
     private CategoriaEntity categoria;
 
     @Column(name = "dataCriacao", unique = true, nullable = false)
-    private String dataCriacao;
+    private LocalDateTime dataCriacao;
 
     @Column(name = "momentoNotificacao")
     private List<LocalDateTime> momentoNotificacao;

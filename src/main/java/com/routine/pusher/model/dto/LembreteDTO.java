@@ -14,12 +14,12 @@ public class LembreteDTO
     private TarefaDTO tarefa;
     private CategoriaDTO categoria;
     private List<LocalDateTime> momentoNotificacao;
-    private LocalDateTime intervaloRepeticao;
+    private LocalDateTime intervalo;
     private int quantidade;
     private LocalDateTime validade;
 
 
-    public LembreteDTO( ) { }
+    protected LembreteDTO( ) { }
 
     public static LembreteDTO builder( ) {
         return new LembreteDTO( );

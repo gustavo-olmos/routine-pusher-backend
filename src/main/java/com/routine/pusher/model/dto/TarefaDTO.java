@@ -17,10 +17,4 @@ public class TarefaDTO
     private String descricao;
     private StatusConclusao status;
     private List<SubtarefaDTO> subtarefa;
-
-    public TarefaDTO( String titulo, String descricao, StatusConclusao status ) {
-        this.titulo = titulo;
-        this.descricao = descricao;
-        this.status = status;
-    }
 }

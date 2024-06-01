@@ -8,9 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface SubtarefaMapper
 {
-//    @Mapping(source = "", target = "")
-//    SubtarefaDTO entityToDto( SubtarefaEntity subtarefa );
-//
-//    @Mapping(source = "", target = "")
-//    SubtarefaEntity dtoToEntity( SubtarefaDTO subtarefa );
+    SubtarefaDTO entityToDto( SubtarefaEntity subtarefa );
+
+    SubtarefaEntity dtoToEntity( SubtarefaDTO subtarefa );
 }
