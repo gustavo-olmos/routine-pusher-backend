@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CategoriaService
 {
-    List<CategoriaDTO> listar( SortInfo sortInfo );
+    List<CategoriaDTO> listar( String atributo, boolean ordemReversa );
 
     CategoriaDTO adicionar( CategoriaDTO dto );
 

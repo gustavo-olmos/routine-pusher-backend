@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -20,18 +21,24 @@ public class CategoriaServiceImpl implements CategoriaService
     private CategoriaRepository repository;
     private CategoriaMapper mapper;
 
-    public CategoriaServiceImpl( CategoriaRepository repository )
+    public CategoriaServiceImpl( CategoriaRepository repository, CategoriaMapper mapper )
     {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
 
+    @SuppressWarnings("unchecked")
     @Override
-    public List<CategoriaDTO> listar( SortInfo sortInfo )
+    public List<CategoriaDTO> listar( String atributo, boolean ordemReversa )
     {
-        LOGGER.debug("Listando categorias por: {}", sortInfo);
+        LOGGER.debug("Listando categorias por: {}", atributo);
 
-        return List.of();
+        return (List<CategoriaDTO>) repository.findAll( )
+                .stream( )
+                .map( mapper::toDto )
+                .sorted( new SortInfo<CategoriaDTO>( atributo, ordemReversa ) )
+                .collect( Collectors.toList( ) );
     }
 
     @Override
