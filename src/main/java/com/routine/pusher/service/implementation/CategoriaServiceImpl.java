@@ -80,7 +80,7 @@ public class CategoriaServiceImpl implements CategoriaService
         LOGGER.debug("Excluindo categoria");
 
         if( repository.existsById( id ) ) {
-            repository.deleteById(id);
+            repository.deleteById( id );
             return true;
         }
         return false;

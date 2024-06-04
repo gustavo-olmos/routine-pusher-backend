@@ -25,12 +25,12 @@ public class CategoriaResource
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoriaDTO>> getAl( @RequestParam("sortInfo") String sortInfo,
+    public ResponseEntity<List<CategoriaDTO>> getAl( @RequestParam("sortInfo") String atributo,
                                                      @RequestParam("decrescente") boolean ordemReversa )
     {
-        LOGGER.debug("Listando categoria por: {}", sortInfo);
+        LOGGER.debug("Listando categoria por: {}", atributo);
 
-        return ResponseEntity.ok( ).body( service.listar( sortInfo, ordemReversa ) );
+        return ResponseEntity.ok( ).body( service.listar( atributo, ordemReversa ) );
     }
 
     @PostMapping

@@ -12,5 +12,5 @@ public interface CategoriaMapper
 
     CategoriaEntity toEntity( CategoriaDTO categoria );
 
-    void atualizaEntidade( CategoriaDTO dto, @MappingTarget CategoriaEntity entity);
+    void atualizaEntidade( CategoriaDTO dto, @MappingTarget CategoriaEntity entity );
 }
