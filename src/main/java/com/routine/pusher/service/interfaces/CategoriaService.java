@@ -11,7 +11,7 @@ public interface CategoriaService
 
     CategoriaDTO adicionar( CategoriaDTO dto );
 
-    CategoriaDTO editar( CategoriaDTO dto );
+    CategoriaDTO editar( Long id, CategoriaDTO dto );
 
     boolean excluir( Long id );
 }

@@ -25,7 +25,8 @@ public class CategoriaResource
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoriaDTO>> getAl( String sortInfo, boolean ordemReversa )
+    public ResponseEntity<List<CategoriaDTO>> getAl( @RequestParam("sortInfo") String sortInfo,
+                                                     @RequestParam("decrescente") boolean ordemReversa )
     {
         LOGGER.debug("Listando categoria por: {}", sortInfo);
 
@@ -46,7 +47,7 @@ public class CategoriaResource
     {
         LOGGER.debug("Alterando categoria");
 
-        return ResponseEntity.ok( ).body( service.editar( dto ) );
+        return ResponseEntity.ok( ).body( service.editar( id, dto ) );
     }
 
     @DeleteMapping(path = "{id}")
@@ -54,9 +55,9 @@ public class CategoriaResource
     {
         LOGGER.debug("Excluindo categoria");
 
-        if (service.excluir(id))
-            return ResponseEntity.ok("Categoria excluída com sucesso!");
+        if ( service.excluir( id ) )
+            return ResponseEntity.ok( "Categoria excluída com sucesso!" );
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Categoria não encontrada");
+        return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( "Categoria não encontrada" );
     }
 }
