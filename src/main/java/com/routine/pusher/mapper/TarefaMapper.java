@@ -5,15 +5,19 @@ import com.routine.pusher.model.entities.TarefaEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface TarefaMapper
 {
+    TarefaMapper INSTANCE = Mappers.getMapper( TarefaMapper.class );
+
+
     @Mapping(source = "comentario", target = "descricao")
-    TarefaDTO entityToDto( TarefaEntity tarefa );
+    TarefaDTO toDto( TarefaEntity tarefa );
 
     @Mapping(source = "descricao", target = "comentario")
-    TarefaEntity dtoToEntity( TarefaDTO tarefa );
+    TarefaEntity toEntity(TarefaDTO tarefa );
 
     void atualizaEntidade( TarefaDTO dto, @MappingTarget TarefaEntity entity );
 }

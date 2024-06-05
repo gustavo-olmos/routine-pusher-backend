@@ -4,10 +4,13 @@ import com.routine.pusher.model.dto.CategoriaDTO;
 import com.routine.pusher.model.entities.CategoriaEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface CategoriaMapper
 {
+    CategoriaMapper INSTANCE = Mappers.getMapper( CategoriaMapper.class );
+
     CategoriaDTO toDto( CategoriaEntity categoria );
 
     CategoriaEntity toEntity( CategoriaDTO categoria );

@@ -4,13 +4,17 @@ import com.routine.pusher.model.dto.SubtarefaDTO;
 import com.routine.pusher.model.entities.SubtarefaEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface SubtarefaMapper
 {
-    SubtarefaDTO entityToDto( SubtarefaEntity subtarefa );
+    SubtarefaMapper INSTANCE = Mappers.getMapper( SubtarefaMapper.class );
 
-    SubtarefaEntity dtoToEntity( SubtarefaDTO subtarefa );
+
+    SubtarefaDTO toDto( SubtarefaEntity subtarefa );
+
+    SubtarefaEntity toEntity( SubtarefaDTO subtarefa );
 
     void atualizaEntidade( SubtarefaDTO dto, @MappingTarget SubtarefaEntity entity );
 }

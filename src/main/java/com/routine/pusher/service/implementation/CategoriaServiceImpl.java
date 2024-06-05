@@ -71,7 +71,7 @@ public class CategoriaServiceImpl implements CategoriaService
                     return dto;
                 } )
                 .orElseThrow( ( ) ->
-                        new EntityNotFoundException("Categoria não encontrada para o id: " + id ) );
+                        new EntityNotFoundException( "Categoria não encontrada para o id: " + id ) );
     }
 
     @Override

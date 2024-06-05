@@ -33,31 +33,27 @@ public class LembreteServiceImpl implements LembreteService
     {
         LOGGER.debug("Listando lembretes por: {}", atributo);
 
-//        List<LembreteDTO> lembretes = new java.util.ArrayList<>(
-//                repository.findAll( )
-//                        .stream( )
-//                        .map( mapper::toDto )
-//                        .collect( Collectors.toList( ) ) );
-//
-//        lembretes.sort( new SortInfo<LembreteDTO>( atributo, ordemReversa ) );
-//
-//        return lembretes;
+        List<LembreteDTO> lembretes = new java.util.ArrayList<>(
+                repository.findAll( )
+                        .stream( )
+                        .map( mapper::toDto )
+                        .collect( Collectors.toList( ) ) );
 
-        return null;
+        lembretes.sort( new SortInfo<LembreteDTO>( atributo, ordemReversa ) );
+
+        return lembretes;
     }
 
     @Override
-    public LembreteDTO adicionar( LembreteDTO lembrete )
+    public LembreteDTO adicionar( LembreteDTO dto )
     {
         LOGGER.debug("Adicionando lembrete");
 
-//        return Stream.of( dto )
-//                .map( mapper::toEntity )
-//                .map( repository::save )
-//                .map( mapper::toDto )
-//                .toList( ).get( 0 );
-
-        return null;
+        return Stream.of( dto )
+                .map( mapper::toEntity )
+                .map( repository::save )
+                .map( mapper::toDto )
+                .toList( ).get( 0 );
     }
 
     @Override
@@ -72,7 +68,7 @@ public class LembreteServiceImpl implements LembreteService
                     return dto;
                 } )
                 .orElseThrow( ( ) ->
-                        new EntityNotFoundException("Categoria não encontrada para o id: " + id ) );
+                        new EntityNotFoundException( "Lembrete não encontrada para o id: " + id ) );
     }
 
     @Override

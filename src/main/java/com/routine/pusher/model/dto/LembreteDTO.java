@@ -19,7 +19,7 @@ public class LembreteDTO
     private LocalDateTime validade;
 
 
-    protected LembreteDTO( ) { }
+    public LembreteDTO( ) { }
 
     public static LembreteDTO builder( ) {
         return new LembreteDTO( );
