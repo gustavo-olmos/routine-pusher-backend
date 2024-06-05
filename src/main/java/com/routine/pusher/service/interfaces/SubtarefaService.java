@@ -8,7 +8,7 @@ public interface SubtarefaService
 {
     List<SubtarefaDTO> listar( );
 
-    SubtarefaDTO adicionar( SubtarefaDTO dto );
+    List<SubtarefaDTO> adicionar( List<SubtarefaDTO> dto );
 
     SubtarefaDTO editar( Long id, SubtarefaDTO dto );
 

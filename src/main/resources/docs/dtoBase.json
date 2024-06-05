@@ -1,17 +1,16 @@
 {
 	"lembrete": {
 		"id": 1,
-		"tarefa": {
-			"id": 1,
-			"titulo": "Tarefa 1",
-			"descricao": "Olá",
-			"statusConclusao": "CONCLUIDO",
-			"subTarefa": {
+		"titulo": "Tarefa 1",
+		"descricao": "Olá",
+		"subTarefas": [
+			{
 				"id": 1,
 				"titulo": "Sub-Tarefa 1",
 				"statusConclusao": "ABERTO"
 			}
-		},
+		],
+		"statusConclusao": "CONCLUIDO",
 		"categoriaId": 2,
 		"dataCriacao": "yyyy-MM-dd 'T' HH-mm",
 		"momentoNotificao": [ "yyyy-MM-dd 'T' HH-mm" ],
@@ -19,7 +18,6 @@
 		"qtd": 6,
 		"validade": "yyyy-mm-dd"
 	},
-
 	"categoria": {
 		"id": 4,
 		"nome": "Importante",

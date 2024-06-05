@@ -21,20 +21,6 @@ CREATE TABLE public.subtarefa
 );
 ALTER TABLE IF EXISTS public.subtarefa
     OWNER to postgres;
-    
-    
-CREATE TABLE public.tarefa
-(
-    id serial NOT NULL,
-    subtarefa_id integer NOT NULL,
-    titulo varchar(25) NOT NULL,
-    comentario varchar(100),
-    status varchar(14) NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (subtarefa_id) REFERENCES subtarefa(id)
-);
-ALTER TABLE IF EXISTS public.tarefa
-    OWNER to postgres;
 
 
 CREATE TABLE public.categoria
@@ -52,7 +38,10 @@ ALTER TABLE IF EXISTS public.categoria
 CREATE TABLE public.lembrete
 (
     id serial NOT NULL,
-    tarefa_id int NOT NULL,
+    titulo varchar(25) NOT NULL,
+    comentario varchar(100),
+    subtarefa_id int[] NOT NULL,
+    status varchar(14) NOT NULL,
     categoria_id int NOT NULL,
     data_criacao date NOT NULL,
     momento_notifica date,
@@ -60,7 +49,7 @@ CREATE TABLE public.lembrete
     quantidade int,
     validade date,
     PRIMARY KEY (id),
-    FOREIGN KEY (tarefa_id) REFERENCES tarefa(id)
+    FOREIGN KEY (subtarefa_id) REFERENCES subtarefa(id)
 );
 ALTER TABLE IF EXISTS public.lembrete
     OWNER to postgres;

@@ -1,5 +1,6 @@
 package com.routine.pusher.model.dto;
 
+import com.routine.pusher.model.enums.StatusConclusao;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +12,10 @@ import java.util.List;
 public class LembreteDTO
 {
     private Long id;
-    private TarefaDTO tarefa;
+    private String titulo;
+    private String comentario;
+    private List<SubtarefaDTO> subtarefa;
+    private StatusConclusao status;
     private CategoriaDTO categoria;
     private List<LocalDateTime> momentoNotificacao;
     private LocalDateTime intervalo;

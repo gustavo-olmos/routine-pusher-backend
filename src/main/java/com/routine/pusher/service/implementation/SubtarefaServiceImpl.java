@@ -37,15 +37,15 @@ public class SubtarefaServiceImpl implements SubtarefaService
     }
 
     @Override
-    public SubtarefaDTO adicionar( SubtarefaDTO dto )
+    public List<SubtarefaDTO> adicionar( List<SubtarefaDTO> dto )
     {
         LOGGER.debug("Adicionando subtarefa");
 
-        return Stream.of( dto )
+        return dto.stream( )
                 .map( mapper::toEntity )
                 .map( repository::save )
                 .map( mapper::toDto )
-                .toList( ).get( 0 );
+                .toList( );
     }
 
     @Override

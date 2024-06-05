@@ -1,5 +1,6 @@
 package com.routine.pusher.model.entities;
 
+import com.routine.pusher.model.enums.StatusConclusao;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,8 +17,17 @@ public class LembreteEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "titulo", nullable = false)
+    private String titulo;
+
+    @Column(name = "comentario")
+    private String comentario;
+
     @OneToOne(mappedBy = "lembrete")
-    private TarefaEntity tarefa;
+    private List<SubtarefaEntity> subTarefa;
+
+    @Column(name = "status")
+    private StatusConclusao status;
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")

@@ -5,8 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Getter @Setter
 @Entity
 @Table(name = "subtarefa")
 public class SubtarefaEntity
@@ -16,7 +15,7 @@ public class SubtarefaEntity
     private Long id;
 
     @OneToOne
-    private TarefaEntity tarefa;
+    private LembreteEntity lembrete;
 
     @Column(name = "titulo", nullable = false)
     private String titulo;
