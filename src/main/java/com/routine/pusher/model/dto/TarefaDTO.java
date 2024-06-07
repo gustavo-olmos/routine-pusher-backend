@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class SubtarefaDTO
+public class TarefaDTO
 {
     private Long id;
     private String titulo;

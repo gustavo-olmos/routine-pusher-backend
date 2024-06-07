@@ -30,15 +30,15 @@ public class LembreteDTOBuilder
         return this;
     }
 
-    public LembreteDTOBuilder comentario( String comentario )
+    public LembreteDTOBuilder descricao( String descricao )
     {
-        this.lembrete.setComentario( comentario );
+        this.lembrete.setDescricao( descricao );
         return this;
     }
 
-    public LembreteDTOBuilder subtarefa( SubtarefaDTO subtarefa )
+    public LembreteDTOBuilder tarefas( List<TarefaDTO> tarefas )
     {
-        this.lembrete.setSubtarefa( subtarefa );
+        this.lembrete.setTarefas( tarefas );
         return this;
     }
 

@@ -4,7 +4,7 @@ import com.routine.pusher.mapper.LembreteMapper;
 import com.routine.pusher.model.dto.LembreteDTO;
 import com.routine.pusher.repository.LembreteRepository;
 import com.routine.pusher.service.interfaces.LembreteService;
-import com.routine.pusher.service.interfaces.SubtarefaService;
+import com.routine.pusher.service.interfaces.TarefaService;
 import com.routine.pusher.util.SortInfo;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -20,15 +20,13 @@ public class LembreteServiceImpl implements LembreteService
 {
     private final Logger LOGGER = LoggerFactory.getLogger( LembreteServiceImpl.class );
 
-    private SubtarefaService subtarefaService;
     private LembreteRepository repository;
     private LembreteMapper mapper;
 
-    public LembreteServiceImpl( LembreteRepository repository, LembreteMapper mapper, SubtarefaService subtarefaService )
+    public LembreteServiceImpl( LembreteRepository repository, LembreteMapper mapper )
     {
         this.repository = repository;
         this.mapper = mapper;
-        this.subtarefaService = subtarefaService;
     }
 
     @Override
@@ -51,8 +49,6 @@ public class LembreteServiceImpl implements LembreteService
     public LembreteDTO adicionar( LembreteDTO dto )
     {
         LOGGER.debug("Adicionando lembrete");
-
-        subtarefaService.adicionar( dto.getSubtarefa( ) );
 
         return Stream.of( dto )
                 .map( mapper::toEntity )

@@ -8,13 +8,14 @@ import lombok.Setter;
 @Getter @Setter
 @Entity
 @Table(name = "subtarefa")
-public class SubtarefaEntity
+public class TarefaEntity
 {
     @Id
-    @GeneratedValue( strategy = GenerationType.IDENTITY )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn( name = "lembrete_id" )
     private LembreteEntity lembrete;
 
     @Column(name = "titulo", nullable = false)

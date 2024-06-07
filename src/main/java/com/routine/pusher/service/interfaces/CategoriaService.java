@@ -1,7 +1,6 @@
 package com.routine.pusher.service.interfaces;
 
 import com.routine.pusher.model.dto.CategoriaDTO;
-import com.routine.pusher.util.SortInfo;
 
 import java.util.List;
 

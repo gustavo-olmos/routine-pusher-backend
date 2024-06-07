@@ -1,8 +1,8 @@
 package com.routine.pusher.repository;
 
-import com.routine.pusher.model.entities.SubtarefaEntity;
+import com.routine.pusher.model.entities.TarefaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SubTarefaRepository extends JpaRepository<SubtarefaEntity, Long> { }
+public interface TarefaRepository extends JpaRepository<TarefaEntity, Long> { }

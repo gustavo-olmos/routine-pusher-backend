@@ -2,10 +2,11 @@
 	"lembrete": {
 		"id": 1,
 		"titulo": "Tarefa 1",
-		"descricao": "Olá",
+		"comentario": "Olá",
 		"subTarefas": [
 			{
 				"id": 1,
+				"lembreteId": 1,
 				"titulo": "Sub-Tarefa 1",
 				"statusConclusao": "ABERTO"
 			}
@@ -23,5 +24,31 @@
 		"nome": "Importante",
 		"cor": "#ddddd01",
 		"fatorOrdem": 2
+	}
+
+	"lembrete": {
+		"id": 1,
+		"titulo": "Tarefa 1",
+		"comentario": "Olá",
+		"subTarefas": [
+			{
+				"lembreteId": 1,
+				"id": 1,
+				"titulo": "Sub-Tarefa 1",
+				"statusConclusao": "ABERTO"
+			},
+			{
+				"lembreteId": 1,
+				"id": 3,
+				"titulo": "Sub-Tarefa 3",
+				"statusConclusao": "ABERTO"
+			},
+			{
+				"lembreteId": 1,
+				"titulo": "Sub-Tarefa 4",
+				"statusConclusao": "ABERTO"
+			}
+		],
+		"statusConclusao": "CONCLUIDO"
 	}
 }

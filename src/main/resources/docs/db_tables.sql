@@ -12,35 +12,26 @@ CREATE DATABASE "routine-pusher"
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
 
-CREATE TABLE public.subtarefa
-(
-    id serial NOT NULL,
-    titulo varchar(25) NOT NULL,
-    status varchar(14) NOT NULL,
-    PRIMARY KEY (id)
-);
-ALTER TABLE IF EXISTS public.subtarefa
-    OWNER to postgres;
-
+----------------------------------
 
 CREATE TABLE public.categoria
 (
     id serial NOT NULL,
-    nome varchar(25) NOT NULL DEFAULT 25,
+    nome varchar(25) NOT NULL,
     cor varchar(10) NOT NULL,
     fator_ord int NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY(id)
 );
 ALTER TABLE IF EXISTS public.categoria
     OWNER to postgres;
 
+----------------------------------
 
 CREATE TABLE public.lembrete
 (
     id serial NOT NULL,
     titulo varchar(25) NOT NULL,
     comentario varchar(100),
-    subtarefa_id int[] NOT NULL,
     status varchar(14) NOT NULL,
     categoria_id int NOT NULL,
     data_criacao date NOT NULL,
@@ -48,8 +39,24 @@ CREATE TABLE public.lembrete
     repeticao date,
     quantidade int,
     validade date,
-    PRIMARY KEY (id),
-    FOREIGN KEY (subtarefa_id) REFERENCES subtarefa(id)
+	PRIMARY KEY(id)
 );
 ALTER TABLE IF EXISTS public.lembrete
+    OWNER to postgres;
+
+----------------------------------
+
+CREATE TABLE public.tarefa
+(
+    id serial NOT NULL,
+    titulo varchar(25) NOT NULL,
+    status varchar(14) NOT NULL,
+    lembrete_id int NOT NULL,
+	PRIMARY KEY(id),
+    CONSTRAINT fk_lembrete
+        FOREIGN KEY (lembrete_id)
+        REFERENCES lembrete(id)
+        ON DELETE CASCADE
+);
+ALTER TABLE IF EXISTS public.tarefa
     OWNER to postgres;

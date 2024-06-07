@@ -11,8 +11,8 @@ public class SortInfo<T> implements Comparator
 {
     private final Logger LOGGER = LoggerFactory.getLogger( SortInfo.class );
 
-    private String atributoOrdenacao;
-    private boolean ordemReversa;
+    private final String atributoOrdenacao;
+    private final boolean ordemReversa;
 
     public SortInfo( String atributoOrdenacao, boolean ordemReversa )
     {
@@ -27,10 +27,10 @@ public class SortInfo<T> implements Comparator
             Field field = obj1.getClass( ).getDeclaredField( atributoOrdenacao );
             field.setAccessible( true );
 
-            Comparable value1 = (Comparable) field.get( obj1 );
-            Comparable value2 = (Comparable) field.get( obj2 );
+            Comparable<T> value1 = (Comparable<T>) field.get( obj1 );
+            Comparable<T> value2 = (Comparable<T>) field.get( obj2 );
 
-            int result = value1.compareTo(value2);
+            int result = value1.compareTo( (T) value2 );
 
             return ordemReversa ? -result : result;
         }

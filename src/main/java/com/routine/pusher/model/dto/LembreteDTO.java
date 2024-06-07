@@ -13,8 +13,8 @@ public class LembreteDTO
 {
     private Long id;
     private String titulo;
-    private String comentario;
-    private List<SubtarefaDTO> subtarefa;
+    private String descricao;
+    private List<TarefaDTO> tarefas;
     private StatusConclusao status;
     private CategoriaDTO categoria;
     private List<LocalDateTime> momentoNotificacao;

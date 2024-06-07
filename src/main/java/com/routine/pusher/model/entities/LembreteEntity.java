@@ -20,11 +20,11 @@ public class LembreteEntity
     @Column(name = "titulo", nullable = false)
     private String titulo;
 
-    @Column(name = "comentario")
-    private String comentario;
+    @Column(name = "descricao")
+    private String descricao;
 
-    @OneToOne(mappedBy = "lembrete")
-    private List<SubtarefaEntity> subTarefa;
+    @OneToMany(mappedBy = "lembrete", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TarefaEntity> tarefas;
 
     @Column(name = "status")
     private StatusConclusao status;
