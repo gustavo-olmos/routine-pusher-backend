@@ -12,7 +12,7 @@ CREATE DATABASE "routine-pusher"
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
 
-----------------------------------
+-- DROP TABLE IF EXISTS "categoria";
 
 CREATE TABLE public.categoria
 (
@@ -25,7 +25,7 @@ CREATE TABLE public.categoria
 ALTER TABLE IF EXISTS public.categoria
     OWNER to postgres;
 
-----------------------------------
+-- DROP TABLE IF EXISTS "lembrete";
 
 CREATE TABLE public.lembrete
 (
@@ -44,7 +44,7 @@ CREATE TABLE public.lembrete
 ALTER TABLE IF EXISTS public.lembrete
     OWNER to postgres;
 
-----------------------------------
+-- DROP TABLE IF EXISTS "tarefa";
 
 CREATE TABLE public.tarefa
 (
@@ -60,3 +60,11 @@ CREATE TABLE public.tarefa
 );
 ALTER TABLE IF EXISTS public.tarefa
     OWNER to postgres;
+
+SELECT * FROM categoria;
+SELECT * FROM lembrete;
+SELECT * FROM tarefa;
+
+SELECT t.*, l.descricao AS descricao_lembrete
+FROM tarefa t
+JOIN lembrete l ON t.lembrete_id = l.id;

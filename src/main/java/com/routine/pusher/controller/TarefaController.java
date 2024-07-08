@@ -1,4 +1,4 @@
-package com.routine.pusher.resource;
+package com.routine.pusher.controller;
 
 import com.routine.pusher.model.dto.TarefaDTO;
 import com.routine.pusher.service.interfaces.TarefaService;
@@ -8,18 +8,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping(path = "api/v1/tarefas")
 public class
-TarefaResource
+TarefaController
 {
-    private final Logger LOGGER = LoggerFactory.getLogger( TarefaResource.class );
+    private final Logger LOGGER = LoggerFactory.getLogger( TarefaController.class );
 
     private TarefaService service;
 
-    public TarefaResource( TarefaService service )
+    public TarefaController(TarefaService service )
     {
         this.service = service;
     }

@@ -1,8 +1,7 @@
-package com.routine.pusher.resource;
+package com.routine.pusher.controller;
 
 import com.routine.pusher.model.dto.CategoriaDTO;
 import com.routine.pusher.service.interfaces.CategoriaService;
-import com.routine.pusher.util.SortInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,13 +12,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "api/v1/categorias")
-public class CategoriaResource
+public class CategoriaController
 {
-    private final Logger LOGGER = LoggerFactory.getLogger( CategoriaResource.class );
+    private final Logger LOGGER = LoggerFactory.getLogger( CategoriaController.class );
 
     private CategoriaService service;
 
-    public CategoriaResource( CategoriaService service )
+    public CategoriaController(CategoriaService service )
     {
         this.service = service;
     }

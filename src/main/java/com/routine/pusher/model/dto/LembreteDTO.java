@@ -17,7 +17,6 @@ public class LembreteDTO
     private List<TarefaDTO> tarefas;
     private StatusConclusao status;
     private CategoriaDTO categoria;
-    private LocalDateTime dataCriacao;
     private List<LocalDateTime> momentoNotificacao;
     private LocalDateTime intervalo;
     private int quantidade;

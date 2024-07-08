@@ -1,4 +1,4 @@
-package com.routine.pusher.resource;
+package com.routine.pusher.controller;
 
 import com.routine.pusher.service.interfaces.NotificadorService;
 import org.springframework.http.ResponseEntity;
@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping(path = "api/v1/notificador")
-public class NotificadorResource
+public class NotificadorController
 {
     private NotificadorService service;
 
-    public NotificadorResource( NotificadorService service ) {
+    public NotificadorController(NotificadorService service ) {
         this.service = service;
     }
 

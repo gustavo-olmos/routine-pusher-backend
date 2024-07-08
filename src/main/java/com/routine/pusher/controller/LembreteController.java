@@ -1,4 +1,4 @@
-package com.routine.pusher.resource;
+package com.routine.pusher.controller;
 
 import com.routine.pusher.model.dto.LembreteDTO;
 import com.routine.pusher.service.interfaces.LembreteService;
@@ -12,13 +12,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "api/v1/lembretes")
-public class LembreteResource
+public class LembreteController
 {
-    private final Logger LOGGER = LoggerFactory.getLogger( LembreteResource.class );
+    private final Logger LOGGER = LoggerFactory.getLogger( LembreteController.class );
 
     private LembreteService service;
 
-    public LembreteResource( LembreteService service )
+    public LembreteController(LembreteService service )
     {
         this.service = service;
     }
