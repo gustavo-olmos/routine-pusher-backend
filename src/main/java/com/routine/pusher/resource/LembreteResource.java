@@ -49,13 +49,13 @@ public class LembreteResource
         return ResponseEntity.ok( ).body( service.editar( id, dto ) );
     }
 
-    @DeleteMapping
-    public ResponseEntity excluir( @PathVariable(value = "id") Long id )
+    @DeleteMapping(path = "{id}")
+    public ResponseEntity<String> excluir( @PathVariable(value = "id") Long id )
     {
         LOGGER.debug("Excluindo lembrete");
 
         if ( service.excluir( id ) )
-            return ResponseEntity.ok( "Lembrete excluída com sucesso!" );
+            return ResponseEntity.ok( "Lembrete excluído com sucesso!" );
 
         return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( "Lembrete não encontrada" );
     }

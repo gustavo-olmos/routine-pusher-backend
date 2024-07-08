@@ -15,7 +15,7 @@ public class TarefaEntity
     private Long id;
 
     @ManyToOne
-    @JoinColumn( name = "lembrete_id" )
+    @JoinColumn(name = "lembrete_id")
     private LembreteEntity lembrete;
 
     @Column(name = "titulo", nullable = false)

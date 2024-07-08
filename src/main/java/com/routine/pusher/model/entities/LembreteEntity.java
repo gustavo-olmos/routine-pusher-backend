@@ -23,7 +23,8 @@ public class LembreteEntity
     @Column(name = "descricao")
     private String descricao;
 
-    @OneToMany(mappedBy = "lembrete", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "lembrete", fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TarefaEntity> tarefas;
 
     @Column(name = "status")
@@ -33,7 +34,7 @@ public class LembreteEntity
     @JoinColumn(name = "categoria_id")
     private CategoriaEntity categoria;
 
-    @Column(name = "dataCriacao", unique = true, nullable = false)
+    @Column(name = "dataCriacao", nullable = true)
     private LocalDateTime dataCriacao;
 
     @Column(name = "momentoNotificacao")

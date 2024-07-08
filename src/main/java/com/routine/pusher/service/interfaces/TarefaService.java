@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface TarefaService
 {
-    List<TarefaDTO> listar( String atributo, boolean ordemReversa );
+//    List<TarefaDTO> listar( Long lembreteId );
 
     TarefaDTO adicionar( TarefaDTO dto );
 

@@ -11,6 +11,7 @@ import lombok.Setter;
 public class TarefaDTO
 {
     private Long id;
+    private Long lembreteId;
     private String titulo;
     private StatusConclusao status;
 }

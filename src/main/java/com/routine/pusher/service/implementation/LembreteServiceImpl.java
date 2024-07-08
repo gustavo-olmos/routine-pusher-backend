@@ -1,12 +1,14 @@
 package com.routine.pusher.service.implementation;
 
 import com.routine.pusher.mapper.LembreteMapper;
+import com.routine.pusher.mapper.TarefaMapper;
 import com.routine.pusher.model.dto.LembreteDTO;
 import com.routine.pusher.repository.LembreteRepository;
+import com.routine.pusher.repository.TarefaRepository;
 import com.routine.pusher.service.interfaces.LembreteService;
-import com.routine.pusher.service.interfaces.TarefaService;
 import com.routine.pusher.util.SortInfo;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ public class LembreteServiceImpl implements LembreteService
 
     private LembreteRepository repository;
     private LembreteMapper mapper;
+
+    private TarefaRepository tarefaRepo;
+    private TarefaMapper tarefaMap;
 
     public LembreteServiceImpl( LembreteRepository repository, LembreteMapper mapper )
     {
@@ -52,6 +57,8 @@ public class LembreteServiceImpl implements LembreteService
 
         return Stream.of( dto )
                 .map( mapper::toEntity )
+                .peek( lembrete -> lembrete.getTarefas( ).forEach(
+                        tarefa ->  tarefa.setLembrete( lembrete ) ) )
                 .map( repository::save )
                 .map( mapper::toDto )
                 .toList( ).get( 0 );

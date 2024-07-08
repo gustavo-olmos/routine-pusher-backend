@@ -12,7 +12,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "api/v1/tarefas")
-public class TarefaResource
+public class
+TarefaResource
 {
     private final Logger LOGGER = LoggerFactory.getLogger( TarefaResource.class );
 
@@ -23,14 +24,13 @@ public class TarefaResource
         this.service = service;
     }
 
-    @GetMapping
-    public ResponseEntity<List<TarefaDTO>> listar( @RequestParam("sortInfo") String atributo,
-                                                  @RequestParam("decrescente") boolean ordemReversa )
-    {
-        LOGGER.debug("Listando tarefa por: {}", atributo);
-
-        return ResponseEntity.ok( ).body( service.listar( atributo, ordemReversa ) );
-    }
+//    @GetMapping(path = "id")
+//    public ResponseEntity<List<TarefaDTO>> listar( @PathVariable(value = "id") Long lembreteId )
+//    {
+//        LOGGER.debug("Listando tarefa por: {}");
+//
+//        return ResponseEntity.ok( ).body( service.listar( lembreteId ) );
+//    }
 
     @PostMapping
     public ResponseEntity<TarefaDTO> adicionar( @RequestBody TarefaDTO dto )

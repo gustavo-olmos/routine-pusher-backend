@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,22 +29,16 @@ public class TarefaServiceImpl implements TarefaService
         this.mapper = mapper;
     }
 
-
-    @Override
-    public List<TarefaDTO> listar( String atributo, boolean ordemReversa )
-    {
-        LOGGER.debug("Listando categorias por: {}", atributo);
-
-        List<TarefaDTO> categorias = new java.util.ArrayList<>(
-                repository.findAll( )
-                        .stream( )
-                        .map( mapper::toDto )
-                        .collect( Collectors.toList( ) ) );
-
-        categorias.sort( new SortInfo<TarefaDTO>( atributo, ordemReversa ) );
-
-        return categorias;
-    }
+//    @Override
+//    public List<TarefaDTO> listar( Long lembreteId )
+//    {
+//        LOGGER.debug("Listando categorias por: {}");
+//
+//        return repository.findAllById( Collections.singleton( lembreteId ) )
+//                .stream( )
+//                .map( mapper::toDto )
+//                .collect( Collectors.toList( ) );
+//    }
 
     @Override
     public TarefaDTO adicionar( TarefaDTO dto )
