@@ -23,14 +23,6 @@ public class LembreteController
         this.service = service;
     }
 
-    @GetMapping
-    public ResponseEntity<List<LembreteDTO>> listar( @RequestParam("sortInfo") String atributo,
-                                                     @RequestParam("decrescente") boolean ordemReversa )
-    {
-        LOGGER.debug("Listando lembrete por: {}", atributo);
-
-        return ResponseEntity.ok( ).body( service.listar( atributo, ordemReversa ) );
-    }
 
     @PostMapping
     public ResponseEntity<LembreteDTO> adicionar( @RequestBody LembreteDTO dto )
@@ -40,7 +32,16 @@ public class LembreteController
         return ResponseEntity.ok( ).body( service.adicionar( dto ) );
     }
 
-    @PutMapping
+    @GetMapping
+    public ResponseEntity<List<LembreteDTO>> listar( @RequestParam("sortInfo") String atributo,
+                                                     @RequestParam("decrescente") boolean ordemReversa )
+    {
+        LOGGER.debug("Listando lembrete por: {}", atributo);
+
+        return ResponseEntity.ok( ).body( service.listar( atributo, ordemReversa ) );
+    }
+
+    @PutMapping(path = "{id}")
     public ResponseEntity<LembreteDTO> editar( @PathVariable(value = "id") Long id,
                                                @RequestBody LembreteDTO dto )
     {

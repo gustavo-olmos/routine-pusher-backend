@@ -6,8 +6,6 @@ import java.util.List;
 
 public interface TarefaService
 {
-//    List<TarefaDTO> listar( Long lembreteId );
-
     TarefaDTO adicionar( TarefaDTO dto );
 
     TarefaDTO editar( Long id, TarefaDTO dto );

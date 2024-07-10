@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +30,23 @@ public class LembreteServiceImpl implements LembreteService
         this.mapper = mapper;
     }
 
+
+    @Override
+    public LembreteDTO adicionar( LembreteDTO dto )
+    {
+        LOGGER.debug("Adicionando lembrete");
+
+        return Stream.of( dto )
+                .map( mapper::toEntity )
+                .peek( lembrete -> {
+                    lembrete.setDataCriacao( LocalDateTime.now( ) );
+                    lembrete.getTarefas( ).forEach( tarefa -> tarefa.setLembrete( lembrete ) );
+                } )
+                .map( repository::save )
+                .map( mapper::toDto )
+                .toList( ).get( 0 );
+    }
+
     @Override
     public List<LembreteDTO> listar( String atributo, boolean ordemReversa )
     {
@@ -46,20 +64,6 @@ public class LembreteServiceImpl implements LembreteService
     }
 
     @Override
-    public LembreteDTO adicionar( LembreteDTO dto )
-    {
-        LOGGER.debug("Adicionando lembrete");
-
-        return Stream.of( dto )
-                .map( mapper::toEntity )
-                .peek( lembrete -> lembrete.getTarefas( ).forEach(
-                        tarefa -> tarefa.setLembrete( lembrete ) ) )
-                .map( repository::save )
-                .map( mapper::toDto )
-                .toList( ).get( 0 );
-    }
-
-    @Override
     public LembreteDTO editar( Long id, LembreteDTO dto )
     {
         LOGGER.debug("Alterando lembrete");
@@ -67,8 +71,9 @@ public class LembreteServiceImpl implements LembreteService
         return repository.findById( id )
                 .map( entidade -> {
                     mapper.atualizaEntidade( dto, entidade );
+                    entidade.getTarefas( ).forEach( tarefa -> tarefa.setLembrete( entidade ) );
                     repository.save( entidade );
-                    return dto;
+                    return mapper.toDto( entidade );
                 } )
                 .orElseThrow( ( ) ->
                         new EntityNotFoundException( "Lembrete não encontrada para o id: " + id ) );

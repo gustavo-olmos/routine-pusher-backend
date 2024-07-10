@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface CategoriaService
 {
-    List<CategoriaDTO> listar( String atributo, boolean ordemReversa );
-
     CategoriaDTO adicionar( CategoriaDTO dto );
+
+    List<CategoriaDTO> listar( String atributo, boolean ordemReversa );
 
     CategoriaDTO editar( Long id, CategoriaDTO dto );
 

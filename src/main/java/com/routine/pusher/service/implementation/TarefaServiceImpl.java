@@ -29,17 +29,6 @@ public class TarefaServiceImpl implements TarefaService
         this.mapper = mapper;
     }
 
-//    @Override
-//    public List<TarefaDTO> listar( Long lembreteId )
-//    {
-//        LOGGER.debug("Listando categorias por: {}");
-//
-//        return repository.findAllById( Collections.singleton( lembreteId ) )
-//                .stream( )
-//                .map( mapper::toDto )
-//                .collect( Collectors.toList( ) );
-//    }
-
     @Override
     public TarefaDTO adicionar( TarefaDTO dto )
     {

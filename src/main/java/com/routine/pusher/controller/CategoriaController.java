@@ -23,8 +23,16 @@ public class CategoriaController
         this.service = service;
     }
 
+    @PostMapping
+    public ResponseEntity<CategoriaDTO> adicionar( @RequestBody CategoriaDTO dto )
+    {
+        LOGGER.debug("Adicionando categoria");
+
+        return ResponseEntity.ok( ).body( service.adicionar( dto ) );
+    }
+
     @GetMapping
-    public ResponseEntity<List<CategoriaDTO>> getAl( @RequestParam("sortInfo") String atributo,
+    public ResponseEntity<List<CategoriaDTO>> listar( @RequestParam("sortInfo") String atributo,
                                                      @RequestParam("decrescente") boolean ordemReversa )
     {
         LOGGER.debug("Listando categoria por: {}", atributo);
@@ -32,16 +40,8 @@ public class CategoriaController
         return ResponseEntity.ok( ).body( service.listar( atributo, ordemReversa ) );
     }
 
-    @PostMapping
-    public ResponseEntity<CategoriaDTO> post( @RequestBody CategoriaDTO dto )
-    {
-        LOGGER.debug("Adicionando categoria");
-
-        return ResponseEntity.ok( ).body( service.adicionar( dto ) );
-    }
-
     @PutMapping(path = "{id}")
-    public ResponseEntity<CategoriaDTO> put( @PathVariable(value = "id") Long id,
+    public ResponseEntity<CategoriaDTO> atualizar( @PathVariable(value = "id") Long id,
                                              @RequestBody CategoriaDTO dto )
     {
         LOGGER.debug("Alterando categoria");
@@ -50,7 +50,7 @@ public class CategoriaController
     }
 
     @DeleteMapping(path = "{id}")
-    public ResponseEntity<String> delete( @PathVariable(value = "id") Long id )
+    public ResponseEntity<String> excluir( @PathVariable(value = "id") Long id )
     {
         LOGGER.debug("Excluindo categoria");
 

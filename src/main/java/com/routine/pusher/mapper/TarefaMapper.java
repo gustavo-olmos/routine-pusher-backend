@@ -13,10 +13,10 @@ public interface TarefaMapper
     TarefaMapper INSTANCE = Mappers.getMapper( TarefaMapper.class );
 
 
-    @Mapping(source = "lembrete.id", target = "lembreteId")
-    TarefaDTO toDto( TarefaEntity subtarefa );
+    @Mapping(target = "lembreteId",source = "lembrete.id")
+    TarefaDTO toDto( TarefaEntity tarefa );
 
-    @Mapping(source = "lembreteId", target = "lembrete.id")
+    @Mapping(target = "lembrete.id", source = "lembreteId")
     TarefaEntity toEntity( TarefaDTO subtarefa );
 
     void atualizaEntidade( TarefaDTO dto, @MappingTarget TarefaEntity entity );

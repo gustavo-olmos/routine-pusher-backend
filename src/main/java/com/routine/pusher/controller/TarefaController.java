@@ -10,25 +10,17 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "api/v1/tarefas")
-public class
-TarefaController
+public class TarefaController
 {
     private final Logger LOGGER = LoggerFactory.getLogger( TarefaController.class );
 
     private TarefaService service;
 
-    public TarefaController(TarefaService service )
+    public TarefaController( TarefaService service )
     {
         this.service = service;
     }
 
-//    @GetMapping(path = "id")
-//    public ResponseEntity<List<TarefaDTO>> listar( @PathVariable(value = "id") Long lembreteId )
-//    {
-//        LOGGER.debug("Listando tarefa por: {}");
-//
-//        return ResponseEntity.ok( ).body( service.listar( lembreteId ) );
-//    }
 
     @PostMapping
     public ResponseEntity<TarefaDTO> adicionar( @RequestBody TarefaDTO dto )

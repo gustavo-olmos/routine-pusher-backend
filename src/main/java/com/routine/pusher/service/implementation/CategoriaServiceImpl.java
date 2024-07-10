@@ -32,6 +32,18 @@ public class CategoriaServiceImpl implements CategoriaService
 
 
     @Override
+    public CategoriaDTO adicionar( CategoriaDTO dto )
+    {
+        LOGGER.debug("Adicionando categoria");
+
+        return Stream.of( dto )
+                .map( mapper::toEntity )
+                .map( repository::save )
+                .map( mapper::toDto )
+                .toList( ).get( 0 );
+    }
+
+    @Override
     public List<CategoriaDTO> listar( String atributo, boolean ordemReversa )
     {
         LOGGER.debug("Listando categorias por: {}", atributo);
@@ -45,18 +57,6 @@ public class CategoriaServiceImpl implements CategoriaService
         categorias.sort( new SortInfo<CategoriaDTO>( atributo, ordemReversa ) );
 
         return categorias;
-    }
-
-    @Override
-    public CategoriaDTO adicionar( CategoriaDTO dto )
-    {
-        LOGGER.debug("Adicionando categoria");
-
-        return Stream.of( dto )
-                .map( mapper::toEntity )
-                .map( repository::save )
-                .map( mapper::toDto )
-                .toList( ).get( 0 );
     }
 
     @Override
