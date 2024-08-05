@@ -31,22 +31,20 @@ public class TarefaController
     }
 
     @PutMapping
-    public ResponseEntity<TarefaDTO> editar( @PathVariable(value = "id") Long id,
+    public ResponseEntity<TarefaDTO> atualizar( @PathVariable(value = "id") Long id,
                                              @RequestBody TarefaDTO dto )
     {
         LOGGER.debug("Alterando tarefa");
 
-        return ResponseEntity.ok( ).body( service.editar( id, dto ) );
+        return ResponseEntity.ok( ).body( service.atualizar( id, dto ) );
     }
 
     @DeleteMapping
-    public ResponseEntity excluir( @PathVariable(value = "id") Long id )
+    public ResponseEntity<String> excluir( @PathVariable(value = "id") Long id )
     {
         LOGGER.debug("Excluindo tarefa");
 
-        if ( service.excluir( id ) )
-            return ResponseEntity.ok( "Tarefa excluída com sucesso!" );
-
-        return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( "Tarefa não encontrada" );
+        return ( service.excluir( id ) ) ? ResponseEntity.ok( "Tarefa excluída com sucesso!" ) :
+                new ResponseEntity<>( "Tarefa não encontrada", HttpStatus.NOT_FOUND );
     }
 }

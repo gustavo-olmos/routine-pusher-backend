@@ -34,26 +34,19 @@ public class TarefaServiceImpl implements TarefaService
     {
         LOGGER.debug("Adicionando subtarefa");
 
-        return Stream.of( dto )
-                .map( mapper::toEntity )
-                .map( repository::save )
-                .map( mapper::toDto )
-                .toList( ).get( 0 );
+        return mapper.toDto( repository.save( mapper.toEntity( dto ) ) );
     }
 
     @Override
-    public TarefaDTO editar( Long id, TarefaDTO dto )
+    public TarefaDTO atualizar( Long id, TarefaDTO dto )
     {
         LOGGER.debug("Alterando subtarefa");
 
-        return repository.findById( id )
-            .map( entidade -> {
-                mapper.atualizaEntidade( dto, entidade );
-                repository.save( entidade );
-                return dto;
-            } )
-            .orElseThrow( ( ) ->
-                new EntityNotFoundException( "Tarefa não encontrada para o id: " + id ) );
+        return repository.findById( id ).stream( )
+            .peek( entidade -> mapper.atualizaEntidade( dto, entidade ) )
+            .map( repository::save )
+            .map( mapper::toDto )
+            .toList( ).get( 0 );
     }
 
     @Override

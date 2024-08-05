@@ -10,7 +10,7 @@ public interface CategoriaService
 
     List<CategoriaDTO> listar( String atributo, boolean ordemReversa );
 
-    CategoriaDTO editar( Long id, CategoriaDTO dto );
+    CategoriaDTO atualizar( Long id, CategoriaDTO dto );
 
     boolean excluir( Long id );
 }

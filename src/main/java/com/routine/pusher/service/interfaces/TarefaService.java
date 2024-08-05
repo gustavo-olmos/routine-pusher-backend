@@ -8,7 +8,7 @@ public interface TarefaService
 {
     TarefaDTO adicionar( TarefaDTO dto );
 
-    TarefaDTO editar( Long id, TarefaDTO dto );
+    TarefaDTO atualizar( Long id, TarefaDTO dto );
 
     boolean excluir( Long id );
 }

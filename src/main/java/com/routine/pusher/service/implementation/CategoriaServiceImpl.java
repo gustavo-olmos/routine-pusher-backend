@@ -60,7 +60,7 @@ public class CategoriaServiceImpl implements CategoriaService
     }
 
     @Override
-    public CategoriaDTO editar( Long id, CategoriaDTO dto )
+    public CategoriaDTO atualizar( Long id, CategoriaDTO dto )
     {
         LOGGER.debug("Alterando categoria");
 

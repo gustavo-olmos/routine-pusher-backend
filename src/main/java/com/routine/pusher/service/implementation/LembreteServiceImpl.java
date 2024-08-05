@@ -64,7 +64,7 @@ public class LembreteServiceImpl implements LembreteService
     }
 
     @Override
-    public LembreteDTO editar( Long id, LembreteDTO dto )
+    public LembreteDTO atualizar( Long id, LembreteDTO dto )
     {
         LOGGER.debug("Alterando lembrete");
 

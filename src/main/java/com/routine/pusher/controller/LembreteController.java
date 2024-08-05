@@ -42,12 +42,12 @@ public class LembreteController
     }
 
     @PutMapping(path = "{id}")
-    public ResponseEntity<LembreteDTO> editar( @PathVariable(value = "id") Long id,
+    public ResponseEntity<LembreteDTO> atualizar( @PathVariable(value = "id") Long id,
                                                @RequestBody LembreteDTO dto )
     {
         LOGGER.debug("Alterando lembrete");
 
-        return ResponseEntity.ok( ).body( service.editar( id, dto ) );
+        return ResponseEntity.ok( ).body( service.atualizar( id, dto ) );
     }
 
     @DeleteMapping(path = "{id}")

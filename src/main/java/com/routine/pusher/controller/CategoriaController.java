@@ -46,7 +46,7 @@ public class CategoriaController
     {
         LOGGER.debug("Alterando categoria");
 
-        return ResponseEntity.ok( ).body( service.editar( id, dto ) );
+        return ResponseEntity.ok( ).body( service.atualizar( id, dto ) );
     }
 
     @DeleteMapping(path = "{id}")

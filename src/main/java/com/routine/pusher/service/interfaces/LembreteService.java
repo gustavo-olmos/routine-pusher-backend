@@ -11,7 +11,7 @@ public interface LembreteService
 
     List<LembreteDTO> listar( String atributo, boolean ordemReversa );
 
-    LembreteDTO editar( Long id, LembreteDTO lembrete );
+    LembreteDTO atualizar( Long id, LembreteDTO lembrete );
 
     boolean excluir( Long id );
 }
