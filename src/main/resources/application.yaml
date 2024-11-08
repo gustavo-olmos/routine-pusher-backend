@@ -14,3 +14,19 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+
+  rabbitmq:
+    host: localhost
+    port: 15672
+    username: guga
+    password: gugaMQ
+
+rabbitmq:
+  queue:
+    name: mobile_notification
+    json: mobile_notification_json-name
+  exchange:
+    name: mobile_notification_exchange
+  routing:
+    key: mobile_notification_routing-key
+    json: mobile_notification_json-key
