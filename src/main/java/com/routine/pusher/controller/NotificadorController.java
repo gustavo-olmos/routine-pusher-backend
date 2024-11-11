@@ -2,6 +2,7 @@ package com.routine.pusher.controller;
 
 import com.routine.pusher.event.RabbitMQProducer;
 import com.routine.pusher.service.interfaces.NotificadorService;
+import org.quartz.JobDataMap;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +20,9 @@ public class NotificadorController
     }
 
     @PostMapping
-    public ResponseEntity<String> notificar( String token, String title, String body )
+    public ResponseEntity<String> notificar( String title, String body )
     {
-        service.notificar( token, title, body );
+        service.notificar( title, body );
 
         return ResponseEntity.ok().body("Ok");
     }

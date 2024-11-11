@@ -9,6 +9,11 @@ spring:
     hikari:
       pool-size: 30
     driver-class-name: org.postgresql.Driver
+    quartz:
+      job-store-type: jdbc
+      properties:
+        org.quartz.threadPool:
+          threadCount: 5
 
   jpa:
     hibernate:
