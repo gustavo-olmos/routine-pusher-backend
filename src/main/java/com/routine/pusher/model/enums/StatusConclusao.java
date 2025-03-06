@@ -1,5 +1,8 @@
 package com.routine.pusher.model.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum StatusConclusao
 {
     CONCLUIDO(1),
@@ -9,9 +12,5 @@ public enum StatusConclusao
 
     StatusConclusao( int value ) {
         this.value = value;
-    }
-
-    public int getValue() {
-        return value;
     }
 }

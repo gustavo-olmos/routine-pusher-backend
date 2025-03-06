@@ -1,7 +1,7 @@
 package com.routine.pusher.service.implementation;
 
 import com.routine.pusher.model.dto.LembreteDTO;
-import com.routine.pusher.service.interfaces.NotificadorService;
+import com.routine.pusher.service.interfaces.AgendadorService;
 import com.routine.pusher.util.JobScheduleUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -11,13 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
-public class NotificadorServiceImpl implements NotificadorService
+public class AgendadorServiceImpl implements AgendadorService
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NotificadorServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgendadorServiceImpl.class);
 
     private final Scheduler scheduler;
 
-    public NotificadorServiceImpl( Scheduler scheduler )
+    public AgendadorServiceImpl(Scheduler scheduler )
     {
         this.scheduler = scheduler;
     }

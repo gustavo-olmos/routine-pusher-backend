@@ -1,7 +1,7 @@
 package com.routine.pusher.jobs;
 
 import com.routine.pusher.model.dto.LembreteDTO;
-import com.routine.pusher.service.implementation.NotificadorServiceImpl;
+import com.routine.pusher.service.implementation.AgendadorServiceImpl;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -12,17 +12,16 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class ScheduleJob implements Job
+public class AgendadorJob implements Job
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgendadorJob.class);
 
     @Override
     public void execute( JobExecutionContext context ) throws JobExecutionException
     {
         JobDataMap map = context.getJobDetail().getJobDataMap();
+        LembreteDTO dto = (LembreteDTO) map.get(AgendadorServiceImpl.class.getSimpleName());
 
-        LembreteDTO dto = (LembreteDTO) map.get(NotificadorServiceImpl.class.getSimpleName());
-
-        LOGGER.info("Remaining fire count is '{}'", dto.getIntervalo());
+        LOGGER.info("Intervalo de notificação {}", dto.getIntervalo());
     }
 }
