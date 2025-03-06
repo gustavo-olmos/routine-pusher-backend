@@ -1,6 +1,8 @@
 package com.routine.pusher.service.interfaces;
 
+import com.routine.pusher.model.dto.LembreteDTO;
+
 public interface NotificadorService
 {
-    void notificar( String title, String body );
+    void notificar( Class jobClass, LembreteDTO dto );
 }

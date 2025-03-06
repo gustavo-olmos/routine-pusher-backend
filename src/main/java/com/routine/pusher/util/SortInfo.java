@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Field;
 import java.util.Comparator;
 
-public class SortInfo<T> implements Comparator
+public class SortInfo<T> implements Comparator<T>
 {
     private final Logger LOGGER = LoggerFactory.getLogger( SortInfo.class );
 
@@ -42,7 +42,7 @@ public class SortInfo<T> implements Comparator
     }
 
     @Override
-    public Comparator reversed() {
+    public Comparator<T> reversed() {
         return new SortInfo<>( atributoOrdenacao, !ordemReversa );
     }
 }

@@ -1,6 +1,5 @@
 package com.routine.pusher.service.implementation;
 
-import com.routine.pusher.jobs.ScheduleJob;
 import com.routine.pusher.model.dto.LembreteDTO;
 import com.routine.pusher.service.interfaces.NotificadorService;
 import com.routine.pusher.util.JobScheduleUtils;
@@ -24,10 +23,11 @@ public class NotificadorServiceImpl implements NotificadorService
     }
 
 
-    public void schedule( final Class jobClass, final LembreteDTO dto )
+    @Override
+    public void notificar( Class jobClass, LembreteDTO dto )
     {
-        final JobDetail jobDetail = JobScheduleUtils.buildJobDetail( jobClass, dto );
-        final Trigger trigger = JobScheduleUtils.buildTrigger( jobClass, dto );
+        JobDetail jobDetail = JobScheduleUtils.buildJobDetail( jobClass, dto );
+        Trigger trigger = JobScheduleUtils.buildTrigger( jobClass, dto );
 
         try {
             scheduler.scheduleJob( jobDetail, trigger );
@@ -59,11 +59,4 @@ public class NotificadorServiceImpl implements NotificadorService
        }
     }
 
-    @Override
-    public void notificar( String title, String body )
-    {
-        LembreteDTO dto = new LembreteDTO();
-
-        schedule( ScheduleJob.class, dto );
-    }
 }

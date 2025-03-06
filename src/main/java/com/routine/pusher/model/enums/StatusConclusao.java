@@ -5,7 +5,7 @@ public enum StatusConclusao
     CONCLUIDO(1),
     ABERTO(2);
 
-    private int value;
+    private final int value;
 
     StatusConclusao( int value ) {
         this.value = value;

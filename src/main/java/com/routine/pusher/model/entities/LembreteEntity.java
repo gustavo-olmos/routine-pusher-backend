@@ -48,4 +48,8 @@ public class LembreteEntity
 
     @Column(name = "validade")
     private LocalDateTime validade;
+
+    public LembreteEntity() {
+        this.dataCriacao = LocalDateTime.now();
+    }
 }

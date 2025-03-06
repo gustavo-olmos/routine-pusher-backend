@@ -21,13 +21,13 @@ public class CategoriaServiceImpl implements CategoriaService
 {
     private final Logger LOGGER = LoggerFactory.getLogger( CategoriaServiceImpl.class );
 
-    private CategoriaRepository repository;
     private CategoriaMapper mapper;
+    private CategoriaRepository repository;
 
-    public CategoriaServiceImpl( CategoriaRepository repository, CategoriaMapper mapper )
+    public CategoriaServiceImpl( CategoriaMapper mapper, CategoriaRepository repository )
     {
-        this.repository = repository;
         this.mapper = mapper;
+        this.repository = repository;
     }
 
 
@@ -36,11 +36,7 @@ public class CategoriaServiceImpl implements CategoriaService
     {
         LOGGER.debug("Adicionando categoria");
 
-        return Stream.of( dto )
-                .map( mapper::toEntity )
-                .map( repository::save )
-                .map( mapper::toDto )
-                .toList( ).get( 0 );
+        return mapper.toDto( repository.save( mapper.toEntity( dto ) ) );
     }
 
     @Override
@@ -48,15 +44,10 @@ public class CategoriaServiceImpl implements CategoriaService
     {
         LOGGER.debug("Listando categorias por: {}", atributo);
 
-        List<CategoriaDTO> categorias = new java.util.ArrayList<>(
-                                        repository.findAll( )
-                                        .stream( )
-                                        .map( mapper::toDto )
-                                        .collect( Collectors.toList( ) ) );
-
-        categorias.sort( new SortInfo<CategoriaDTO>( atributo, ordemReversa ) );
-
-        return categorias;
+        return repository.findAll( ).stream( )
+                         .map( mapper::toDto )
+                         .sorted( new SortInfo<CategoriaDTO>( atributo, ordemReversa ) )
+                         .toList();
     }
 
     @Override
@@ -70,8 +61,7 @@ public class CategoriaServiceImpl implements CategoriaService
                     repository.save( entidade );
                     return dto;
                 } )
-                .orElseThrow( ( ) ->
-                        new EntityNotFoundException( "Categoria não encontrada para o id: " + id ) );
+                .orElseThrow( ( ) -> new EntityNotFoundException( "Categoria não encontrada para o id: " + id ) );
     }
 
     @Override

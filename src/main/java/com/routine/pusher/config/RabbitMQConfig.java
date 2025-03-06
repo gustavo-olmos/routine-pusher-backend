@@ -47,7 +47,7 @@ public class RabbitMQConfig
     }
 
     @Bean
-    public Binding bingind( )
+    public Binding binding( )
     {
         return BindingBuilder
                 .bind( queue( ) )
@@ -56,7 +56,7 @@ public class RabbitMQConfig
     }
 
     @Bean
-    public Binding jsonBingind( )
+    public Binding jsonBinding( )
     {
         return BindingBuilder
                 .bind( jsonQueue( ) )

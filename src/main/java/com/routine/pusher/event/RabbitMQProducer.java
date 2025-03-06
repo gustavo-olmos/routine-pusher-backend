@@ -12,23 +12,25 @@ public class RabbitMQProducer
     private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQProducer.class);
 
     @Value("${rabbitmq.exchange.name}")
-    private String exchange;
+    private final String exchange;
 
     @Value("${rabbitmq.routing-key}")
-    private String routingKey;
+    private final String routingKey;
 
-    private RabbitTemplate rabbitTemplate;
+    private final RabbitTemplate template;
 
-    public RabbitMQProducer( RabbitTemplate rabbitTemplate )
+    public RabbitMQProducer(String exchange, String routingKey, RabbitTemplate template )
     {
-        this.rabbitTemplate = rabbitTemplate;
+        this.exchange = exchange;
+        this.routingKey = routingKey;
+        this.template = template;
     }
 
 
     public void sendMessage( String message )
     {
-        LOGGER.info(String.format( "Message sent -> %s", message ));
+        LOGGER.info("Message sent -> {}", message);
 
-        rabbitTemplate.convertAndSend( exchange, routingKey, message );
+        template.convertAndSend( exchange, routingKey, message );
     }
 }

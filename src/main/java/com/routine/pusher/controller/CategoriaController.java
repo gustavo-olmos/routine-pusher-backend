@@ -16,9 +16,9 @@ public class CategoriaController
 {
     private final Logger LOGGER = LoggerFactory.getLogger( CategoriaController.class );
 
-    private CategoriaService service;
+    private final CategoriaService service;
 
-    public CategoriaController(CategoriaService service )
+    public CategoriaController( CategoriaService service )
     {
         this.service = service;
     }
@@ -33,7 +33,7 @@ public class CategoriaController
 
     @GetMapping
     public ResponseEntity<List<CategoriaDTO>> listar( @RequestParam("sortInfo") String atributo,
-                                                     @RequestParam("decrescente") boolean ordemReversa )
+                                                      @RequestParam("decrescente") boolean ordemReversa )
     {
         LOGGER.debug("Listando categoria por: {}", atributo);
 
@@ -42,7 +42,7 @@ public class CategoriaController
 
     @PutMapping(path = "{id}")
     public ResponseEntity<CategoriaDTO> atualizar( @PathVariable(value = "id") Long id,
-                                             @RequestBody CategoriaDTO dto )
+                                                   @RequestBody CategoriaDTO dto )
     {
         LOGGER.debug("Alterando categoria");
 
@@ -54,9 +54,8 @@ public class CategoriaController
     {
         LOGGER.debug("Excluindo categoria");
 
-        if ( service.excluir( id ) )
-            return ResponseEntity.ok( "Categoria excluída com sucesso!" );
-
-        return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( "Categoria não encontrada" );
+        return ( service.excluir( id ) )
+            ? ResponseEntity.ok( "Categoria excluída com sucesso!" )
+            : ResponseEntity.status( HttpStatus.NOT_FOUND ).body( "Categoria não encontrada" );
     }
 }

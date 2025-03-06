@@ -20,14 +20,15 @@ public class TarefaServiceImpl implements TarefaService
 {
     private final Logger LOGGER = LoggerFactory.getLogger( TarefaServiceImpl.class );
 
-    private TarefaRepository repository;
-    private TarefaMapper mapper;
+    private final TarefaMapper mapper;
+    private final TarefaRepository repository;
 
-    public TarefaServiceImpl(TarefaRepository repository, TarefaMapper mapper )
+    public TarefaServiceImpl( TarefaMapper mapper, TarefaRepository repository )
     {
-        this.repository = repository;
         this.mapper = mapper;
+        this.repository = repository;
     }
+
 
     @Override
     public TarefaDTO adicionar( TarefaDTO dto )

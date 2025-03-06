@@ -10,10 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -21,13 +18,13 @@ public class LembreteServiceImpl implements LembreteService
 {
     private final Logger LOGGER = LoggerFactory.getLogger( LembreteServiceImpl.class );
 
-    private LembreteRepository repository;
-    private LembreteMapper mapper;
+    private final LembreteMapper mapper;
+    private final LembreteRepository repository;
 
-    public LembreteServiceImpl( LembreteRepository repository, LembreteMapper mapper )
+    public LembreteServiceImpl( LembreteMapper mapper, LembreteRepository repository )
     {
-        this.repository = repository;
         this.mapper = mapper;
+        this.repository = repository;
     }
 
 
@@ -38,13 +35,10 @@ public class LembreteServiceImpl implements LembreteService
 
         return Stream.of( dto )
                 .map( mapper::toEntity )
-                .peek( lembrete -> {
-                    lembrete.setDataCriacao( LocalDateTime.now( ) );
-                    lembrete.getTarefas( ).forEach( tarefa -> tarefa.setLembrete( lembrete ) );
-                } )
+                .peek( entidade -> entidade.getTarefas( ).forEach( tarefa -> tarefa.setLembrete( entidade ) ) )
                 .map( repository::save )
                 .map( mapper::toDto )
-                .toList( ).get( 0 );
+                .toList().get( 0 );
     }
 
     @Override
@@ -52,15 +46,10 @@ public class LembreteServiceImpl implements LembreteService
     {
         LOGGER.debug("Listando lembretes por: {}", atributo);
 
-        List<LembreteDTO> lembretes = new ArrayList<>(
-                repository.findAll( )
-                        .stream( )
-                        .map( mapper::toDto )
-                        .collect( Collectors.toList( ) ) );
-
-        lembretes.sort( new SortInfo<LembreteDTO>( atributo, ordemReversa ) );
-
-        return lembretes;
+        return repository.findAll( ).stream( )
+                .map( mapper::toDto )
+                .sorted( new SortInfo<LembreteDTO>( atributo, ordemReversa ) )
+                .toList();
     }
 
     @Override
@@ -73,10 +62,10 @@ public class LembreteServiceImpl implements LembreteService
                     mapper.atualizaEntidade( dto, entidade );
                     entidade.getTarefas( ).forEach( tarefa -> tarefa.setLembrete( entidade ) );
                     repository.save( entidade );
+
                     return mapper.toDto( entidade );
                 } )
-                .orElseThrow( ( ) ->
-                        new EntityNotFoundException( "Lembrete não encontrada para o id: " + id ) );
+                .orElseThrow( ( ) -> new EntityNotFoundException( "Lembrete não encontrada para o id: " + id ) );
     }
 
     @Override

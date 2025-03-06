@@ -16,7 +16,7 @@ public class LembreteController
 {
     private final Logger LOGGER = LoggerFactory.getLogger( LembreteController.class );
 
-    private LembreteService service;
+    private final LembreteService service;
 
     public LembreteController(LembreteService service )
     {
@@ -43,7 +43,7 @@ public class LembreteController
 
     @PutMapping(path = "{id}")
     public ResponseEntity<LembreteDTO> atualizar( @PathVariable(value = "id") Long id,
-                                               @RequestBody LembreteDTO dto )
+                                                  @RequestBody LembreteDTO dto )
     {
         LOGGER.debug("Alterando lembrete");
 
@@ -55,9 +55,8 @@ public class LembreteController
     {
         LOGGER.debug("Excluindo lembrete");
 
-        if ( service.excluir( id ) )
-            return ResponseEntity.ok( "Lembrete excluído com sucesso!" );
-
-        return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( "Lembrete não encontrada" );
+        return ( service.excluir( id ) )
+                ? ResponseEntity.ok( "Lembrete excluído com sucesso!" )
+                : ResponseEntity.status( HttpStatus.NOT_FOUND ).body( "Lembrete não encontrada" );
     }
 }

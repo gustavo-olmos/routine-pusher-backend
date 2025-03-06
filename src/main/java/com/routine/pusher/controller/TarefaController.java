@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "api/v1/tarefas")
 public class TarefaController
 {
-    private final Logger LOGGER = LoggerFactory.getLogger( TarefaController.class );
+    private final static Logger LOGGER = LoggerFactory.getLogger( TarefaController.class );
 
-    private TarefaService service;
+    private final TarefaService service;
 
     public TarefaController( TarefaService service )
     {
@@ -32,7 +32,7 @@ public class TarefaController
 
     @PutMapping
     public ResponseEntity<TarefaDTO> atualizar( @PathVariable(value = "id") Long id,
-                                             @RequestBody TarefaDTO dto )
+                                                @RequestBody TarefaDTO dto )
     {
         LOGGER.debug("Alterando tarefa");
 
@@ -44,7 +44,8 @@ public class TarefaController
     {
         LOGGER.debug("Excluindo tarefa");
 
-        return ( service.excluir( id ) ) ? ResponseEntity.ok( "Tarefa excluída com sucesso!" ) :
-                new ResponseEntity<>( "Tarefa não encontrada", HttpStatus.NOT_FOUND );
+        return ( service.excluir( id ) )
+                ? ResponseEntity.ok( "Tarefa excluída com sucesso!" )
+                : new ResponseEntity<>( "Tarefa não encontrada", HttpStatus.NOT_FOUND );
     }
 }
