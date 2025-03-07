@@ -1,6 +1,7 @@
 package com.routine.pusher.model.dto;
 
 import com.routine.pusher.model.enums.StatusConclusao;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class LembreteDTO
 {
     private Long id;
@@ -21,11 +23,4 @@ public class LembreteDTO
     private LocalDateTime intervalo;
     private int quantidade;
     private LocalDateTime validade;
-
-
-    public LembreteDTO( ) { }
-
-    public static LembreteDTO builder( ) {
-        return new LembreteDTO( );
-    }
 }

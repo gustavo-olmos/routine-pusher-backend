@@ -6,11 +6,11 @@ import org.quartz.*;
 
 import java.util.Date;
 
-public final class JobScheduleUtils
+public final class AgendadorJobUtil
 {
-    private JobScheduleUtils( ) {}
+    private AgendadorJobUtil( ) {}
 
-    public static JobDetail buildJobDetail( LembreteDTO dto )
+    public static JobDetail montarNovoJob(LembreteDTO dto )
     {
         JobDataMap jobDataMap = new JobDataMap( );
         jobDataMap.put( dto.getId( ).toString( ), dto );
@@ -21,7 +21,7 @@ public final class JobScheduleUtils
                          .build( );
     }
 
-    public static Trigger buildTrigger( LembreteDTO dto )
+    public static Trigger montarNovoTrigger(LembreteDTO dto )
     {
         //TODO: Usar aqui o intervalo de tempo complexo cronos
         SimpleScheduleBuilder builder = SimpleScheduleBuilder.simpleSchedule( )

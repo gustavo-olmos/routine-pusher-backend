@@ -25,7 +25,7 @@ public class RabbitMQConsumer
     @RabbitListener(queues = {"${rabbitmq.queue.name}"})
     public void consume( String message ) throws JsonProcessingException
     {
-        LOGGER.info("Received message -> {}", message);
+        LOGGER.info("Trigger acionado, lembrete salvo para agendamento, {}", message);
 
         ObjectMapper objectMapper = new ObjectMapper();
         LembreteDTO lembrete = objectMapper.readValue( message, LembreteDTO.class );

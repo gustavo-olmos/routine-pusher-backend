@@ -2,6 +2,8 @@ package com.routine.pusher.service.implementation;
 
 import com.routine.pusher.mapper.TarefaMapper;
 import com.routine.pusher.model.dto.TarefaDTO;
+import com.routine.pusher.model.entities.TarefaEntity;
+import com.routine.pusher.model.enums.StatusConclusao;
 import com.routine.pusher.repository.TarefaRepository;
 import com.routine.pusher.service.interfaces.TarefaService;
 import com.routine.pusher.util.SortInfo;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,6 +51,21 @@ public class TarefaServiceImpl implements TarefaService
             .map( repository::save )
             .map( mapper::toDto )
             .toList( ).get( 0 );
+    }
+
+    @Override
+    public List<TarefaDTO> concluirTarefas( Map<Long, String> tarefasConcluidas )
+    {
+        LOGGER.debug("Concluindo tarefas por lote");
+
+        return tarefasConcluidas.entrySet( ).stream( )
+                .map(entry -> repository.findById( entry.getKey( ) )
+                        .map(tarefa -> {
+                            tarefa.setStatus( StatusConclusao.valueOf( entry.getValue( ) ) );
+                            return tarefa;
+                        } ).stream( ).toList( ).get( 0 ) )
+                .map( mapper::toDto )
+                .toList( );
     }
 
     @Override

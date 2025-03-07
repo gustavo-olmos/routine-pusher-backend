@@ -2,7 +2,7 @@ package com.routine.pusher.service.implementation;
 
 import com.routine.pusher.model.dto.LembreteDTO;
 import com.routine.pusher.service.interfaces.AgendadorService;
-import com.routine.pusher.util.JobScheduleUtils;
+import com.routine.pusher.util.AgendadorJobUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.quartz.*;
@@ -26,8 +26,8 @@ public class AgendadorServiceImpl implements AgendadorService
     @Override
     public void agendar( LembreteDTO dto )
     {
-        JobDetail jobDetail = JobScheduleUtils.buildJobDetail( dto );
-        Trigger trigger = JobScheduleUtils.buildTrigger( dto );
+        JobDetail jobDetail = AgendadorJobUtil.montarNovoJob( dto );
+        Trigger trigger = AgendadorJobUtil.montarNovoTrigger( dto );
 
         try {
             scheduler.scheduleJob( jobDetail, trigger );
@@ -37,6 +37,7 @@ public class AgendadorServiceImpl implements AgendadorService
         }
     }
 
+    //TODO: Verificar necessidade desse método
     @PostConstruct
     public void init()
     {
@@ -48,6 +49,7 @@ public class AgendadorServiceImpl implements AgendadorService
         }
     }
 
+    //TODO: Verificar necessidade desse método
     @PreDestroy
     public void preDestroy( )
     {

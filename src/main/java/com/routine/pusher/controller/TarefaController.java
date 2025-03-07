@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping(path = "api/v1/tarefas")
 public class TarefaController
@@ -30,13 +33,21 @@ public class TarefaController
         return ResponseEntity.ok( ).body( service.adicionar( dto ) );
     }
 
-    @PutMapping
+    @PutMapping(path = "{id}")
     public ResponseEntity<TarefaDTO> atualizar( @PathVariable(value = "id") Long id,
                                                 @RequestBody TarefaDTO dto )
     {
         LOGGER.debug("Alterando tarefa");
 
         return ResponseEntity.ok( ).body( service.atualizar( id, dto ) );
+    }
+
+    @PatchMapping(path = "/concluir-lote")
+    public ResponseEntity<List<TarefaDTO>> concluirTarefas( @RequestBody Map<Long, String> tarefasConcluidas )
+    {
+        LOGGER.debug("Tarefas concluídas");
+
+        return ResponseEntity.ok( ).body( service.concluirTarefas( tarefasConcluidas ) );
     }
 
     @DeleteMapping
