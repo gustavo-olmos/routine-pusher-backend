@@ -24,10 +24,10 @@ public class AgendadorServiceImpl implements AgendadorService
 
 
     @Override
-    public void notificar( Class jobClass, LembreteDTO dto )
+    public void agendar( LembreteDTO dto )
     {
-        JobDetail jobDetail = JobScheduleUtils.buildJobDetail( jobClass, dto );
-        Trigger trigger = JobScheduleUtils.buildTrigger( jobClass, dto );
+        JobDetail jobDetail = JobScheduleUtils.buildJobDetail( dto );
+        Trigger trigger = JobScheduleUtils.buildTrigger( dto );
 
         try {
             scheduler.scheduleJob( jobDetail, trigger );

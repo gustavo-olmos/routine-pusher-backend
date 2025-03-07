@@ -4,5 +4,5 @@ import com.routine.pusher.model.dto.LembreteDTO;
 
 public interface AgendadorService
 {
-    void notificar( Class jobClass, LembreteDTO dto );
+    void agendar( LembreteDTO dto );
 }

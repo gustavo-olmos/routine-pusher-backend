@@ -1,5 +1,6 @@
 package com.routine.pusher.jobs;
 
+import com.routine.pusher.event.RabbitMQProducer;
 import com.routine.pusher.model.dto.LembreteDTO;
 import com.routine.pusher.service.implementation.AgendadorServiceImpl;
 import org.quartz.Job;
@@ -16,12 +17,24 @@ public class AgendadorJob implements Job
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgendadorJob.class);
 
+    private final RabbitMQProducer producer;
+
+    public AgendadorJob( RabbitMQProducer producer )
+    {
+        this.producer = producer;
+    }
+
     @Override
     public void execute( JobExecutionContext context ) throws JobExecutionException
     {
-        JobDataMap map = context.getJobDetail().getJobDataMap();
-        LembreteDTO dto = (LembreteDTO) map.get(AgendadorServiceImpl.class.getSimpleName());
+        // Obtendo os detalhes do job (o lembrete)
+        JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
 
+        //TODO: verificar se futuramente irei utilizar o dto que vêm daqui
+        LembreteDTO dto = (LembreteDTO) jobDataMap.get(AgendadorServiceImpl.class.getSimpleName());
         LOGGER.info("Intervalo de notificação {}", dto.getIntervalo());
+
+        // Envia para a fila do RabbitMQ Producer
+        producer.sendMessage( dto );
     }
 }

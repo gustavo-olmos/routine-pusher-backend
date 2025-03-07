@@ -1,5 +1,6 @@
 package com.routine.pusher.util;
 
+import com.routine.pusher.jobs.AgendadorJob;
 import com.routine.pusher.model.dto.LembreteDTO;
 import org.quartz.*;
 
@@ -9,29 +10,27 @@ public final class JobScheduleUtils
 {
     private JobScheduleUtils( ) {}
 
-    public static JobDetail buildJobDetail( final Class jobClass, final LembreteDTO dto )
+    public static JobDetail buildJobDetail( LembreteDTO dto )
     {
-        final JobDataMap jobDataMap = new JobDataMap( );
-        jobDataMap.put( jobClass.getSimpleName( ), dto );
+        JobDataMap jobDataMap = new JobDataMap( );
+        jobDataMap.put( dto.getId( ).toString( ), dto );
 
-        return JobBuilder
-                .newJob( jobClass )
-                .withIdentity( jobClass.getSimpleName( ) )
-                .setJobData( jobDataMap )
-                .build( );
+        return JobBuilder.newJob( AgendadorJob.class )
+                         .withIdentity( dto.getId( ).toString( ) )
+                         .setJobData( jobDataMap )
+                         .build( );
     }
 
-
-    public static Trigger buildTrigger( final Class jobClass, final LembreteDTO dto )
+    public static Trigger buildTrigger( LembreteDTO dto )
     {
-        SimpleScheduleBuilder builder = SimpleScheduleBuilder.simpleSchedule()
-                                        .withIntervalInHours(dto.getIntervalo().getHour());
+        //TODO: Usar aqui o intervalo de tempo complexo cronos
+        SimpleScheduleBuilder builder = SimpleScheduleBuilder.simpleSchedule( )
+                                        .withIntervalInHours( dto.getIntervalo( ).getMinute( ) );
 
-        return TriggerBuilder
-                .newTrigger( )
-                .withIdentity( jobClass.getSimpleName( ) )
-                .withSchedule( builder )
-                .startAt( new Date(System.currentTimeMillis()) )
-                .build( );
+        return TriggerBuilder.newTrigger( )
+                             .withIdentity( dto.getId( ).toString( ) )
+                             .withSchedule( builder )
+                             .startAt( new Date( String.valueOf( dto.getIntervalo( ) ) ) )
+                             .build( );
     }
 }

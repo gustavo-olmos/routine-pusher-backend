@@ -1,5 +1,6 @@
 package com.routine.pusher.event;
 
+import com.routine.pusher.model.dto.LembreteDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -19,7 +20,7 @@ public class RabbitMQProducer
 
     private final RabbitTemplate template;
 
-    public RabbitMQProducer(String exchange, String routingKey, RabbitTemplate template )
+    public RabbitMQProducer( String exchange, String routingKey, RabbitTemplate template )
     {
         this.exchange = exchange;
         this.routingKey = routingKey;
@@ -27,10 +28,10 @@ public class RabbitMQProducer
     }
 
 
-    public void sendMessage( String message )
+    public void sendMessage( LembreteDTO dto )
     {
-        LOGGER.info("Message sent -> {}", message);
+        template.convertAndSend( exchange, routingKey, dto );
 
-        template.convertAndSend( exchange, routingKey, message );
+        LOGGER.info("Notificação enviada -> {}", dto);
     }
 }
