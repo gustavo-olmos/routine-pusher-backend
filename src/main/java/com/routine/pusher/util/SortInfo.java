@@ -1,6 +1,5 @@
 package com.routine.pusher.util;
 
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,28 +20,40 @@ public class SortInfo<T> implements Comparator<T>
     }
 
     @Override
-    public int compare( Object obj1, Object obj2 )
+    public int compare( T obj1, T obj2 )
     {
         try {
             Field field = obj1.getClass( ).getDeclaredField( atributoOrdenacao );
             field.setAccessible( true );
 
-            Comparable<T> value1 = (Comparable<T>) field.get( obj1 );
-            Comparable<T> value2 = (Comparable<T>) field.get( obj2 );
+            Object rawValue1 = field.get( obj1 );
+            Object rawValue2 = field.get( obj2 );
 
-            int result = value1.compareTo( (T) value2 );
-
+            int result = getComparacaoObjetos( rawValue1, rawValue2 );
             return ordemReversa ? -result : result;
         }
         catch ( NoSuchFieldException | IllegalAccessException e ) {
-            LOGGER.debug("Atributo não encontrado ou sem acesso");
+            LOGGER.debug("Atributo de ordenação {} não encontrado ou sem acesso.", atributoOrdenacao);
 
             throw new RuntimeException("Erro ao comparar objetos: " + e.getMessage(), e);
         }
     }
 
-    @Override
-    public Comparator<T> reversed() {
-        return new SortInfo<>( atributoOrdenacao, !ordemReversa );
+    @SuppressWarnings("unchecked")
+    private int getComparacaoObjetos( Object rawValue1, Object rawValue2 ) throws IllegalAccessException
+    {
+        if( rawValue1 == null || rawValue2 == null ) {
+            LOGGER.warn("Valor passado possivelmente nulo");
+            return ( rawValue1 == null ) ? (rawValue2 == null ? 0 : -1) : 1;
+        }
+
+        if( !( rawValue1 instanceof Comparable ) || !( rawValue2 instanceof Comparable) ) {
+            throw new RuntimeException( "O atributo de ordenação não é implementável");
+        }
+
+        Comparable<Object> value1 = (Comparable<Object>) rawValue1;
+        Comparable<Object> value2 = (Comparable<Object>) rawValue2;
+
+        return value1.compareTo( value2 );
     }
 }

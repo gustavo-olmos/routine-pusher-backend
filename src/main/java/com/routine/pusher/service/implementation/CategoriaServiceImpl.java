@@ -40,13 +40,13 @@ public class CategoriaServiceImpl implements CategoriaService
     }
 
     @Override
-    public List<CategoriaDTO> listar( String atributo, boolean ordemReversa )
+    public List<CategoriaDTO> listar( String campoOrdenador, boolean ordemReversa )
     {
-        LOGGER.debug("Listando categorias por: {}", atributo);
+        LOGGER.debug("Listando categorias por: {}", campoOrdenador);
 
         return repository.findAll( ).stream( )
                          .map( mapper::toDto )
-                         .sorted( new SortInfo<CategoriaDTO>( atributo, ordemReversa ) )
+                         .sorted( new SortInfo<>( campoOrdenador, ordemReversa ) )
                          .toList();
     }
 

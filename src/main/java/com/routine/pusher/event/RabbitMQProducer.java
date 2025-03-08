@@ -30,7 +30,7 @@ public class RabbitMQProducer
             LOGGER.info("Notificação enviada -> {}", dto);
         }
         catch ( Exception ex ) {
-            LOGGER.error("Falha ao enviar a notificação pelo producer, {}", ex.getMessage());
+            LOGGER.error("Falha na conversão e envio da notificação pelo producer, {}", ex.getMessage());
         }
 
     }

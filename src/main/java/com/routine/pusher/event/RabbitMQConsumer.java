@@ -1,7 +1,5 @@
 package com.routine.pusher.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.routine.pusher.model.dto.LembreteDTO;
 import com.routine.pusher.service.interfaces.AgendadorService;
 import org.slf4j.Logger;
@@ -24,7 +22,7 @@ public class RabbitMQConsumer
 
 
     @RabbitListener(queues = {"${rabbitmq.queue.name}"})
-    public void consume( LembreteDTO dto ) throws JsonProcessingException
+    public void consume( LembreteDTO dto )
     {
         try {
             LOGGER.info("Trigger acionado, lembrete salvo para agendamento, {}", dto);

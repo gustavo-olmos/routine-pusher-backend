@@ -42,13 +42,13 @@ public class LembreteServiceImpl implements LembreteService
     }
 
     @Override
-    public List<LembreteDTO> listar( String atributo, boolean ordemReversa )
+    public List<LembreteDTO> listar( String campoOrdenador, boolean ordemReversa )
     {
-        LOGGER.debug("Listando lembretes por: {}", atributo);
+        LOGGER.debug("Listando lembretes por: {}", campoOrdenador);
 
         return repository.findAll( ).stream( )
                 .map( mapper::toDto )
-                .sorted( new SortInfo<LembreteDTO>( atributo, ordemReversa ) )
+                .sorted( new SortInfo<>( campoOrdenador, ordemReversa ) )
                 .toList();
     }
 
