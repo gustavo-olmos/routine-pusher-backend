@@ -25,14 +25,12 @@ public class AgendadorJob implements Job
 
     @Override
     public void execute( JobExecutionContext context ) {
-        // Obtendo os detalhes do job (o lembrete)
         JobDataMap jobDataMap = context.getJobDetail( ).getJobDataMap( );
 
-        //TODO: verificar se futuramente irei utilizar o dto que vêm daqui
-        LembreteDTO dto = ( LembreteDTO ) jobDataMap.get( AgendadorServiceImpl.class.getSimpleName( ) );
+        //TODO: verificar como pegar somente o id de um dto
+        LembreteDTO dto = ( LembreteDTO ) jobDataMap.get( LembreteDTO.class.getSimpleName( ) );
         LOGGER.info("Intervalo de notificação {}", dto.getIntervalo( ));
 
-        // Envia para a fila do RabbitMQ Producer
         producer.sendMessage( dto );
     }
 }

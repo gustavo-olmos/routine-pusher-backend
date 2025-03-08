@@ -37,7 +37,6 @@ public class AgendadorServiceImpl implements AgendadorService
         }
     }
 
-    //TODO: Verificar necessidade desse método
     @PostConstruct
     public void init()
     {
@@ -49,7 +48,6 @@ public class AgendadorServiceImpl implements AgendadorService
         }
     }
 
-    //TODO: Verificar necessidade desse método
     @PreDestroy
     public void preDestroy( )
     {

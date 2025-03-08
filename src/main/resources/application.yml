@@ -22,16 +22,14 @@ spring:
 
   rabbitmq:
     host: localhost
-    port: 15672
-    username: guga
-    password: gugaMQ
+    port: 5672
+    username: guest
+    password: guest
 
 rabbitmq:
   queue:
-    name: mobile_notification
-    json: mobile_notification_json-name
+    name: lembrete_queue
   exchange:
-    name: mobile_notification_exchange
+    name: lembrete_exchange
   routing:
-    key: mobile_notification_routing-key
-    json: mobile_notification_json-key
+    key: lembrete_key

@@ -22,15 +22,17 @@ public class RabbitMQConsumer
         this.service = service;
     }
 
+
     @RabbitListener(queues = {"${rabbitmq.queue.name}"})
-    public void consume( String message ) throws JsonProcessingException
+    public void consume( LembreteDTO dto ) throws JsonProcessingException
     {
-        LOGGER.info("Trigger acionado, lembrete salvo para agendamento, {}", message);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        LembreteDTO lembrete = objectMapper.readValue( message, LembreteDTO.class );
-
-        service.agendar( lembrete );
+        try {
+            LOGGER.info("Trigger acionado, lembrete salvo para agendamento, {}", dto);
+            service.agendar( dto );
+        }
+        catch ( Exception ex ) {
+            LOGGER.error("Erro ao processar a mensagem, {}", ex.getMessage());
+        }
     }
 
 }
