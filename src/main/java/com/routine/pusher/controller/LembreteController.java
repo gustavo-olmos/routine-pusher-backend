@@ -24,6 +24,11 @@ public class LembreteController
     }
 
 
+    /* TODO: Comentário abaixo
+       Montar LembreteOutputDTO e LembreteInputDTO para montar a
+       lista momento notificação corretamente no banco.
+    */
+
     @PostMapping
     public ResponseEntity<LembreteDTO> adicionar( @RequestBody LembreteDTO dto )
     {
