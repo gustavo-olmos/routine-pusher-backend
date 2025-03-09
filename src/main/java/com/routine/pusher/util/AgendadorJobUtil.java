@@ -4,6 +4,8 @@ import com.routine.pusher.jobs.AgendadorJob;
 import com.routine.pusher.model.dto.LembreteDTO;
 import org.quartz.*;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 public final class AgendadorJobUtil
@@ -23,14 +25,16 @@ public final class AgendadorJobUtil
 
     public static Trigger montarNovoTrigger(LembreteDTO dto )
     {
-        //TODO: Usar aqui o intervalo de tempo complexo cronos
-        SimpleScheduleBuilder builder = SimpleScheduleBuilder.simpleSchedule( )
-                                        .withIntervalInHours( dto.getIntervalo( ).getMinute( ) );
+        if( dto.getMomentoNotificacao( ).isEmpty( ) ) {
+            throw new IllegalArgumentException("Não há notificações disponíveis para esse lembrete");
+        }
+
+        LocalDateTime proximaNotificacao = dto.getMomentoNotificacao( ).get( 0 );
+        Date dataExecucao = Date.from( proximaNotificacao.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
 
         return TriggerBuilder.newTrigger( )
                              .withIdentity( dto.getId( ).toString( ) )
-                             .withSchedule( builder )
-                             .startAt( new Date( String.valueOf( dto.getIntervalo( ) ) ) )
+                             .startAt( dataExecucao )
                              .build( );
     }
 }
