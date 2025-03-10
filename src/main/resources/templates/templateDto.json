@@ -1,26 +1,28 @@
 {
   "lembrete": {
-    "id": 1,
+    "id": 1
     "titulo": "Tarefa 1",
-    "comentario": "Olá",
-    "subTarefas": [
+    "descricao": "Olá",
+    "tarefas": [
       {
         "id": 1,
         "lembreteId": 1,
         "titulo": "Sub-Tarefa 1",
-        "statusConclusao": "ABERTO"
+        "status": "ABERTO"
       }
     ],
-    "statusConclusao": "CONCLUIDO",
-    "categoriaId": 2,
-    "dataCriacao": "yyyy-MM-dd 'T' HH-mm",
-    "momentoNotificao": [
-      "yyyy-MM-dd 'T' HH-mm"
-    ],
-    "intervalo": "yyyy-MM-dd 'T' HH-mm",
-    "qtd": 6,
-    "validade": "yyyy-mm-dd"
-  },
+    "status": "CONCLUIDO",
+    "categoria": {
+      "id": 1,
+      "nome": "importante",
+      "cor": "amarelo",
+      "fatorOrdem": 2
+    },
+    "momentoNotificacao": ["2025-08-03T19:12"],
+    "intervalo": "2025-08-03T19:12",
+    "quantidade": 6,
+    "validade": "2025-08-03T00:00"
+  }
   "categoria": {
     "id": 4,
     "nome": "Importante",
