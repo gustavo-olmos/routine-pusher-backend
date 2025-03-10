@@ -1,11 +1,19 @@
 package com.routine.pusher.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1/web-socket")
-public class WebSocketController {
-
-    //TODO: AINDA NÃO SEI O QUE FAZER AQUI POR ENQUANTO... Mas em breve terei de criar o sokcet pro front.
+public class WebSocketController
+{
+    @SendTo("/topic/notifications")
+    @MessageMapping("/send-notification")
+    public ResponseEntity<String> sendNotification(String message )
+    {
+        return ResponseEntity.ok("Notificação recebida: " + message);
+    }
 }
