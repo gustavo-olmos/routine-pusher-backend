@@ -3,6 +3,7 @@ package com.routine.pusher.service.implementation;
 import com.routine.pusher.mapper.LembreteMapper;
 import com.routine.pusher.model.dto.LembreteDTO;
 import com.routine.pusher.repository.LembreteRepository;
+import com.routine.pusher.service.interfaces.AgendadorService;
 import com.routine.pusher.service.interfaces.LembreteService;
 import com.routine.pusher.util.SortInfo;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,11 +20,13 @@ public class LembreteServiceImpl implements LembreteService
     private final Logger LOGGER = LoggerFactory.getLogger( LembreteServiceImpl.class );
 
     private final LembreteMapper mapper;
+    private final AgendadorService agendador;
     private final LembreteRepository repository;
 
-    public LembreteServiceImpl( LembreteMapper mapper, LembreteRepository repository )
+    public LembreteServiceImpl( LembreteMapper mapper, AgendadorService agendador, LembreteRepository repository )
     {
         this.mapper = mapper;
+        this.agendador = agendador;
         this.repository = repository;
     }
 
@@ -33,12 +36,15 @@ public class LembreteServiceImpl implements LembreteService
     {
         LOGGER.debug("Adicionando lembrete");
 
-        return Stream.of( dto )
+        LembreteDTO lembrete = Stream.of( dto )
                 .map( mapper::toEntity )
                 .peek( entidade -> entidade.getTarefas( ).forEach( tarefa -> tarefa.setLembrete( entidade ) ) )
                 .map( repository::save )
                 .map( mapper::toDto )
                 .toList().get( 0 );
+
+        agendador.agendar(lembrete);
+        return lembrete;
     }
 
     @Override
@@ -57,7 +63,7 @@ public class LembreteServiceImpl implements LembreteService
     {
         LOGGER.debug("Alterando lembrete");
 
-        return repository.findById( id )
+        LembreteDTO lembrete = repository.findById( id )
                 .map( entidade -> {
                     mapper.atualizaEntidade( dto, entidade );
                     entidade.getTarefas( ).forEach( tarefa -> tarefa.setLembrete( entidade ) );
@@ -66,6 +72,9 @@ public class LembreteServiceImpl implements LembreteService
                     return mapper.toDto( entidade );
                 } )
                 .orElseThrow( ( ) -> new EntityNotFoundException( "Lembrete não encontrada para o id: " + id ) );
+
+        agendador.agendar( lembrete );
+        return lembrete;
     }
 
     @Override
