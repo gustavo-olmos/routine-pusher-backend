@@ -1,7 +1,7 @@
 package com.routine.pusher.util;
 
 import com.routine.pusher.jobs.AgendadorJob;
-import com.routine.pusher.model.dto.LembreteDTO;
+import com.routine.pusher.model.dto.LembreteInputDTO;
 import org.quartz.*;
 
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ public final class AgendadorJobUtil
 {
     private AgendadorJobUtil( ) {}
 
-    public static JobDetail montarNovoJob(LembreteDTO dto )
+    public static JobDetail montarNovoJob(LembreteInputDTO dto )
     {
         JobDataMap jobDataMap = new JobDataMap( );
         jobDataMap.put( dto.getId( ).toString( ), dto );
@@ -23,7 +23,7 @@ public final class AgendadorJobUtil
                          .build( );
     }
 
-    public static Trigger montarNovoTrigger(LembreteDTO dto )
+    public static Trigger montarNovoTrigger(LembreteInputDTO dto )
     {
         if( dto.getMomentoNotificacao( ).isEmpty( ) ) {
             throw new IllegalArgumentException("Não há notificações disponíveis para esse lembrete");

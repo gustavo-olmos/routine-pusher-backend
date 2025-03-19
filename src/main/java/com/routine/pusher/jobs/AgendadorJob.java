@@ -1,8 +1,7 @@
 package com.routine.pusher.jobs;
 
 import com.routine.pusher.event.RabbitMQProducer;
-import com.routine.pusher.model.dto.LembreteDTO;
-import com.routine.pusher.service.implementation.AgendadorServiceImpl;
+import com.routine.pusher.model.dto.LembreteInputDTO;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +31,7 @@ public class AgendadorJob implements Job
         JobDataMap jobDataMap = context.getJobDetail( ).getJobDataMap( );
         String jobId = context.getJobDetail( ).getKey( ).getName( );
 
-        LembreteDTO dto = ( LembreteDTO ) jobDataMap.get( jobId );
+        LembreteInputDTO dto = (LembreteInputDTO) jobDataMap.get( jobId );
 
         if (dto == null) {
             LOGGER.warn("LembreteDTO não encontrado para o job ID: {}", jobId);
@@ -65,7 +64,7 @@ public class AgendadorJob implements Job
         }
     }
 
-    private void reagendarProximaNotificacao( Scheduler scheduler, LembreteDTO dto )
+    private void reagendarProximaNotificacao( Scheduler scheduler, LembreteInputDTO dto )
     {
         List<LocalDateTime> notificacoesAgendadas = dto.getMomentoNotificacao( );
 

@@ -1,17 +1,21 @@
 package com.routine.pusher.service.interfaces;
 
-import com.routine.pusher.model.dto.LembreteDTO;
-import com.routine.pusher.util.SortInfo;
+import com.routine.pusher.model.dto.LembreteInputDTO;
+import com.routine.pusher.model.dto.LembreteOutputDTO;
 
 import java.util.List;
 
 public interface LembreteService
 {
-    LembreteDTO adicionar( LembreteDTO lembrete );
+    LembreteOutputDTO adicionar( LembreteInputDTO lembrete );
 
-    List<LembreteDTO> listar( String atributo, boolean ordemReversa );
+    LembreteOutputDTO adicionarViaIA( String frase );
 
-    LembreteDTO atualizar( Long id, LembreteDTO lembrete );
+    List<LembreteOutputDTO> listar( String atributo, boolean ordemReversa );
+
+    LembreteOutputDTO atualizar( Long id, LembreteInputDTO lembrete );
+
+    String concluir( Long id );
 
     boolean excluir( Long id );
 }

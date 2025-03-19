@@ -86,6 +86,13 @@
 			<version>42.7.3</version>
 		</dependency>
 
+		<!--open-ai-service-->
+		<dependency>
+			<groupId>com.openai</groupId>
+			<artifactId>openai-java</artifactId>
+			<version>0.31.0</version>
+		</dependency>
+
 		<!--testes-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -1,6 +1,6 @@
 package com.routine.pusher.service.implementation;
 
-import com.routine.pusher.model.dto.LembreteDTO;
+import com.routine.pusher.model.dto.LembreteInputDTO;
 import com.routine.pusher.service.interfaces.AgendadorService;
 import com.routine.pusher.util.AgendadorJobUtil;
 import jakarta.annotation.PostConstruct;
@@ -24,7 +24,7 @@ public class AgendadorServiceImpl implements AgendadorService
 
 
     @Override
-    public void agendar( LembreteDTO dto )
+    public void agendar( LembreteInputDTO dto )
     {
         JobDetail jobDetail = AgendadorJobUtil.montarNovoJob( dto );
         Trigger trigger = AgendadorJobUtil.montarNovoTrigger( dto );

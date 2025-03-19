@@ -12,8 +12,5 @@ public record LembreteOutputDTO(
         List<TarefaDTO> tarefas,
         StatusConclusao status,
         CategoriaDTO categoria,
-        List<LocalDateTime> momentoNotificacao,
-        LocalDateTime intervalo,
-        int quantidade,
-        LocalDateTime validade
+        List<LocalDateTime> momentoNotificacao
 ) { }

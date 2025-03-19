@@ -23,10 +23,6 @@ public class LembreteEntity
     @Column(name = "descricao")
     private String descricao;
 
-    @OneToMany(mappedBy = "lembrete", fetch = FetchType.EAGER,
-            cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TarefaEntity> tarefas;
-
     @Column(name = "status")
     private StatusConclusao status;
 
@@ -34,20 +30,18 @@ public class LembreteEntity
     @JoinColumn(name = "categoria_id")
     private CategoriaEntity categoria;
 
-    @Column(name = "dataCriacao", nullable = true)
+    @Column(name = "dataCriacao", nullable = false)
     private LocalDateTime dataCriacao;
 
     @Column(name = "momentoNotificacao")
     private List<LocalDateTime> momentoNotificacao;
 
-    @Column(name = "intervalo")
-    private LocalDateTime intervalo;
+    @Column(name = "recorrente")
+    private boolean isRecorrente;
 
-    @Column(name = "quantidade")
-    private int quantidade;
+    @Column(name = "recorrencia")
+    private List<String> recorrencia;
 
-    @Column(name = "validade")
-    private LocalDateTime validade;
 
     public LembreteEntity() {
         this.dataCriacao = LocalDateTime.now();
