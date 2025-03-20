@@ -24,12 +24,6 @@ public class LembreteController
         return ResponseEntity.ok( ).body( service.adicionar( dto ) );
     }
 
-    @PostMapping
-    public ResponseEntity<LembreteOutputDTO> adicionarViaIA( @RequestBody String frase )
-    {
-        return ResponseEntity.ok( ).body( service.adicionarViaIA( frase ) );
-    }
-
     @GetMapping
     public ResponseEntity<List<LembreteOutputDTO>> listar( @RequestParam("sortInfo") String atributo,
                                                           @RequestParam("decrescente") boolean ordemReversa )

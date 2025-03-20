@@ -9,7 +9,6 @@ public record LembreteOutputDTO(
         Long id,
         String titulo,
         String descricao,
-        List<TarefaDTO> tarefas,
         StatusConclusao status,
         CategoriaDTO categoria,
         List<LocalDateTime> momentoNotificacao
