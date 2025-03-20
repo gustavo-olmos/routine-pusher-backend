@@ -10,7 +10,7 @@ import com.routine.pusher.data.repository.LembreteRepository;
 import com.routine.pusher.application.interfaces.client.OpenAIChatClient;
 import com.routine.pusher.application.service.AgendadorService;
 import com.routine.pusher.application.service.LembreteService;
-import com.routine.pusher.infrastructure.util.SortInfo;
+import com.routine.pusher.infrastructure.common.shared.SortInfo;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;

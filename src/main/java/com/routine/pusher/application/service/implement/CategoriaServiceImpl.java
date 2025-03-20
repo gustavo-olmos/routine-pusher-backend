@@ -4,7 +4,7 @@ import com.routine.pusher.data.mapper.CategoriaMapper;
 import com.routine.pusher.data.model.dto.CategoriaDTO;
 import com.routine.pusher.data.repository.CategoriaRepository;
 import com.routine.pusher.application.service.CategoriaService;
-import com.routine.pusher.infrastructure.util.SortInfo;
+import com.routine.pusher.infrastructure.common.shared.SortInfo;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

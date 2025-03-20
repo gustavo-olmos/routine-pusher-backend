@@ -1,6 +1,6 @@
-package com.routine.pusher.infrastructure.util;
+package com.routine.pusher.infrastructure.common.util;
 
-import com.routine.pusher.application.job.AgendadorJob;
+import com.routine.pusher.application.job.AgendadorJobImpl;
 import com.routine.pusher.data.model.dto.LembreteInputDTO;
 import org.quartz.*;
 
@@ -17,7 +17,7 @@ public final class AgendadorJobUtil
         JobDataMap jobDataMap = new JobDataMap( );
         jobDataMap.put( dto.getId( ).toString( ), dto );
 
-        return JobBuilder.newJob( AgendadorJob.class )
+        return JobBuilder.newJob( AgendadorJobImpl.class )
                          .withIdentity( dto.getId( ).toString( ) )
                          .setJobData( jobDataMap )
                          .build( );

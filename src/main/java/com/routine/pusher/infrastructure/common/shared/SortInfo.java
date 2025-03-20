@@ -1,4 +1,4 @@
-package com.routine.pusher.infrastructure.util;
+package com.routine.pusher.infrastructure.common.shared;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

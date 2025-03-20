@@ -2,7 +2,7 @@ package com.routine.pusher.application.service.implement;
 
 import com.routine.pusher.data.model.dto.LembreteInputDTO;
 import com.routine.pusher.application.service.AgendadorService;
-import com.routine.pusher.infrastructure.util.AgendadorJobUtil;
+import com.routine.pusher.infrastructure.common.util.AgendadorJobUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.quartz.*;
