@@ -1,8 +1,8 @@
 package com.routine.pusher.application.service;
 
-import com.routine.pusher.data.model.dto.LembreteInputDTO;
+import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 
 public interface AgendadorService
 {
-    void agendar( LembreteInputDTO dto );
+    void agendar( LembreteOutputDTO dto );
 }

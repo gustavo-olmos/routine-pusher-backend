@@ -1,6 +1,6 @@
 package com.routine.pusher.application.interfaces.controller;
 
-import com.routine.pusher.data.model.dto.CategoriaDTO;
+import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
 import com.routine.pusher.application.service.CategoriaService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,21 +18,21 @@ public class CategoriaController
 
 
     @PostMapping
-    public ResponseEntity<CategoriaDTO> adicionar( @RequestBody CategoriaDTO dto )
+    public ResponseEntity<CategoriaOutputDTO> adicionar(@RequestBody CategoriaOutputDTO dto )
     {
         return ResponseEntity.ok( ).body( service.adicionar( dto ) );
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoriaDTO>> listar( @RequestParam("sortInfo") String atributo,
-                                                      @RequestParam("decrescente") boolean ordemReversa )
+    public ResponseEntity<List<CategoriaOutputDTO>> listar(@RequestParam("sortInfo") String atributo,
+                                                           @RequestParam("decrescente") boolean ordemReversa )
     {
         return ResponseEntity.ok( ).body( service.listar( atributo, ordemReversa ) );
     }
 
     @PutMapping(path = "{id}")
-    public ResponseEntity<CategoriaDTO> atualizar( @PathVariable(value = "id") Long id,
-                                                   @RequestBody CategoriaDTO dto )
+    public ResponseEntity<CategoriaOutputDTO> atualizar(@PathVariable(value = "id") Long id,
+                                                        @RequestBody CategoriaOutputDTO dto )
     {
         return ResponseEntity.ok( ).body( service.atualizar( id, dto ) );
     }

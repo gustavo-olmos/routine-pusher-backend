@@ -1,6 +1,6 @@
 package com.routine.pusher.data.model.entities;
 
-import com.routine.pusher.data.model.enums.StatusConclusao;
+import com.routine.pusher.data.model.enums.EnumStatusConclusao;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +17,9 @@ public class LembreteEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "dataCriacao", nullable = false)
+    private LocalDateTime dataCriacao;
+
     @Column(name = "titulo", nullable = false)
     private String titulo;
 
@@ -24,26 +27,24 @@ public class LembreteEntity
     private String descricao;
 
     @Column(name = "status")
-    private StatusConclusao status;
+    private String status = EnumStatusConclusao.PENDENTE.name( );
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     private CategoriaEntity categoria;
 
-    @Column(name = "dataCriacao", nullable = false)
-    private LocalDateTime dataCriacao;
+    @OneToOne
+    @JoinColumn(name = "recorrencia_id")
+    private RecorrenciaEntity recorrencia;
 
-    @Column(name = "momentoNotificacao")
-    private List<LocalDateTime> momentoNotificacao;
+    @Column(name = "datasEspecificas")
+    private List<LocalDateTime> datasEspecificas;
 
-    @Column(name = "recorrente")
-    private boolean isRecorrente;
-
-    @Column(name = "recorrencia")
-    private List<String> recorrencia;
+    @Column(name = "metodoNotificacao")
+    private List<String> metodoNotificacao;
 
 
     public LembreteEntity() {
-        this.dataCriacao = LocalDateTime.now();
+        this.dataCriacao = LocalDateTime.now( );
     }
 }

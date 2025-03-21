@@ -3,14 +3,14 @@ package com.routine.pusher.data.model.enums;
 import lombok.Getter;
 
 @Getter
-public enum StatusConclusao
+public enum EnumStatusConclusao
 {
-    CONCLUIDO(1),
-    ABERTO(2);
+    PENDENTE( 1 ),
+    CONCLUIDO( 2 );
 
     private final int value;
 
-    StatusConclusao( int value ) {
+    EnumStatusConclusao( int value ) {
         this.value = value;
     }
 }

@@ -1,6 +1,6 @@
 package com.routine.pusher.infrastructure.message;
 
-import com.routine.pusher.data.model.dto.LembreteInputDTO;
+import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -23,7 +23,7 @@ public class RabbitMQProducer
     private RabbitTemplate template;
 
 
-    public void sendMessage( LembreteInputDTO dto )
+    public void sendMessage( LembreteOutputDTO dto )
     {
         try {
             template.convertAndSend( exchange, routingKey, dto );

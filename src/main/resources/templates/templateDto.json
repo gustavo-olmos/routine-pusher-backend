@@ -1,28 +1,20 @@
 {
   "lembrete": {
-    "id": 1
+    "id": 1,
     "titulo": "Tarefa 1",
     "descricao": "Olá",
-    "tarefas": [
-      {
-        "id": 1,
-        "lembreteId": 1,
-        "titulo": "Sub-Tarefa 1",
-        "status": "ABERTO"
-      }
-    ],
     "status": "CONCLUIDO",
-    "categoria": {
-      "id": 1,
-      "nome": "importante",
-      "cor": "amarelo",
-      "fatorOrdem": 2
+    "categoriaId": 1,
+    "recorrencia": {
+      "diasDaSemana": ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"],
+      "intervalo": "0 0 0 */4* ? ?",
+      "validade": "2025-08-03T00:00",
+      "quantidade": 6
     },
-    "momentoNotificacao": ["2025-08-03T19:12"],
-    "intervalo": "2025-08-03T19:12",
-    "quantidade": 6,
-    "validade": "2025-08-03T00:00"
-  }
+    "datasEspecificas": ["2025-08-03T19:12"],
+    "metodoNotificacao": ["som", "pop-up"]
+  },
+
   "categoria": {
     "id": 4,
     "nome": "Importante",

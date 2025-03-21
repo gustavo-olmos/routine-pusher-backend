@@ -19,27 +19,20 @@ public class LembreteController
 
 
     @PostMapping
-    public ResponseEntity<LembreteOutputDTO> adicionar( @RequestBody LembreteInputDTO dto )
+    public ResponseEntity<LembreteOutputDTO> salvar( @RequestBody LembreteInputDTO dto )
     {
-        return ResponseEntity.ok( ).body( service.adicionar( dto ) );
+        return ResponseEntity.ok( ).body( service.salvar( dto ) );
     }
 
     @GetMapping
     public ResponseEntity<List<LembreteOutputDTO>> listar( @RequestParam("sortInfo") String atributo,
-                                                          @RequestParam("decrescente") boolean ordemReversa )
+                                                           @RequestParam("decrescente") boolean ordemReversa )
     {
         return ResponseEntity.ok( ).body( service.listar( atributo, ordemReversa ) );
     }
 
     @PutMapping(path = "{id}")
-    public ResponseEntity<LembreteOutputDTO> atualizar( @PathVariable(value = "id") Long id,
-                                                       @RequestBody LembreteInputDTO dto )
-    {
-        return ResponseEntity.ok( ).body( service.atualizar( id, dto ) );
-    }
-
-    @PatchMapping(path = "{id}")
-    public ResponseEntity<String> concluirLembrete( @PathVariable(value = "id") Long id )
+    public ResponseEntity<LembreteOutputDTO> concluir( @PathVariable(value = "id") Long id )
     {
         return ResponseEntity.ok( ).body( service.concluir( id ) );
     }
@@ -49,6 +42,6 @@ public class LembreteController
     {
         return ( service.excluir( id ) )
                 ? ResponseEntity.ok( "Lembrete excluído com sucesso!" )
-                : ResponseEntity.status( HttpStatus.NOT_FOUND ).body( "Lembrete não encontrada" );
+                : ResponseEntity.status( HttpStatus.NOT_FOUND ).body( "Lembrete não encontrado" );
     }
 }

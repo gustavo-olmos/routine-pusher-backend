@@ -1,6 +1,6 @@
 package com.routine.pusher.data.mapper;
 
-import com.routine.pusher.data.model.dto.CategoriaDTO;
+import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
 import com.routine.pusher.data.model.entities.CategoriaEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -11,9 +11,9 @@ public interface CategoriaMapper
 {
     CategoriaMapper INSTANCE = Mappers.getMapper( CategoriaMapper.class );
 
-    CategoriaDTO toDto( CategoriaEntity categoria );
+    CategoriaOutputDTO toDto(CategoriaEntity categoria );
 
-    CategoriaEntity toEntity( CategoriaDTO categoria );
+    CategoriaEntity toEntity( CategoriaOutputDTO categoria );
 
-    void atualizaEntidade( CategoriaDTO dto, @MappingTarget CategoriaEntity entity );
+    void atualizaEntidade(CategoriaOutputDTO dto, @MappingTarget CategoriaEntity entity );
 }

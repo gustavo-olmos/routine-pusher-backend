@@ -1,9 +1,8 @@
-package com.routine.pusher.application.service.implement;
+package com.routine.pusher.application.service;
 
 import com.routine.pusher.data.mapper.CategoriaMapper;
-import com.routine.pusher.data.model.dto.CategoriaDTO;
+import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
 import com.routine.pusher.data.repository.CategoriaRepository;
-import com.routine.pusher.application.service.CategoriaService;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -28,7 +27,7 @@ public class CategoriaServiceImpl implements CategoriaService
 
 
     @Override
-    public CategoriaDTO adicionar( CategoriaDTO dto )
+    public CategoriaOutputDTO adicionar(CategoriaOutputDTO dto )
     {
         LOGGER.debug("Adicionando categoria");
 
@@ -36,7 +35,7 @@ public class CategoriaServiceImpl implements CategoriaService
     }
 
     @Override
-    public List<CategoriaDTO> listar( String campoOrdenador, boolean ordemReversa )
+    public List<CategoriaOutputDTO> listar(String campoOrdenador, boolean ordemReversa )
     {
         LOGGER.debug("Listando categorias por: {}", campoOrdenador);
 
@@ -47,7 +46,7 @@ public class CategoriaServiceImpl implements CategoriaService
     }
 
     @Override
-    public CategoriaDTO atualizar( Long id, CategoriaDTO dto )
+    public CategoriaOutputDTO atualizar(Long id, CategoriaOutputDTO dto )
     {
         LOGGER.debug("Alterando categoria");
 

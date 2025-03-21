@@ -7,13 +7,11 @@ import java.util.List;
 
 public interface LembreteService
 {
-    LembreteOutputDTO adicionar( LembreteInputDTO lembrete );
+    LembreteOutputDTO salvar( LembreteInputDTO lembrete );
+
+    LembreteOutputDTO concluir( Long id );
 
     List<LembreteOutputDTO> listar( String atributo, boolean ordemReversa );
-
-    LembreteOutputDTO atualizar( Long id, LembreteInputDTO lembrete );
-
-    String concluir( Long id );
 
     boolean excluir( Long id );
 }

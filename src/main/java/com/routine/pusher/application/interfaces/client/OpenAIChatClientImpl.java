@@ -1,4 +1,4 @@
-package com.routine.pusher.application.interfaces.client.implement;
+package com.routine.pusher.application.interfaces.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,17 +7,14 @@ import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.ChatCompletion;
 import com.openai.models.ChatCompletionCreateParams;
 import com.openai.models.ChatModel;
-import com.routine.pusher.application.interfaces.client.OpenAIChatClient;
 import com.routine.pusher.data.model.dto.LembreteInputDTO;
 import com.routine.pusher.infrastructure.exceptions.ConversaoLembreteException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OpenAIChatClientImpl implements OpenAIChatClient
 {
-    @Value("${open-ai.banana}")
-    private String BANANA;
+    private final String BANANA = "BANANA";
 
     private final ObjectMapper objectMapper = new ObjectMapper( );
     private final OpenAIClient client = OpenAIOkHttpClient.builder().apiKey(BANANA).build();

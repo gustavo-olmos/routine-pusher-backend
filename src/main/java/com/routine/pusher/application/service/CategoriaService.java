@@ -1,16 +1,16 @@
 package com.routine.pusher.application.service;
 
-import com.routine.pusher.data.model.dto.CategoriaDTO;
+import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
 
 import java.util.List;
 
 public interface CategoriaService
 {
-    CategoriaDTO adicionar( CategoriaDTO dto );
+    CategoriaOutputDTO adicionar(CategoriaOutputDTO dto );
 
-    List<CategoriaDTO> listar( String atributo, boolean ordemReversa );
+    List<CategoriaOutputDTO> listar(String atributo, boolean ordemReversa );
 
-    CategoriaDTO atualizar( Long id, CategoriaDTO dto );
+    CategoriaOutputDTO atualizar(Long id, CategoriaOutputDTO dto );
 
     boolean excluir( Long id );
 }

@@ -1,7 +1,7 @@
 package com.routine.pusher.infrastructure.message;
 
-import com.routine.pusher.data.model.dto.LembreteInputDTO;
 import com.routine.pusher.application.service.AgendadorService;
+import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class RabbitMQConsumer
 
 
     @RabbitListener(queues = {"${rabbitmq.queue.name}"})
-    public void consume( LembreteInputDTO dto )
+    public void consume( LembreteOutputDTO dto )
     {
         try {
             LOGGER.info("Trigger acionado, lembrete salvo para agendamento, {}", dto);

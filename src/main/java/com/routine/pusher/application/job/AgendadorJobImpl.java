@@ -1,6 +1,6 @@
 package com.routine.pusher.application.job;
 
-import com.routine.pusher.data.model.dto.LembreteInputDTO;
+import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import com.routine.pusher.infrastructure.message.RabbitMQProducer;
 import org.quartz.*;
 import org.slf4j.Logger;
@@ -31,14 +31,15 @@ public class AgendadorJobImpl implements AgendadorJob
         JobDataMap jobDataMap = context.getJobDetail( ).getJobDataMap( );
         String jobId = context.getJobDetail( ).getKey( ).getName( );
 
-        LembreteInputDTO dto = (LembreteInputDTO) jobDataMap.get( jobId );
+        LembreteOutputDTO dto = (LembreteOutputDTO) jobDataMap.get( jobId );
 
         if (dto == null) {
             LOGGER.warn("LembreteDTO não encontrado para o job ID: {}", jobId);
             return;
         }
 
-        List<LocalDateTime> notificacoesAgendadas = dto.getMomentoNotificacao( );
+        //TODO: CORRIGIR ISSO
+        List<LocalDateTime> notificacoesAgendadas = dto.datasEspecificas( );
         if( notificacoesAgendadas.isEmpty( ) ) {
             LOGGER.info("Nenhuma notificação pendente para o job {}", jobId);
         }
@@ -65,9 +66,9 @@ public class AgendadorJobImpl implements AgendadorJob
     }
 
     @Override
-    public void reagendar( Scheduler scheduler, LembreteInputDTO dto )
+    public void reagendar( Scheduler scheduler, LembreteOutputDTO dto )
     {
-        List<LocalDateTime> notificacoesAgendadas = dto.getMomentoNotificacao( );
+        List<LocalDateTime> notificacoesAgendadas = dto.datasEspecificas( );
 
         if ( notificacoesAgendadas.isEmpty( ) ) return;
 
@@ -76,15 +77,15 @@ public class AgendadorJobImpl implements AgendadorJob
 
         try {
             Trigger novoTrigger = TriggerBuilder.newTrigger( )
-                    .withIdentity( dto.getId( ).toString( ) )
+                    .withIdentity( dto.id( ).toString( ) )
                     .startAt( proximaExecucao )
                     .build( );
 
-            scheduler.rescheduleJob( new TriggerKey( dto.getId( ).toString( ) ), novoTrigger );
-            LOGGER.info( "Reagendado job {} para {}", dto.getId( ), proximaExecucao );
+            scheduler.rescheduleJob( new TriggerKey( dto.id( ).toString( ) ), novoTrigger );
+            LOGGER.info( "Reagendado job {} para {}", dto.id( ), proximaExecucao );
         }
         catch ( SchedulerException e ) {
-            LOGGER.error("Erro ao reagendar job {}", dto.getId( ), e);
+            LOGGER.error("Erro ao reagendar job {}", dto.id( ), e);
         }
     }
 }
