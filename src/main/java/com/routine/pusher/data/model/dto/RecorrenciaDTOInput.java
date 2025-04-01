@@ -14,7 +14,7 @@ public record RecorrenciaDTOInput(
         int posicaoSemana,                    // Posição da semana (ex: 2a, 3a semana)
         EnumTipoRecorrencia tipoRecorrencia,  // Tipo de recorrência (DIARIO, SEMANAL, QUINZENAL, MENSAL)
         List<EnumDiasDaSemana> diasDaSemana,  // Dias da semana em que o evento ocorre
-        EnumDiasDaSemana diaEspecificoSemana,           // Dia específico da semana (ex: SEGUNDA, QUINTA)
+        EnumDiasDaSemana diaEspecificoSemana, // Dia específico da semana (ex: SEGUNDA, QUINTA)
         int diaFixoMes,                       // Dia fixo do mês (ex: 15)
         int intervaloMinutos,                 // Intervalo de tempo em minutos
         int intervaloHoras,                   // Intervalo de tempo em horas
