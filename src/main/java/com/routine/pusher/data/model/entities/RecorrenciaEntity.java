@@ -16,9 +16,6 @@ public class RecorrenciaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "dias_da_semana")
-    private List<String> diasDaSemana;
-
     @Column(name = "intervalo_cron_exp")
     private String intervaloCronExp;
 

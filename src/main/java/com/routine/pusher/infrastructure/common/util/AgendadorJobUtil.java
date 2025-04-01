@@ -1,6 +1,6 @@
 package com.routine.pusher.infrastructure.common.util;
 
-import com.routine.pusher.application.job.AgendadorJobImpl;
+import com.routine.pusher.application.job.AgendadorJob;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import org.quartz.*;
 
@@ -17,7 +17,7 @@ public final class AgendadorJobUtil
         JobDataMap jobDataMap = new JobDataMap( );
         jobDataMap.put( dto.id( ).toString( ), dto );
 
-        return JobBuilder.newJob( AgendadorJobImpl.class )
+        return JobBuilder.newJob( AgendadorJob.class )
                          .withIdentity( dto.id( ).toString( ) )
                          .setJobData( jobDataMap )
                          .build( );
@@ -25,7 +25,7 @@ public final class AgendadorJobUtil
 
     public static Trigger montarNovoTrigger( LembreteOutputDTO dto )
     {
-        if( dto.datasEspecificas( ).isEmpty( ) ) {
+        if( dto.datasEspecificas( ).isEmpty( ) && dto.recorrencia( ) == null ) {
             throw new IllegalArgumentException("Não há notificações disponíveis para esse lembrete");
         }
 
