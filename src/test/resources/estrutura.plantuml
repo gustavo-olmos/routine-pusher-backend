@@ -1,0 +1,40 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam component {
+  BorderColor #grey
+  BackgroundColor #white
+}
+
+[Resources] <<..api>> as api
+[Services] <<..services>> as svc
+[Services Impl] <<..services.impl>> as svc.impl
+[Model] <<..model>> as model
+[Mappers] <<..mappers>> as maps
+[Integration] <<..integrations>> as intg
+[Integration Dto] <<..integrations.*.dto>> as intg.dto
+[Integration Client] <<..integrations.*.clients>> as intg.client
+[Integration Impl] <<..integrations.*.impl>> as intg.impl
+[Configurations] <<..config>> as config
+
+config --> api : references
+api --> svc : injects
+api --> model : uses
+
+svc.impl --> svc : implements
+svc.impl --> intg : injects
+svc.impl --> model : uses
+svc --> model : uses
+intg --> model : uses
+
+maps --> model : uses
+maps --> intg.dto : uses
+
+intg.impl --> intg : implements
+intg.impl --> maps : injects
+intg.impl --> intg.client : injects
+intg.impl --> intg.dto : uses
+intg.impl --> model : uses
+intg.client --> intg.dto : uses
+
+@enduml
