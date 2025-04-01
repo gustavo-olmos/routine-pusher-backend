@@ -4,10 +4,7 @@ import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import com.routine.pusher.infrastructure.common.util.AgendadorJobUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
+import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -36,6 +33,18 @@ public class AgendadorServiceImpl implements AgendadorService
         }
         catch ( SchedulerException e ) {
             LOGGER.error(e.getMessage( ), e);
+        }
+    }
+
+    @Override
+    public void reagendar( Scheduler scheduler, String key, Trigger novoTrigger )
+    {
+        try {
+            scheduler.rescheduleJob( new TriggerKey( key ), novoTrigger );
+            LOGGER.info( "Reagendado job para {}", key);
+        }
+        catch ( SchedulerException e ) {
+            LOGGER.error("Erro ao reagendar job {}", key, e);
         }
     }
 
