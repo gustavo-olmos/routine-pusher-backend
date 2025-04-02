@@ -26,6 +26,15 @@ spring:
     username: guest
     password: guest
 
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: true
+    url: /openapi.yaml
+
+
 rabbitmq:
   queue:
     name: lembrete_queue
