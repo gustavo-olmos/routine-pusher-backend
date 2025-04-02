@@ -1,7 +1,9 @@
 package com.routine.pusher.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.routine.pusher.application.interfaces.client.OpenAIChatClient;
+import com.routine.pusher.application.external.client.OpenAIChatClient;
+import com.routine.pusher.application.service.interfaces.LembreteService;
+import com.routine.pusher.application.service.interfaces.OpenAIChatService;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import com.routine.pusher.infrastructure.exceptions.ConversaoLembreteException;
 import lombok.AllArgsConstructor;

@@ -1,22 +1,424 @@
 openapi: 3.0.1
+
 info:
-  title: Minha API
-  description: Documentação da API carregada via YAML
+  title: Routine Pusher
+  description: Documentação da API Routine Pusher via arquivo YAML
   version: 1.0.0
+
 servers:
   - url: http://localhost:8080
     description: Servidor local
 
+tags:
+  - name: Lembrete
+    description: Endpoints para gerenciamento de lembretes.
+  - name: Categoria
+    description: Endpoints para gerenciamento de categorias.
+  - name: Notificacao SSE
+    description: Serviço de monitoramento de fluxo de notificações.
+  - name: Event
+    description: Serviço de monitoramento de eventos com RabbitMQ.
+  - name: Open AI
+    description: Endpoint para comunicação com serviço externo Open-AI.
+
 paths:
-  /api/hello:
-    get:
-      summary: Retorna uma mensagem de boas-vindas
-      description: Exemplo de endpoint carregado a partir de um arquivo YAML
+  /api/v1/lembretes:
+    post:
+      tags:
+        - Lembrete
+      summary: Salva um novo lembrete
+      description: Cria um novo lembrete com as informações fornecidas.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LembreteInputDTO"
       responses:
         "200":
-          description: Resposta bem-sucedida
+          description: Lembrete salvo com sucesso.
           content:
             application/json:
               schema:
+                $ref: "#/components/schemas/LembreteOutputDTO"
+    get:
+      tags:
+        - Lembrete
+      summary: Lista lembretes
+      description: Retorna uma lista de lembretes ordenados de acordo com os parâmetros fornecidos.
+      parameters:
+        - name: sortInfo
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Atributo pelo qual a lista será ordenada.
+        - name: decrescente
+          in: query
+          required: true
+          schema:
+            type: boolean
+          description: Define se a ordenação será decrescente (true) ou crescente (false).
+      responses:
+        "200":
+          description: Lista de lembretes retornada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LembreteOutputDTO"
+
+  /api/v1/lembretes/{id}:
+    put:
+      tags:
+        - Lembrete
+      summary: Concluir um lembrete
+      description: Marca um lembrete como concluído.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID do lembrete a ser concluído.
+      responses:
+        "200":
+          description: Lembrete concluído com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LembreteOutputDTO"
+    delete:
+      tags:
+        - Lembrete
+      summary: Exclui um lembrete
+      description: Remove um lembrete pelo seu ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID do lembrete a ser excluído.
+      responses:
+        "200":
+          description: Lembrete excluído com sucesso.
+          content:
+            text/plain:
+              schema:
                 type: string
-                example: "Olá, Swagger OpenAPI YAML!"
+        "404":
+          description: Lembrete não encontrado.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/v1/categorias:
+    post:
+      tags:
+        - Categoria
+      summary: Adiciona uma nova categoria
+      description: Cria uma nova categoria com os dados fornecidos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoriaOutputDTO"
+      responses:
+        "200":
+          description: Categoria adicionada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoriaOutputDTO"
+    get:
+      tags:
+        - Categoria
+      summary: Lista categorias
+      description: Retorna uma lista de categorias ordenadas de acordo com os parâmetros fornecidos.
+      parameters:
+        - name: sortInfo
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Atributo pelo qual a lista será ordenada.
+        - name: decrescente
+          in: query
+          required: true
+          schema:
+            type: boolean
+          description: Define se a ordenação será decrescente (true) ou crescente (false).
+      responses:
+        "200":
+          description: Lista de categorias retornada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoriaOutputDTO"
+
+  /api/v1/categorias/{id}:
+    put:
+      tags:
+        - Categoria
+      summary: Atualiza uma categoria
+      description: Atualiza os dados de uma categoria existente pelo seu ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID da categoria a ser atualizada.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoriaOutputDTO"
+      responses:
+        "200":
+          description: Categoria atualizada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoriaOutputDTO"
+    delete:
+      tags:
+        - Categoria
+      summary: Exclui uma categoria
+      description: Remove uma categoria pelo seu ID.
+      parameters:
+        - name: id
+          in: path
+
+  /api/v1/notificar/sse:
+    get:
+      tags:
+        - Notificacao SSE
+      summary: Retorna fluxo de notificações.
+      description: Busca fluxo aberto para envio de notificações com SSE.
+      produces:
+        - text/event-stream
+      responses:
+        '200':
+          description: Retorno com sucesso.
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /api/v1/rabbit/send:
+    post:
+      tags:
+        - Event
+      summary: Envia mensagem para RabbitMQ
+      description: Recebe um objeto do tipo LembreteOutputDTO e o envia para RabbitMQ.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LembreteOutputDTO'
+      responses:
+        '200':
+          description: Mensagem enviada com sucesso.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/v1/open-ai:
+    post:
+      tags:
+        - Open AI
+      summary: Cria um lembrete a partir de uma frase
+      description: Recebe uma frase em texto e gera um lembrete com base nela.
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              example: "Lembre-me de comprar pão amanhã às 10h."
+      responses:
+        "200":
+          description: Lembrete criado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LembreteOutputDTO"
+
+
+components:
+  schemas:
+    LembreteInputDTO:
+      type: object
+      properties:
+        titulo:
+          type: string
+          description: Título do lembrete
+        descricao:
+          type: string
+          description: Descrição detalhada do lembrete
+        status:
+          type: string
+          description: Status do lembrete
+        idCategoria:
+          type: integer
+          format: int64
+          description: id da categoria
+        recorrencia:
+          $ref: '#/components/schemas/RecorrenciaInputDTO'
+        datasEspecificas:
+          type: array
+          items:
+            type: string
+            format: date-time
+          description: Lista de datas específicas do lembrete
+        metodoNotificacao:
+          type: array
+          items:
+            type: string
+          description: Métodos de notificação do lembrete
+
+    LembreteOutputDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID do lembrete criado
+        titulo:
+          type: string
+          description: Título do lembrete
+        descricao:
+          type: string
+          description: Descrição detalhada do lembrete
+        status:
+          type: string
+          description: Status do lembrete
+        categoria:
+          $ref: '#/components/schemas/CategoriaOutputDTO'
+        recorrencia:
+          $ref: '#/components/schemas/RecorrenciaOutputDTO'
+        datasEspecificas:
+          type: array
+          items:
+            type: string
+            format: date-time
+          description: Lista de datas específicas do lembrete
+        metodoNotificacao:
+          type: array
+          items:
+            type: string
+          description: Métodos de notificação do lembrete
+
+    CategoriaInputDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID da categoria.
+        nome:
+          type: string
+          description: Nome da categoria.
+        cor:
+          type: string
+          description: String que representa o código hexadecimal da cor.
+        fatorOrdem:
+          type: integer
+          description: Número para definição da ordem da categoria.
+
+    CategoriaOutputDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID da categoria.
+        nome:
+          type: string
+          description: Nome da categoria.
+        cor:
+          type: string
+          description: String que representa o código hexadecimal da cor.
+        fatorOrdem:
+          type: integer
+          description: Número para definição da ordem da categoria.
+
+    RecorrenciaInputDTO:
+      type: object
+      properties:
+        quantidade:
+          type: integer
+          description: Quantidade de ocorrências da recorrência.
+        posicaoSemana:
+          type: integer
+          description: Posição da semana em que a recorrência ocorre.
+        tipoRecorrencia:
+          $ref: "#/types/EnumTipoRecorrencia"
+        diasDaSemana:
+          type: array
+          items:
+            $ref: "#/types/EnumDiasDaSemana"
+          description: Lista de dias da semana para a recorrência.
+        diaEspecificoSemana:
+          $ref: "#/types/EnumDiasDaSemana"
+        diaFixoMes:
+          type: integer
+          description: Dia fixo do mês para a recorrência.
+        intervaloMinutos:
+          type: integer
+          description: Intervalo em minutos para a recorrência.
+        intervaloHoras:
+          type: integer
+          description: Intervalo em horas para a recorrência.
+        intervaloDias:
+          type: integer
+          description: Intervalo em dias para a recorrência.
+        validade:
+          type: string
+          format: date-time
+          description: Data e hora de validade da recorrência.
+
+    RecorrenciaOutputDTO:
+      type: object
+      properties:
+        quantidade:
+          type: integer
+          description: Quantidade de ocorrências da recorrência.
+        intervaloCronExp:
+          type: string
+          description: Representa o intervalo da recorrencia na forma de cron expression
+        validade:
+          type: string
+          format: date-time
+          description: Data e hora de validade da recorrência.
+
+
+types:
+  EnumTipoRecorrencia:
+    type: string
+    enum:
+      - DIARIA
+      - SEMANAL
+      - MENSAL
+      - QUINZENAL
+      - CUSTOMIZADO
+  EnumDiasDaSemana:
+    type: string
+    enum:
+      - DOMINGO
+      - SEGUNDA_FEIRA
+      - TERCA_FEIRA
+      - QUARTA_FEIRA
+      - QUINTA_FEIRA
+      - SEXTA_FEIRA
+      - SABADO

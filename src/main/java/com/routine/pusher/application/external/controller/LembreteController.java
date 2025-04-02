@@ -1,8 +1,8 @@
-package com.routine.pusher.application.interfaces.controller;
+package com.routine.pusher.application.external.controller;
 
 import com.routine.pusher.data.model.dto.LembreteInputDTO;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
-import com.routine.pusher.application.service.LembreteService;
+import com.routine.pusher.application.service.interfaces.LembreteService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -6,7 +6,7 @@ import com.routine.pusher.infrastructure.common.shared.LocalDateTimeWrapper;
 
 import java.time.LocalDateTime;
 
-public record RecorrenciaDTOOutput(
+public record RecorrenciaOutputDTO(
         int quantidade,
         String intervaloCronExp,
 

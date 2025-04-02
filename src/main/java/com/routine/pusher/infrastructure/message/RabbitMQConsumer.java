@@ -1,6 +1,6 @@
 package com.routine.pusher.infrastructure.message;
 
-import com.routine.pusher.application.service.AgendadorService;
+import com.routine.pusher.application.service.interfaces.AgendadorService;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;

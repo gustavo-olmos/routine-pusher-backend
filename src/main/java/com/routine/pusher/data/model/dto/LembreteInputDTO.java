@@ -16,7 +16,7 @@ public record LembreteInputDTO(
 
         Long categoriaId,
 
-        RecorrenciaDTOInput recorrencia,
+        RecorrenciaInputDTO recorrencia,
 
         @JsonSerialize(using = LocalDateTimeListWrapper.LocalDateTimeListSerializer.class)
         @JsonDeserialize(using = LocalDateTimeListWrapper.LocalDateTimeListDeserializer.class)

@@ -19,7 +19,7 @@ public record LembreteOutputDTO(
 
         CategoriaOutputDTO categoria,
 
-        RecorrenciaDTOOutput recorrencia,
+        RecorrenciaOutputDTO recorrencia,
 
         @JsonSerialize(using = LocalDateTimeListWrapper.LocalDateTimeListSerializer.class)
         @JsonDeserialize(using = LocalDateTimeListWrapper.LocalDateTimeListDeserializer.class)

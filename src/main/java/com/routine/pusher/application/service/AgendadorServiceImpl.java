@@ -1,5 +1,6 @@
 package com.routine.pusher.application.service;
 
+import com.routine.pusher.application.service.interfaces.AgendadorService;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import com.routine.pusher.infrastructure.common.util.AgendadorJobUtil;
 import jakarta.annotation.PostConstruct;

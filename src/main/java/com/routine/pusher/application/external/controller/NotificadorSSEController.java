@@ -1,6 +1,6 @@
-package com.routine.pusher.application.interfaces.controller;
+package com.routine.pusher.application.external.controller;
 
-import com.routine.pusher.application.service.NotificadorSSEService;
+import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;

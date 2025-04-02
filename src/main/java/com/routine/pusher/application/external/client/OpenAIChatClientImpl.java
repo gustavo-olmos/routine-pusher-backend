@@ -1,4 +1,4 @@
-package com.routine.pusher.application.interfaces.client;
+package com.routine.pusher.application.external.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

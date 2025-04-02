@@ -1,4 +1,4 @@
-package com.routine.pusher.application.service;
+package com.routine.pusher.application.service.interfaces;
 
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import org.quartz.Scheduler;

@@ -1,5 +1,6 @@
 package com.routine.pusher.application.service;
 
+import com.routine.pusher.application.service.interfaces.CategoriaService;
 import com.routine.pusher.data.mapper.CategoriaMapper;
 import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
 import com.routine.pusher.data.repository.CategoriaRepository;

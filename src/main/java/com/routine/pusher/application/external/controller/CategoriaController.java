@@ -1,7 +1,7 @@
-package com.routine.pusher.application.interfaces.controller;
+package com.routine.pusher.application.external.controller;
 
 import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
-import com.routine.pusher.application.service.CategoriaService;
+import com.routine.pusher.application.service.interfaces.CategoriaService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

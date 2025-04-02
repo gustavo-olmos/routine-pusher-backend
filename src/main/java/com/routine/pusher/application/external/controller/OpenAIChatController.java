@@ -1,6 +1,6 @@
-package com.routine.pusher.application.interfaces.controller;
+package com.routine.pusher.application.external.controller;
 
-import com.routine.pusher.application.service.OpenAIChatService;
+import com.routine.pusher.application.service.interfaces.OpenAIChatService;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

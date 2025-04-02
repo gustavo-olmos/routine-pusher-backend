@@ -9,7 +9,7 @@ import com.routine.pusher.infrastructure.common.shared.LocalDateTimeWrapper;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record RecorrenciaDTOInput(
+public record RecorrenciaInputDTO(
         int quantidade,                       // Quantidade de eventos
         int posicaoSemana,                    // Posição da semana (ex: 2a, 3a semana)
         EnumTipoRecorrencia tipoRecorrencia,  // Tipo de recorrência (DIARIO, SEMANAL, QUINZENAL, MENSAL)
@@ -23,4 +23,4 @@ public record RecorrenciaDTOInput(
         @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
         LocalDateTime validade
-){}
+){ }

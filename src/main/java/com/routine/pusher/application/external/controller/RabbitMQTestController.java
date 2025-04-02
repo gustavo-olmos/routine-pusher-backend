@@ -1,4 +1,4 @@
-package com.routine.pusher.application.interfaces.controller;
+package com.routine.pusher.application.external.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;

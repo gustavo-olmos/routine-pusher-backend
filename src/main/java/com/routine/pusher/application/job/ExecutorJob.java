@@ -1,9 +1,9 @@
 package com.routine.pusher.application.job;
 
-import com.routine.pusher.application.service.AgendadorService;
-import com.routine.pusher.application.service.NotificadorSSEService;
+import com.routine.pusher.application.service.interfaces.AgendadorService;
+import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
-import com.routine.pusher.data.model.dto.RecorrenciaDTOOutput;
+import com.routine.pusher.data.model.dto.RecorrenciaOutputDTO;
 import com.routine.pusher.infrastructure.common.util.AgendadorJobUtil;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.Nullable;
@@ -77,7 +77,7 @@ public class ExecutorJob implements Job
 
     private void reagendar(JobExecutionContext executionContext, LembreteOutputDTO dto)
     {
-        RecorrenciaDTOOutput recorrencia = dto.recorrencia( );
+        RecorrenciaOutputDTO recorrencia = dto.recorrencia( );
         if ( recorrencia != null ) {
             if( recorrencia.validade( ) != null )
                 reagendarComRecorrencia( executionContext.getScheduler( ), dto);

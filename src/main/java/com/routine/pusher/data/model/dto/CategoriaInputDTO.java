@@ -4,5 +4,5 @@ public record CategoriaInputDTO(
         Long id,
         String nome,
         String cor,
-        int fatorOrem
+        int fatorOrdem
 ) { }

@@ -2,14 +2,12 @@ package com.routine.pusher.data.mapper;
 
 import com.routine.pusher.data.model.dto.LembreteInputDTO;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
-import com.routine.pusher.data.model.dto.RecorrenciaDTOInput;
+import com.routine.pusher.data.model.dto.RecorrenciaInputDTO;
 import com.routine.pusher.data.model.entities.LembreteEntity;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
-
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", builder = @Builder( disableBuilder = true ))
 public interface LembreteMapper
@@ -22,7 +20,7 @@ public interface LembreteMapper
     @Mapping(target = "intervalo_cron_exp", expression = "java( buildCronExpression( lembrete.getRecorrencia( ) ) )")
     LembreteEntity toEntity( LembreteInputDTO lembrete );
 
-    default String buildCronExpression( RecorrenciaDTOInput recorrencia )
+    default String buildCronExpression( RecorrenciaInputDTO recorrencia )
     {
         if( recorrencia == null ) return null;
 
