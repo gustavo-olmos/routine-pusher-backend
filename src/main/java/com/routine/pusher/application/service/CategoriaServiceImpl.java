@@ -2,6 +2,7 @@ package com.routine.pusher.application.service;
 
 import com.routine.pusher.application.service.interfaces.CategoriaService;
 import com.routine.pusher.data.mapper.CategoriaMapper;
+import com.routine.pusher.data.model.dto.CategoriaInputDTO;
 import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
 import com.routine.pusher.data.repository.CategoriaRepository;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
@@ -17,8 +18,8 @@ public class CategoriaServiceImpl implements CategoriaService
 {
     private final Logger LOGGER = LoggerFactory.getLogger( CategoriaServiceImpl.class );
 
-    private CategoriaMapper mapper;
-    private CategoriaRepository repository;
+    private final CategoriaMapper mapper;
+    private final CategoriaRepository repository;
 
     public CategoriaServiceImpl( CategoriaMapper mapper, CategoriaRepository repository )
     {
@@ -28,7 +29,7 @@ public class CategoriaServiceImpl implements CategoriaService
 
 
     @Override
-    public CategoriaOutputDTO adicionar(CategoriaOutputDTO dto )
+    public CategoriaOutputDTO adicionar( CategoriaInputDTO dto )
     {
         LOGGER.debug("Adicionando categoria");
 
@@ -36,7 +37,7 @@ public class CategoriaServiceImpl implements CategoriaService
     }
 
     @Override
-    public List<CategoriaOutputDTO> listar(String campoOrdenador, boolean ordemReversa )
+    public List<CategoriaOutputDTO> listar( String campoOrdenador, boolean ordemReversa )
     {
         LOGGER.debug("Listando categorias por: {}", campoOrdenador);
 
@@ -47,7 +48,7 @@ public class CategoriaServiceImpl implements CategoriaService
     }
 
     @Override
-    public CategoriaOutputDTO atualizar(Long id, CategoriaOutputDTO dto )
+    public CategoriaOutputDTO atualizar( Long id, CategoriaInputDTO dto )
     {
         LOGGER.debug("Alterando categoria");
 
@@ -55,7 +56,7 @@ public class CategoriaServiceImpl implements CategoriaService
                 .map( entidade -> {
                     mapper.atualizaEntidade( dto, entidade );
                     repository.save( entidade );
-                    return dto;
+                    return mapper.toDto( entidade );
                 } )
                 .orElseThrow( ( ) -> new EntityNotFoundException( "Categoria não encontrada para o id: " + id ) );
     }

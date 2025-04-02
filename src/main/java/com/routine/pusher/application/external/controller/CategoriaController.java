@@ -1,5 +1,6 @@
 package com.routine.pusher.application.external.controller;
 
+import com.routine.pusher.data.model.dto.CategoriaInputDTO;
 import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
 import com.routine.pusher.application.service.interfaces.CategoriaService;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,7 @@ public class CategoriaController
 
 
     @PostMapping
-    public ResponseEntity<CategoriaOutputDTO> adicionar(@RequestBody CategoriaOutputDTO dto )
+    public ResponseEntity<CategoriaOutputDTO> adicionar(@RequestBody CategoriaInputDTO dto )
     {
         return ResponseEntity.ok( ).body( service.adicionar( dto ) );
     }
@@ -32,7 +33,7 @@ public class CategoriaController
 
     @PutMapping(path = "{id}")
     public ResponseEntity<CategoriaOutputDTO> atualizar(@PathVariable(value = "id") Long id,
-                                                        @RequestBody CategoriaOutputDTO dto )
+                                                        @RequestBody CategoriaInputDTO dto )
     {
         return ResponseEntity.ok( ).body( service.atualizar( id, dto ) );
     }
