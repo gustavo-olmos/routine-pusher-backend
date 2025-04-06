@@ -17,7 +17,7 @@ public interface LembreteMapper
     LembreteOutputDTO toOutputDto( LembreteEntity lembrete );
 
     @Mapping(target = "categoria.id", source = "categoriaId")
-    @Mapping(target = "intervalo_cron_exp", expression = "java( buildCronExpression( lembrete.getRecorrencia( ) ) )")
+    @Mapping(target = "recorrencia.intervaloCronExp", expression = "java( buildCronExpression( recorrenciaInputDTO ) )")
     LembreteEntity toEntity( LembreteInputDTO lembrete );
 
     default String buildCronExpression( RecorrenciaInputDTO recorrencia )

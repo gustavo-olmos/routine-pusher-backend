@@ -15,6 +15,23 @@ spring:
         org.quartz.threadPool:
           threadCount: 5
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 1034745204788-2pm270ajie5elf88ap8j6l5f5rohqpge.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+
   jpa:
     hibernate:
       ddl-auto: create-drop
