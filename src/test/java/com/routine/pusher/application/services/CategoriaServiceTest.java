@@ -4,8 +4,8 @@ import com.routine.pusher.application.service.CategoriaServiceImpl;
 import com.routine.pusher.data.mapper.CategoriaMapper;
 import com.routine.pusher.data.model.dto.CategoriaInputDTO;
 import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
-import com.routine.pusher.data.mothers.CategoriaInputDTOMother;
-import com.routine.pusher.data.mothers.CategoriaOutputDTOMother;
+import com.routine.pusher.data.example.input.CategoriaInputDTOExample;
+import com.routine.pusher.data.example.output.CategoriaOutputDTOExample;
 import com.routine.pusher.data.repository.CategoriaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,8 +33,8 @@ class CategoriaServiceTest
     @DisplayName("Processar: Testa XXX de YYY com ZZZ")
     void testProcessar01( )
     {
-        CategoriaInputDTO input = CategoriaInputDTOMother.simples( );
-        CategoriaOutputDTO esperado = CategoriaOutputDTOMother.simples( );
+        CategoriaInputDTO input = CategoriaInputDTOExample.simples( );
+        CategoriaOutputDTO esperado = CategoriaOutputDTOExample.simples( );
 
         doReturn( esperado ).when( categoriaService ).adicionar( input );
 

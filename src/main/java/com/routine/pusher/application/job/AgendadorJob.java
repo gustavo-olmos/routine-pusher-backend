@@ -1,6 +1,5 @@
-package com.routine.pusher.application.service;
+package com.routine.pusher.application.job;
 
-import com.routine.pusher.application.service.interfaces.AgendadorService;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import com.routine.pusher.infrastructure.common.util.AgendadorJobUtil;
 import jakarta.annotation.PostConstruct;
@@ -8,23 +7,20 @@ import jakarta.annotation.PreDestroy;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
-@Service
-public class AgendadorServiceImpl implements AgendadorService
+public class AgendadorJob
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgendadorServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgendadorJob.class);
 
-    private final Scheduler scheduler;
+    private static Scheduler scheduler;
 
-    public AgendadorServiceImpl( Scheduler scheduler )
+    public AgendadorJob( Scheduler scheduler )
     {
-        this.scheduler = scheduler;
+        AgendadorJob.scheduler = scheduler;
     }
 
 
-    @Override
-    public void agendar( LembreteOutputDTO dto )
+    public static void agendar( LembreteOutputDTO dto )
     {
         JobDetail jobDetail = AgendadorJobUtil.montarNovoJob( dto );
         Trigger trigger = AgendadorJobUtil.montarNovoTrigger( dto );
@@ -37,12 +33,11 @@ public class AgendadorServiceImpl implements AgendadorService
         }
     }
 
-    @Override
-    public void reagendar( Scheduler scheduler, String key, Trigger novoTrigger )
+    public static void reagendar( Scheduler scheduler, String key, Trigger novoTrigger )
     {
         try {
             scheduler.rescheduleJob( new TriggerKey( key ), novoTrigger );
-            LOGGER.info( "Reagendado job para {}", key);
+            LOGGER.info("Reagendado job para {}", key);
         }
         catch ( SchedulerException e ) {
             LOGGER.error("Erro ao reagendar job {}", key, e);
@@ -50,7 +45,7 @@ public class AgendadorServiceImpl implements AgendadorService
     }
 
     @PostConstruct
-    public void init()
+    public void init( )
     {
         try {
             scheduler.start( );

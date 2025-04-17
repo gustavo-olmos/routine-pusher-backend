@@ -1,10 +1,10 @@
-package com.routine.pusher.data.mothers;
+package com.routine.pusher.data.example.output;
 
 import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
 
-public abstract class CategoriaOutputDTOMother
+public abstract class CategoriaOutputDTOExample
 {
-    private CategoriaOutputDTOMother( ) { }
+    private CategoriaOutputDTOExample( ) { }
 
     public static CategoriaOutputDTO simples( )
     {

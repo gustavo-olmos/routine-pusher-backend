@@ -1,4 +1,4 @@
-package com.routine.pusher.data.mothers;
+package com.routine.pusher.data.example.input;
 
 import com.routine.pusher.data.model.dto.LembreteInputDTO;
 import com.routine.pusher.data.model.dto.RecorrenciaInputDTO;
@@ -6,9 +6,9 @@ import com.routine.pusher.data.model.enums.EnumDiasDaSemana;
 
 import java.util.List;
 
-public abstract class LembreteInputDTOMother
+public abstract class LembreteInputDTOExample
 {
-    private LembreteInputDTOMother( ) { }
+    private LembreteInputDTOExample( ) { }
 
     public static LembreteInputDTO simples( )
     {

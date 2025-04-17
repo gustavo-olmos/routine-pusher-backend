@@ -1,10 +1,10 @@
-package com.routine.pusher.data.mothers;
+package com.routine.pusher.data.example.input;
 
 import com.routine.pusher.data.model.dto.CategoriaInputDTO;
 
-public abstract class CategoriaInputDTOMother
+public abstract class CategoriaInputDTOExample
 {
-    private CategoriaInputDTOMother( ) { }
+    private CategoriaInputDTOExample( ) { }
 
     public static CategoriaInputDTO simples( )
     {

@@ -1,6 +1,5 @@
 package com.routine.pusher.application.job;
 
-import com.routine.pusher.application.service.interfaces.AgendadorService;
 import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import com.routine.pusher.data.model.dto.RecorrenciaOutputDTO;
@@ -23,7 +22,6 @@ public class ExecutorJob implements Job
 
     //private final RabbitMQProducer producer;
     private final NotificadorSSEService notificadorService;
-    private final AgendadorService agendadorService;
 
     @Override
     public void execute( JobExecutionContext executionContext )
@@ -75,17 +73,17 @@ public class ExecutorJob implements Job
         }
     }
 
-    private void reagendar(JobExecutionContext executionContext, LembreteOutputDTO dto)
+    private void reagendar( JobExecutionContext executionContext, LembreteOutputDTO dto )
     {
         RecorrenciaOutputDTO recorrencia = dto.recorrencia( );
         if ( recorrencia != null ) {
             if( recorrencia.validade( ) != null )
-                reagendarComRecorrencia( executionContext.getScheduler( ), dto);
+                reagendarComRecorrencia( executionContext.getScheduler( ), dto );
 
             if( recorrencia.quantidade( ) > 0 )
-                reagendarComRecorrenciaFinita( executionContext.getScheduler( ), dto);
+                reagendarComRecorrenciaFinita( executionContext.getScheduler( ), dto );
         } else {
-            reagendarComDataEspecifica( executionContext.getScheduler( ), dto);
+            reagendarComDataEspecifica( executionContext.getScheduler( ), dto );
         }
     }
 
@@ -95,7 +93,7 @@ public class ExecutorJob implements Job
         if ( notificacoesAgendadas.isEmpty( ) ) return;
 
         Trigger novoTrigger = AgendadorJobUtil.montarNovoTrigger( dto );
-        agendadorService.reagendar( scheduler, dto.id( ).toString( ), novoTrigger );
+        AgendadorJob.reagendar( scheduler, dto.id( ).toString( ), novoTrigger );
     }
 
     private void reagendarComRecorrencia( Scheduler scheduler, LembreteOutputDTO dto )
@@ -104,13 +102,13 @@ public class ExecutorJob implements Job
         Trigger novoTrigger = ( dto.recorrencia( ).validade( ) != null )
             ? AgendadorJobUtil.montarTriggerComValidade( dto, cronExpression )
             : AgendadorJobUtil.montarTriggerComCronExpression( dto, cronExpression );
-        agendadorService.reagendar( scheduler, dto.id( ).toString( ), novoTrigger );
+        AgendadorJob.reagendar( scheduler, dto.id( ).toString( ), novoTrigger );
     }
 
     private void reagendarComRecorrenciaFinita( Scheduler scheduler, LembreteOutputDTO dto )
     {
         String cronExpression = dto.recorrencia( ).intervaloCronExp( );
-        Trigger novoTrigger = AgendadorJobUtil.montarTriggerComQuantidade(dto, cronExpression);
-        agendadorService.reagendar( scheduler, dto.id( ).toString( ), novoTrigger );
+        Trigger novoTrigger = AgendadorJobUtil.montarTriggerComQuantidade( dto, cronExpression );
+        AgendadorJob.reagendar( scheduler, dto.id( ).toString( ), novoTrigger );
     }
 }

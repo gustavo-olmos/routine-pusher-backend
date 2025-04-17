@@ -115,15 +115,40 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>5.12.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.tngtech.archunit</groupId>
-			<artifactId>archunit-junit4</artifactId>
+			<artifactId>archunit-junit5</artifactId>
 			<version>1.2.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>5.11.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>com.routine.pusher.RoutinePusherApplication</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

@@ -1,4 +1,4 @@
-package com.routine.pusher.data.mothers;
+package com.routine.pusher.data.example.output;
 
 import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
@@ -6,9 +6,9 @@ import com.routine.pusher.data.model.dto.RecorrenciaOutputDTO;
 
 import java.util.List;
 
-public abstract class LembreteOutputDTOMother
+public abstract class LembreteOutputDTOExample
 {
-    private LembreteOutputDTOMother( ) { }
+    private LembreteOutputDTOExample( ) { }
 
     public static LembreteOutputDTO simples( )
     {

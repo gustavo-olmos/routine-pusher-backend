@@ -1,6 +1,5 @@
 package com.routine.pusher.application.service;
 
-import com.routine.pusher.application.service.interfaces.AgendadorService;
 import com.routine.pusher.application.service.interfaces.LembreteService;
 import com.routine.pusher.data.mapper.LembreteMapper;
 import com.routine.pusher.data.model.dto.LembreteInputDTO;
@@ -22,7 +21,6 @@ public class LembreteServiceImpl implements LembreteService
     private final Logger LOGGER = LoggerFactory.getLogger( LembreteServiceImpl.class );
 
     private final LembreteMapper mapper;
-    private final AgendadorService agendador;
     private final LembreteRepository repository;
 
 
@@ -31,19 +29,14 @@ public class LembreteServiceImpl implements LembreteService
     {
         LOGGER.debug("Adicionando lembrete");
 
-        LembreteOutputDTO outputDTO = mapper.toOutputDto( repository.save( mapper.toEntity( inputDto ) ) );
-        agendador.agendar( outputDTO );
-        return outputDTO;
+        return mapper.toOutputDto( repository.save( mapper.toEntity( inputDto ) ) );
     }
 
     @Override
     public LembreteOutputDTO concluir( Long id )
     {
         return repository.findById( id ).stream( )
-                .map(entidade -> {
-                    entidade.setStatus( EnumStatusConclusao.CONCLUIDO.name( ) );
-                    return repository.save( entidade );
-                })
+                .map(entidade -> repository.save( entidade.concluirLembrete( ) ) )
                 .map( mapper::toOutputDto ).toList( ).get( 0 );
     }
 

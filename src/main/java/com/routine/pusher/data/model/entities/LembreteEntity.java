@@ -1,5 +1,7 @@
 package com.routine.pusher.data.model.entities;
 
+import com.routine.pusher.application.job.AgendadorJob;
+import com.routine.pusher.data.mapper.LembreteMapper;
 import com.routine.pusher.data.model.enums.EnumStatusConclusao;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -44,7 +46,22 @@ public class LembreteEntity
     private List<String> metodoNotificacao;
 
 
-    public LembreteEntity() {
+    private LembreteMapper mapper;
+
+    public LembreteEntity( )
+    {
         this.dataCriacao = LocalDateTime.now( );
+        agendarLembrete( );
+    }
+
+    public LembreteEntity concluirLembrete( )
+    {
+        this.setStatus( EnumStatusConclusao.CONCLUIDO.name( ) );
+        return this;
+    }
+
+    private void agendarLembrete( )
+    {
+        AgendadorJob.agendar( mapper.toOutputDto(this ) );
     }
 }

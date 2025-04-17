@@ -28,7 +28,7 @@ public class OpenAIChatServiceImpl implements OpenAIChatService
         try {
             return service.salvar( client.buildLembreteChat( frase ) );
         }
-        catch (JsonProcessingException | ConversaoLembreteException ex ) {
+        catch ( JsonProcessingException | ConversaoLembreteException ex ) {
             throw new RuntimeException( ex );
         }
     }

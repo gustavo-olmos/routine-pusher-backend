@@ -1,6 +1,6 @@
 package com.routine.pusher.infrastructure.message;
 
-import com.routine.pusher.application.service.interfaces.AgendadorService;
+import com.routine.pusher.application.job.AgendadorJob;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 public class RabbitMQConsumer
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQConsumer.class);
-
-    private final AgendadorService service;
     private final SimpMessagingTemplate messagingTemplate;
 
 
@@ -25,7 +23,7 @@ public class RabbitMQConsumer
     {
         try {
             LOGGER.info("Trigger acionado, lembrete salvo para agendamento, {}", dto);
-            service.agendar( dto );
+            AgendadorJob.agendar( dto );
             messagingTemplate.convertAndSend( "/topic/notifications", dto );
         }
         catch ( Exception ex ) {
