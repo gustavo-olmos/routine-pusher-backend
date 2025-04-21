@@ -32,9 +32,10 @@ public class LembreteController
     }
 
     @PutMapping(path = "{id}")
-    public ResponseEntity<LembreteOutputDTO> concluir( @PathVariable(value = "id") Long id )
+    public ResponseEntity<Void> concluir( @PathVariable(value = "id") Long id )
     {
-        return ResponseEntity.ok( ).body( service.concluir( id ) );
+        service.concluir( id );
+        return ResponseEntity.ok( ).build( );
     }
 
     @DeleteMapping(path = "{id}")

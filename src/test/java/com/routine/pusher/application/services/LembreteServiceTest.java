@@ -39,7 +39,7 @@ class LembreteServiceTest
         LembreteOutputDTO esperado = LembreteOutputDTOExample.simples( );
 
         doReturn( esperado ).when( agendador );
-        AgendadorJob.agendar( esperado );
+//        AgendadorJob.agendar( esperado );
 
         LembreteOutputDTO output = new LembreteServiceImpl( mapper, repository ).salvar( input );
 

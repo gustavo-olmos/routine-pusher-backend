@@ -29,11 +29,11 @@ public class CategoriaServiceImpl implements CategoriaService
 
 
     @Override
-    public CategoriaOutputDTO adicionar( CategoriaInputDTO dto )
+    public CategoriaOutputDTO adicionar( CategoriaInputDTO inputDto )
     {
         LOGGER.debug("Adicionando categoria");
 
-        return mapper.toDto( repository.save( mapper.toEntity( dto ) ) );
+        return mapper.toOutputDto( repository.save( mapper.toEntity( inputDto ) ) );
     }
 
     @Override
@@ -42,21 +42,20 @@ public class CategoriaServiceImpl implements CategoriaService
         LOGGER.debug("Listando categorias por: {}", campoOrdenador);
 
         return repository.findAll( ).stream( )
-                         .map( mapper::toDto )
+                         .map( mapper::toOutputDto )
                          .sorted( new SortInfo<>( campoOrdenador, ordemReversa ) )
                          .toList();
     }
 
     @Override
-    public CategoriaOutputDTO atualizar( Long id, CategoriaInputDTO dto )
+    public CategoriaOutputDTO atualizar( Long id, CategoriaInputDTO inputDto )
     {
         LOGGER.debug("Alterando categoria");
 
         return repository.findById( id )
                 .map( entidade -> {
-                    mapper.atualizaEntidade( dto, entidade );
                     repository.save( entidade );
-                    return mapper.toDto( entidade );
+                    return mapper.toOutputDto( entidade );
                 } )
                 .orElseThrow( ( ) -> new EntityNotFoundException( "Categoria não encontrada para o id: " + id ) );
     }

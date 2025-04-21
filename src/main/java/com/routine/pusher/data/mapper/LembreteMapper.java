@@ -1,8 +1,8 @@
 package com.routine.pusher.data.mapper;
 
+import com.routine.pusher.data.model.domain.Lembrete;
 import com.routine.pusher.data.model.dto.LembreteInputDTO;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
-import com.routine.pusher.data.model.dto.RecorrenciaInputDTO;
 import com.routine.pusher.data.model.entities.LembreteEntity;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
@@ -14,9 +14,13 @@ public interface LembreteMapper
 {
     LembreteMapper INSTANCE = Mappers.getMapper( LembreteMapper.class );
 
-    LembreteOutputDTO toOutputDto( LembreteEntity lembrete );
-
     @Mapping(target = "categoria.id", source = "categoriaId")
-    @Mapping(target = "recorrencia.id", source = "recorrenciaId")
-    LembreteEntity toEntity( LembreteInputDTO lembrete );
+    Lembrete toDomain( LembreteInputDTO inputDto );
+    Lembrete toDomain( LembreteEntity entity );
+    Lembrete toDomain( LembreteOutputDTO outputDto );
+
+    LembreteOutputDTO toOutputDto( Lembrete lembrete );
+    LembreteOutputDTO toOutputDto( LembreteEntity entity );
+
+    LembreteEntity toEntity( Lembrete lembrete );
 }

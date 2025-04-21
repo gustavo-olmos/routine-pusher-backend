@@ -1,6 +1,6 @@
 package com.routine.pusher.application.job;
 
-import com.routine.pusher.data.model.dto.LembreteOutputDTO;
+import com.routine.pusher.data.model.domain.Lembrete;
 import com.routine.pusher.infrastructure.common.util.AgendadorJobUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -20,10 +20,10 @@ public class AgendadorJob
     }
 
 
-    public static void agendar( LembreteOutputDTO dto )
+    public static void agendar( Lembrete lembrete )
     {
-        JobDetail jobDetail = AgendadorJobUtil.montarNovoJob( dto );
-        Trigger trigger = AgendadorJobUtil.montarNovoTrigger( dto );
+        JobDetail jobDetail = AgendadorJobUtil.montarNovoJob( lembrete );
+        Trigger trigger = AgendadorJobUtil.montarNovoTrigger( lembrete );
 
         try {
             scheduler.scheduleJob( jobDetail, trigger );

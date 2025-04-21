@@ -9,7 +9,7 @@ public interface LembreteService
 {
     LembreteOutputDTO salvar( LembreteInputDTO lembrete );
 
-    LembreteOutputDTO concluir( Long id );
+    void concluir( Long id );
 
     List<LembreteOutputDTO> listar( String atributo, boolean ordemReversa );
 

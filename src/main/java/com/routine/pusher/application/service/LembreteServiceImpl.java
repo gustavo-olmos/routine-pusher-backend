@@ -2,9 +2,10 @@ package com.routine.pusher.application.service;
 
 import com.routine.pusher.application.service.interfaces.LembreteService;
 import com.routine.pusher.data.mapper.LembreteMapper;
+import com.routine.pusher.data.model.domain.Lembrete;
 import com.routine.pusher.data.model.dto.LembreteInputDTO;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
-import com.routine.pusher.data.model.enums.EnumStatusConclusao;
+import com.routine.pusher.data.model.entities.LembreteEntity;
 import com.routine.pusher.data.repository.LembreteRepository;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
 import lombok.AllArgsConstructor;
@@ -29,15 +30,19 @@ public class LembreteServiceImpl implements LembreteService
     {
         LOGGER.debug("Adicionando lembrete");
 
-        return mapper.toOutputDto( repository.save( mapper.toEntity( inputDto ) ) );
+        Lembrete lembrete = mapper.toDomain( inputDto );
+        repository.save( mapper.toEntity( lembrete ) );
+        lembrete.agendarLembrete( );
+
+        return mapper.toOutputDto( lembrete );
     }
 
     @Override
-    public LembreteOutputDTO concluir( Long id )
+    public void concluir( Long id )
     {
-        return repository.findById( id ).stream( )
-                .map(entidade -> repository.save( entidade.concluirLembrete( ) ) )
-                .map( mapper::toOutputDto ).toList( ).get( 0 );
+        Lembrete lembrete = mapper.toDomain( repository.findById( id ).orElse( null ) );
+        lembrete.concluirLembrete( );
+        repository.save( mapper.toEntity( lembrete ) );
     }
 
     @Override
@@ -48,7 +53,7 @@ public class LembreteServiceImpl implements LembreteService
         return repository.findAll( ).stream( )
                 .map( mapper::toOutputDto )
                 .sorted( new SortInfo<>( campoOrdenador, ordemReversa ) )
-                .toList();
+                .toList( );
     }
 
     @Override

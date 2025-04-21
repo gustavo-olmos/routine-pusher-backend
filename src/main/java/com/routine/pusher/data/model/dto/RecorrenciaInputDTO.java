@@ -10,15 +10,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record RecorrenciaInputDTO(
-        int quantidade,                       // Quantidade de eventos
-        int posicaoSemana,                    // Posição da semana (ex: 2a, 3a semana)
-        EnumTipoRecorrencia tipoRecorrencia,  // Tipo de recorrência (DIARIO, SEMANAL, QUINZENAL, MENSAL)
-        List<EnumDiasDaSemana> diasDaSemana,  // Dias da semana em que o evento ocorre
-        EnumDiasDaSemana diaEspecificoSemana, // Dia específico da semana (ex: SEGUNDA, QUINTA)
-        int diaFixoMes,                       // Dia fixo do mês (ex: 15)
-        int intervaloMinutos,                 // Intervalo de tempo em minutos
-        int intervaloHoras,                   // Intervalo de tempo em horas
-        int intervaloDias,                    // Intervalo de tempo em dias
+        int quantidade,
+        int posicaoSemana,
+        EnumTipoRecorrencia tipoRecorrencia,
+        List<EnumDiasDaSemana> diasDaSemana,
+        EnumDiasDaSemana diaEspecificoSemana,
+        int diaFixoMes,
+        int intervaloMinutos,
+        int intervaloHoras,
+        int intervaloDias,
 
         @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)

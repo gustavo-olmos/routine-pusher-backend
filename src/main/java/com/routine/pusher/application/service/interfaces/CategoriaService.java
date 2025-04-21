@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface CategoriaService
 {
-    CategoriaOutputDTO adicionar( CategoriaInputDTO dto );
+    CategoriaOutputDTO adicionar( CategoriaInputDTO inputDto );
 
     List<CategoriaOutputDTO> listar( String atributo, boolean ordemReversa );
 
-    CategoriaOutputDTO atualizar( Long id, CategoriaInputDTO dto );
+    CategoriaOutputDTO atualizar( Long id, CategoriaInputDTO inputDto);
 
     boolean excluir( Long id );
 }

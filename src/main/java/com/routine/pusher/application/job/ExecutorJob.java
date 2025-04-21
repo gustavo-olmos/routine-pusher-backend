@@ -1,6 +1,8 @@
 package com.routine.pusher.application.job;
 
 import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
+import com.routine.pusher.data.model.domain.Lembrete;
+import com.routine.pusher.data.model.domain.Recorrencia;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import com.routine.pusher.data.model.dto.RecorrenciaOutputDTO;
 import com.routine.pusher.infrastructure.common.util.AgendadorJobUtil;
@@ -29,22 +31,22 @@ public class ExecutorJob implements Job
         JobDataMap jobDataMap = executionContext.getJobDetail( ).getJobDataMap( );
         String jobId = executionContext.getJobDetail( ).getKey( ).getName( );
 
-        LembreteOutputDTO dto = obterLembrete( jobDataMap, jobId );
-        if( dto == null ) return;
+        Lembrete lembrete = obterLembrete( jobDataMap, jobId );
+        if( lembrete == null ) return;
 
-        List<LocalDateTime> notificacoesAgendadas = dto.datasEspecificas( );
+        List<LocalDateTime> notificacoesAgendadas = lembrete.getDatasEspecificas( );
         if( notificacoesAgendadas.isEmpty( ) )
             excluirJob( executionContext, jobId );
 
-        notificar( notificacoesAgendadas.get( 0 ), jobId, dto.titulo( ) );
-        reagendar(executionContext, dto);
+        notificar( notificacoesAgendadas.get( 0 ), jobId, lembrete.getTitulo( ) );
+        reagendar(executionContext, lembrete);
     }
 
 
     @Nullable
-    private static LembreteOutputDTO obterLembrete( JobDataMap jobDataMap, String jobId )
+    private static Lembrete obterLembrete( JobDataMap jobDataMap, String jobId )
     {
-        LembreteOutputDTO dto = (LembreteOutputDTO) jobDataMap.get( jobId );
+        Lembrete dto = (Lembrete) jobDataMap.get( jobId );
         if( dto == null ) {
             LOGGER.error("LembreteDTO não encontrado para o job ID: {}", jobId);
             return null;
@@ -73,42 +75,42 @@ public class ExecutorJob implements Job
         }
     }
 
-    private void reagendar( JobExecutionContext executionContext, LembreteOutputDTO dto )
+    private void reagendar( JobExecutionContext executionContext, Lembrete lembrete )
     {
-        RecorrenciaOutputDTO recorrencia = dto.recorrencia( );
+        Recorrencia recorrencia = lembrete.getRecorrencia( );
         if ( recorrencia != null ) {
-            if( recorrencia.validade( ) != null )
-                reagendarComRecorrencia( executionContext.getScheduler( ), dto );
+            if( recorrencia.getValidade( ) != null )
+                reagendarComRecorrencia( executionContext.getScheduler( ), lembrete );
 
-            if( recorrencia.quantidade( ) > 0 )
-                reagendarComRecorrenciaFinita( executionContext.getScheduler( ), dto );
+            if( recorrencia.getQuantidade( ) > 0 )
+                reagendarComRecorrenciaFinita( executionContext.getScheduler( ), lembrete );
         } else {
-            reagendarComDataEspecifica( executionContext.getScheduler( ), dto );
+            reagendarComDataEspecifica( executionContext.getScheduler( ), lembrete );
         }
     }
 
-    private void reagendarComDataEspecifica( Scheduler scheduler, LembreteOutputDTO dto )
+    private void reagendarComDataEspecifica( Scheduler scheduler, Lembrete lembrete )
     {
-        List<LocalDateTime> notificacoesAgendadas = dto.datasEspecificas( );
+        List<LocalDateTime> notificacoesAgendadas = lembrete.getDatasEspecificas( );
         if ( notificacoesAgendadas.isEmpty( ) ) return;
 
-        Trigger novoTrigger = AgendadorJobUtil.montarNovoTrigger( dto );
-        AgendadorJob.reagendar( scheduler, dto.id( ).toString( ), novoTrigger );
+        Trigger novoTrigger = AgendadorJobUtil.montarNovoTrigger( lembrete );
+        AgendadorJob.reagendar( scheduler, lembrete.getId( ).toString( ), novoTrigger );
     }
 
-    private void reagendarComRecorrencia( Scheduler scheduler, LembreteOutputDTO dto )
+    private void reagendarComRecorrencia( Scheduler scheduler, Lembrete lembrete )
     {
-        String cronExpression = dto.recorrencia( ).intervaloCronExp( );
-        Trigger novoTrigger = ( dto.recorrencia( ).validade( ) != null )
-            ? AgendadorJobUtil.montarTriggerComValidade( dto, cronExpression )
-            : AgendadorJobUtil.montarTriggerComCronExpression( dto, cronExpression );
-        AgendadorJob.reagendar( scheduler, dto.id( ).toString( ), novoTrigger );
+        String cronExpression = lembrete.getRecorrencia( ).getIntervaloCronExp( );
+        Trigger novoTrigger = ( lembrete.getRecorrencia( ).getValidade( ) != null )
+            ? AgendadorJobUtil.montarTriggerComValidade( lembrete, cronExpression )
+            : AgendadorJobUtil.montarTriggerComCronExpression( lembrete, cronExpression );
+        AgendadorJob.reagendar( scheduler, lembrete.getId( ).toString( ), novoTrigger );
     }
 
-    private void reagendarComRecorrenciaFinita( Scheduler scheduler, LembreteOutputDTO dto )
+    private void reagendarComRecorrenciaFinita( Scheduler scheduler, Lembrete lembrete )
     {
-        String cronExpression = dto.recorrencia( ).intervaloCronExp( );
-        Trigger novoTrigger = AgendadorJobUtil.montarTriggerComQuantidade( dto, cronExpression );
-        AgendadorJob.reagendar( scheduler, dto.id( ).toString( ), novoTrigger );
+        String cronExpression = lembrete.getRecorrencia( ).getIntervaloCronExp( );
+        Trigger novoTrigger = AgendadorJobUtil.montarTriggerComQuantidade( lembrete, cronExpression );
+        AgendadorJob.reagendar( scheduler, lembrete.getId( ).toString( ), novoTrigger );
     }
 }
