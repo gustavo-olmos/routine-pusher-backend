@@ -2,6 +2,7 @@ package com.routine.pusher.application.external.controller;
 
 import com.routine.pusher.application.service.interfaces.OpenAIChatService;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @RequestMapping(path = "api/v1/open-ai")
+@Tag(name = "Open-AI", description = "Operações de chat relacionadas à lembretes")
 public class OpenAIChatController
 {
     private OpenAIChatService service;
