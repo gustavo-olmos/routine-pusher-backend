@@ -17,7 +17,7 @@ public class RabbitMQConsumer
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQConsumer.class);
 
-    private final SimpMessagingTemplate messagingTemplate;
+//    private final SimpMessagingTemplate messagingTemplate;
     private final LembreteMapper mapper;
 
     @RabbitListener(queues = {"${rabbitmq.queue.name}"})
@@ -26,7 +26,7 @@ public class RabbitMQConsumer
         try {
             LOGGER.info("Trigger acionado, lembrete salvo para agendamento, {}", dto);
             AgendadorJob.agendar( mapper.toDomain( dto ) );
-            messagingTemplate.convertAndSend( "/topic/notifications", dto );
+//            messagingTemplate.convertAndSend( "/topic/notifications", dto );
         }
         catch ( Exception ex ) {
             LOGGER.error("Erro ao processar a mensagem, {}", ex.getMessage( ));

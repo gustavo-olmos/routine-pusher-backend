@@ -32,6 +32,10 @@ spring:
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
 
+  springdoc:
+    swagger-ui:
+      enabled: true
+
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -42,14 +46,6 @@ spring:
     port: 5672
     username: guest
     password: guest
-
-
-springdoc:
-  api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: true
-    url: /openapi.yaml
 
 
 rabbitmq:
