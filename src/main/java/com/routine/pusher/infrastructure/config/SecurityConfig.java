@@ -1,4 +1,4 @@
-//package com.routine.pusher.infrastructure.config;
+package com.routine.pusher.infrastructure.config;
 //
 //
 //import org.springframework.context.annotation.Bean;
@@ -9,8 +9,8 @@
 //
 //@Configuration
 //@EnableWebSecurity
-//public class SecurityConfig
-//{
+public class SecurityConfig
+{
 //    @Bean
 //    public SecurityFilterChain filterChain( HttpSecurity http ) throws Exception
 //    {
@@ -21,4 +21,4 @@
 //
 //        return http.build();
 //    }
-//}
+}
