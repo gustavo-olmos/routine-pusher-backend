@@ -23,7 +23,7 @@ public class CategoriaController
 
     @PostMapping
     @Operation(summary = "Adiciona categoria")
-    public ResponseEntity<CategoriaOutputDTO> adicionar(@RequestBody CategoriaInputDTO dto )
+    public ResponseEntity<CategoriaOutputDTO> adicionar( @RequestBody CategoriaInputDTO dto )
     {
         return ResponseEntity.ok( ).body( service.adicionar( dto ) );
     }

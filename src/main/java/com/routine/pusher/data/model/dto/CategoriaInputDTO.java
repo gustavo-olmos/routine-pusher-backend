@@ -1,8 +1,3 @@
 package com.routine.pusher.data.model.dto;
 
-public record CategoriaInputDTO(
-        Long id,
-        String nome,
-        String cor,
-        int fatorOrdem
-) { }
+public record CategoriaInputDTO( String nome, String cor, int fatorOrdem ) { }
