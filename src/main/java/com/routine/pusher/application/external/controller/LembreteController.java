@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(path = "api/v1/lembretes")
+@RequestMapping(path = "api/v1/lembrete")
 @Tag(name = "Lembrete", description = "Operações CRUD relacionadas à lembretes")
 public class LembreteController
 {

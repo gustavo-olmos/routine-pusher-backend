@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig
 {
     @Bean
-    public OpenAPI myOpenAPI( )
+    public OpenAPI routinePusherAPI( )
     {
         return new OpenAPI( ).info(
                 new Info( ).title( "Routine Pusher API" )

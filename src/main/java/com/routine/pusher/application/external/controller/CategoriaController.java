@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(path = "api/v1/categorias")
+@RequestMapping(path = "api/v1/categoria")
 @Tag(name = "Categoria", description = "Operações CRUD relacionadas à categoria de lembrete")
 public class CategoriaController
 {
@@ -30,21 +30,21 @@ public class CategoriaController
 
     @GetMapping
     @Operation(summary = "Lista categoria")
-    public ResponseEntity<List<CategoriaOutputDTO>> listar(@RequestParam("sortInfo") String atributo,
-                                                           @RequestParam("decrescente") boolean ordemReversa )
+    public ResponseEntity<List<CategoriaOutputDTO>> listar( @RequestParam("sortInfo") String atributo,
+                                                            @RequestParam("decrescente") boolean ordemReversa )
     {
         return ResponseEntity.ok( ).body( service.listar( atributo, ordemReversa ) );
     }
 
-    @PutMapping(path = "{id}")
+    @PutMapping("/{id}")
     @Operation(summary = "Atualiza categoria")
-    public ResponseEntity<CategoriaOutputDTO> atualizar(@PathVariable(value = "id") Long id,
-                                                        @RequestBody CategoriaInputDTO dto )
+    public ResponseEntity<CategoriaOutputDTO> atualizar( @PathVariable(value = "id") Long id,
+                                                         @RequestBody CategoriaInputDTO dto )
     {
         return ResponseEntity.ok( ).body( service.atualizar( id, dto ) );
     }
 
-    @DeleteMapping(path = "{id}")
+    @DeleteMapping("/{id}")
     @Operation(summary = "Exclui categoria")
     public ResponseEntity<String> excluir( @PathVariable(value = "id") Long id )
     {
