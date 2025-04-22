@@ -26,7 +26,7 @@ public class OpenAIChatClientImpl implements OpenAIChatClient
 
 
     @Override
-    public LembreteInputDTO buildLembreteChat(String frase ) throws JsonProcessingException,
+    public LembreteInputDTO buildLembreteChat( String frase ) throws JsonProcessingException,
                                                                     ConversaoLembreteException
     {
         prompt = prompt + objectMapper.writeValueAsString( LembreteInputDTO.class ) +

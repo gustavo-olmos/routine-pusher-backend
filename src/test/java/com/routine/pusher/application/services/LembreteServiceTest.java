@@ -1,12 +1,14 @@
 package com.routine.pusher.application.services;
 
-import com.routine.pusher.application.job.AgendadorJob;
 import com.routine.pusher.application.service.LembreteServiceImpl;
 import com.routine.pusher.data.example.input.LembreteInputDTOExample;
 import com.routine.pusher.data.example.output.LembreteOutputDTOExample;
 import com.routine.pusher.data.mapper.LembreteMapper;
+import com.routine.pusher.data.mapper.LembreteMapperImpl;
+import com.routine.pusher.data.model.domain.Lembrete;
 import com.routine.pusher.data.model.dto.LembreteInputDTO;
 import com.routine.pusher.data.model.dto.LembreteOutputDTO;
+import com.routine.pusher.data.model.entities.LembreteEntity;
 import com.routine.pusher.data.repository.LembreteRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,19 +18,16 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LembreteServiceTest
 {
     @Mock
-    AgendadorJob agendador;
-
-    @Mock
     LembreteRepository repository;
 
     @Spy
-    LembreteMapper mapper;
+    LembreteMapperImpl mapper;
 
 
     @Test
@@ -37,12 +36,14 @@ class LembreteServiceTest
     {
         LembreteInputDTO input = LembreteInputDTOExample.simples( );
         LembreteOutputDTO esperado = LembreteOutputDTOExample.simples( );
+        Lembrete lembrete = mapper.toDomain( input );
 
-        doReturn( esperado ).when( agendador );
-//        AgendadorJob.agendar( esperado );
+        doReturn( esperado ).when( repository ).save( any( LembreteEntity.class ) );
 
-        LembreteOutputDTO output = new LembreteServiceImpl( mapper, repository ).salvar( input );
+        LembreteOutputDTO output = new LembreteServiceImpl( mapper, repository  ).salvar( input );
 
+        verify( lembrete ).agendarLembrete( );
+        verify( repository, times( 1 ) ).save( mapper.toEntity( lembrete ) );
         assertThat( output ).isEqualTo( esperado );
     }
 }

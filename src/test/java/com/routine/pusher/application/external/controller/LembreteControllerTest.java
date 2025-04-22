@@ -71,23 +71,8 @@ class LembreteControllerTest
                 ( ) -> assertEquals( outputEsperado.metodoNotificacao( ), responseBody.metodoNotificacao( ) ) );
     }
 
-//    @Test
-//    @DisplayName("Testa retorno de salvar com campos errados")
-//    void testaSalvar_02() {
-//        assertThat(response.getStatusCodeValue()).isEqualTo(200);
-//        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-//
-//        ExampleOutput responseBody = response.getBody();
-//        assertThat(responseBody)
-//                .as("O corpo da resposta não pode ser nulo")
-//                .isNotNull();
-//
-//        assertAll(
-//              () -> assertThat(responseBody.titulo()).as("titulo").isEqualTo(outputEsperado.titulo()),
-//              () -> assertThat(responseBody.descricao()).as("descricao").isEqualTo(outputEsperado.descricao()),
-//              () -> assertThat(responseBody.status()).as("status").isEqualTo(outputEsperado.status()),
-//              () -> assertThat(responseBody.datasEspecificas()).as("datasEspecificas")
-//                              .containsExactlyElementsOf(outputEsperado.datasEspecificas())
-//        );
-//    }
+    @Test
+    @DisplayName("Testa retorno de salvar com campos errados")
+    void testaSalvar_02()
+    {  }
 }
