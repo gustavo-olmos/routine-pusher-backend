@@ -1,7 +1,7 @@
 package com.routine.pusher.data.model.domain;
 
+import com.routine.pusher.data.model.dto.RecorrenciaInputDTO;
 import com.routine.pusher.data.model.enums.EnumDiasDaSemana;
-import com.routine.pusher.data.model.enums.EnumTipoRecorrencia;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -15,45 +15,43 @@ public class Recorrencia
     private LocalDateTime validade;
     private int quantidade;
 
-    private int posicaoSemana;
-    private EnumTipoRecorrencia tipoRecorrencia;
-    private List<EnumDiasDaSemana> diasDaSemana;
-    private EnumDiasDaSemana diaEspecificoSemana;
-    private int diaFixoMes;
-    private int intervaloMinutos;
-    private int intervaloHoras;
-    private int intervaloDias;
+    private int numeroSemanaNoMes;
+    private List<EnumDiasDaSemana> diasSemana;
+    private int diaFixoNoMes;
+    private int intervaloEmMinutos;
+    private int intervaloEmHoras;
+    private int intervaloEmDias;
 
     public Recorrencia( )
     {
         this.intervaloCronExp = buildCronExpression( );
     }
 
-    private String buildCronExpression( )
+    //TODO: ajustar essa função para buildar as cron expressions corretamente
+    public String buildCronExpression( )
     {
         String segundos = "0";
-        String minutos = intervaloMinutos > 0 ? "*/" + intervaloMinutos : "0";
-        String horas = intervaloHoras > 0 ? "*/" + intervaloHoras : "12";
-        String diasDoMes = "?";
+        String minutos = ( intervaloEmMinutos > 0 ) ? ("*/" + intervaloEmMinutos) : "0";
+        String horas = ( intervaloEmHoras > 0 ) ? ("*/" + intervaloEmHoras) : "0";
+        String diasMes = "?";
         String mes = "*";
-        String diasDaSemana = "*";
+        String diasSemana = "*";
 
-        assert tipoRecorrencia != null;
-        if ( "MENSAL".equalsIgnoreCase( tipoRecorrencia.name( ) ) ) {
-            if ( posicaoSemana > 0 && diaEspecificoSemana != null ) {
-                diasDaSemana = diaEspecificoSemana.getValue( ) + "#" + posicaoSemana;
-            } else if( diaFixoMes > 0 ) {
-                diasDoMes = String.valueOf( diaFixoMes );
-            }
-        } else if( "SEMANAL".equalsIgnoreCase( tipoRecorrencia.name( ) ) ) {
-            if ( diaEspecificoSemana != null )
-                diasDaSemana = String.valueOf( diaEspecificoSemana.getValue( ) );
-        } else if ( "DIARIO".equalsIgnoreCase( tipoRecorrencia.name( ) ) ) {
-            diasDoMes = "*";
-        } else if ( "QUINZENAL".equalsIgnoreCase( tipoRecorrencia.name( ) ) ) {
-            diasDoMes = "1/15";
-        }
+        return String.format( "%s %s %s %s %s %s", segundos, minutos, horas, diasMes, mes, diasSemana );
+    }
 
-        return String.format( "%s %s %s %s %s %s", segundos, minutos, horas, diasDoMes, mes, diasDaSemana );
+    public static Recorrencia fromInputDto( RecorrenciaInputDTO inputDTO )
+    {
+        Recorrencia recorrencia = new Recorrencia( );
+        recorrencia.setValidade( inputDTO.validade( ) );
+        recorrencia.setQuantidade( inputDTO.quantidade( ) );
+        recorrencia.setNumeroSemanaNoMes( inputDTO.numeroSemanaNoMes( ) );
+        recorrencia.setDiasSemana( inputDTO.diasSemana( ) );
+        recorrencia.setDiaFixoNoMes( inputDTO.diaFixoNoMes( ) );
+        recorrencia.setIntervaloEmMinutos( inputDTO.intervaloEmMinutos( ) );
+        recorrencia.setIntervaloEmHoras( inputDTO.intervaloEmHoras( ) );
+        recorrencia.setIntervaloEmDias( inputDTO.intervaloEmDias( ) );
+
+        return recorrencia;
     }
 }

@@ -15,6 +15,10 @@ public class RecorrenciaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne
+    @JoinColumn(name = "lembrete_id")
+    private LembreteEntity lembrete;
+
     @Column(name = "intervalo_cron_exp")
     private String intervaloCronExp;
 

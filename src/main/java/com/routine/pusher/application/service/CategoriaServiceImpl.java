@@ -53,7 +53,8 @@ public class CategoriaServiceImpl implements CategoriaService
         LOGGER.debug("Alterando categoria");
 
         return repository.findById( id )
-                .map( entidade -> repository.save( mapper.atualizaEntidade( inputDto, entidade ) ) )
+                .map( entidade -> mapper.updateEntity( inputDto, entidade ) )
+                .map( repository::save )
                 .map( mapper::toOutputDto )
                 .orElseThrow( ( ) -> new EntityNotFoundException("Categoria não encontrada para o id: " + id) );
     }

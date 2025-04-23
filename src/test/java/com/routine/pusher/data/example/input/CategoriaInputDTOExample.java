@@ -8,6 +8,6 @@ public abstract class CategoriaInputDTOExample
 
     public static CategoriaInputDTO simples( )
     {
-        return  new CategoriaInputDTO( 1L, "Importante", "Amarelo", 1 );
+        return new CategoriaInputDTO( "Importante", "Amarelo", 1 );
     }
 }

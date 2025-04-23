@@ -5,20 +5,28 @@ import com.routine.pusher.infrastructure.common.util.AgendadorJobUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AgendadorJob
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgendadorJob.class);
 
-    private static Scheduler scheduler;
+    private static Scheduler scheduler = initializeScheduler( );
 
-    public AgendadorJob( Scheduler scheduler )
+    private AgendadorJob( Scheduler scheduler )
     {
         AgendadorJob.scheduler = scheduler;
     }
 
+    private static Scheduler initializeScheduler( )
+    {
+        try { return new StdSchedulerFactory( ).getScheduler( ); }
+        catch (SchedulerException e) { throw new RuntimeException(e); }
+    }
 
     public static void agendar( Lembrete lembrete )
     {

@@ -36,18 +36,3 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
-
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-
-
-rabbitmq:
-  queue:
-    name: lembrete_queue
-  exchange:
-    name: lembrete_exchange
-  routing:
-    key: lembrete_key

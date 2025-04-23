@@ -12,9 +12,9 @@ public abstract class LembreteInputDTOExample
 
     public static LembreteInputDTO simples( )
     {
-        RecorrenciaInputDTO recorrencia = new RecorrenciaInputDTO( 0, 0, null,
-                List.of(EnumDiasDaSemana.SEGUNDA, EnumDiasDaSemana.QUARTA, EnumDiasDaSemana.SEXTA), null,
-                0, 0, 0, 0, null );
+        RecorrenciaInputDTO recorrencia = new RecorrenciaInputDTO( null, 0, 0,
+                List.of( EnumDiasDaSemana.SEGUNDA, EnumDiasDaSemana.QUARTA, EnumDiasDaSemana.SEXTA ),
+                0, 0, 0, 0 );
 
         return new LembreteInputDTO( "TESTE", "Lembrete teste", "PENDENTE", 1L, recorrencia,
                 null, List.of("vibração") );

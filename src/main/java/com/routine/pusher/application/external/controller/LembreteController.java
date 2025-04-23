@@ -37,6 +37,15 @@ public class LembreteController
     }
 
     @PutMapping(path = "{id}")
+    @Operation(summary = "Atualiza lembrete")
+    public ResponseEntity<LembreteOutputDTO> atualizar( @PathVariable(value = "id") Long id,
+                                                        @RequestBody LembreteInputDTO dto )
+    {
+        return ResponseEntity.ok( ).body( service.atualizar( id, dto ) );
+    }
+
+
+    @PatchMapping(path = "{id}")
     @Operation(summary = "Conclui lembrete")
     public ResponseEntity<Void> concluir( @PathVariable(value = "id") Long id )
     {

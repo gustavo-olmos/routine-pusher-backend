@@ -15,16 +15,16 @@ public class Lembrete
     private LocalDateTime dataCriacao;
     private String titulo;
     private String descricao;
-    private String status = EnumStatusConclusao.PENDENTE.name( );
+    private String status;
     private Categoria categoria;
     private Recorrencia recorrencia;
     private List<LocalDateTime> datasEspecificas;
     private List<String> metodoNotificacao;
-    private LembreteMapper mapper;
 
     public Lembrete( )
     {
         this.dataCriacao = LocalDateTime.now( );
+        this.status = EnumStatusConclusao.PENDENTE.name( );
     }
 
     public void concluirLembrete( )

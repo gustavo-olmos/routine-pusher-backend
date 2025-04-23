@@ -22,7 +22,6 @@ public class ExecutorJob implements Job
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorJob.class);
 
-    //private final RabbitMQProducer producer;
     private final NotificadorSSEService notificadorService;
 
     @Override
@@ -71,7 +70,6 @@ public class ExecutorJob implements Job
         if( proximaNotificacao.isEqual( agora ) || proximaNotificacao.isBefore( agora ) ) {
             LOGGER.info("Notificando job com id: {}", jobId);
             notificadorService.adicionarEnvio( mensagem );
-            //producer.sendMessage(dto);
         }
     }
 
@@ -104,6 +102,7 @@ public class ExecutorJob implements Job
         Trigger novoTrigger = ( lembrete.getRecorrencia( ).getValidade( ) != null )
             ? AgendadorJobUtil.montarTriggerComValidade( lembrete, cronExpression )
             : AgendadorJobUtil.montarTriggerComCronExpression( lembrete, cronExpression );
+
         AgendadorJob.reagendar( scheduler, lembrete.getId( ).toString( ), novoTrigger );
     }
 

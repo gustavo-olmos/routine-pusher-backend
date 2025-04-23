@@ -8,6 +8,7 @@ import com.routine.pusher.data.model.dto.LembreteOutputDTO;
 import com.routine.pusher.data.model.entities.LembreteEntity;
 import com.routine.pusher.data.repository.LembreteRepository;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +32,25 @@ public class LembreteServiceImpl implements LembreteService
         LOGGER.debug("Adicionando lembrete");
 
         Lembrete lembrete = mapper.toDomain( inputDto );
-        repository.save( mapper.toEntity( lembrete ) );
+        LembreteEntity entidade = repository.save( mapper.toEntity( lembrete ) );
+        lembrete.setId( entidade.getId( ) );
         lembrete.agendarLembrete( );
 
-        return mapper.toOutputDto( lembrete );
+        return mapper.toOutputDto( entidade );
+    }
+
+    @Override
+    public LembreteOutputDTO atualizar( Long id, LembreteInputDTO inputDTO )
+    {
+        LOGGER.debug("Alterando lembrete de id {}", id);
+
+        Lembrete lembrete = mapper.toDomain( inputDTO );
+
+        return repository.findById( id )
+                .map( entidade -> mapper.updateEntity( lembrete, entidade ) )
+                .map( repository::save )
+                .map( mapper::toOutputDto )
+                .orElseThrow( ( ) -> new EntityNotFoundException("Lembrete não encontrado para o id" + id) );
     }
 
     @Override

@@ -18,7 +18,7 @@ public class LembreteEntity
     private Long id;
 
     @Column(name = "dataCriacao", nullable = false)
-    private LocalDateTime dataCriacao;
+    private LocalDateTime dataCriacao = LocalDateTime.now( );
 
     @Column(name = "titulo", nullable = false)
     private String titulo;
@@ -27,14 +27,14 @@ public class LembreteEntity
     private String descricao;
 
     @Column(name = "status")
-    private String status = EnumStatusConclusao.PENDENTE.name( );
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     private CategoriaEntity categoria;
 
-    @OneToOne
-    @JoinColumn(name = "recorrencia_id")
+    @OneToOne(mappedBy = "lembrete", fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL, orphanRemoval = true)
     private RecorrenciaEntity recorrencia;
 
     @Column(name = "datasEspecificas")
