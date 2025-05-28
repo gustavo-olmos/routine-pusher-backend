@@ -7,8 +7,8 @@ import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.ChatCompletion;
 import com.openai.models.ChatCompletionCreateParams;
 import com.openai.models.ChatModel;
-import com.routine.pusher.data.model.dto.LembreteInputDTO;
-import com.routine.pusher.infrastructure.exceptions.ConversaoLembreteException;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
+import com.routine.pusher.infrastructure.exceptions.ConversaoException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,7 +27,7 @@ public class OpenAIChatClientImpl implements OpenAIChatClient
 
     @Override
     public LembreteInputDTO buildLembreteChat( String frase ) throws JsonProcessingException,
-                                                                    ConversaoLembreteException
+            ConversaoException
     {
         prompt = prompt + objectMapper.writeValueAsString( LembreteInputDTO.class ) +
                 "\n Dados de lembrete digitados pelo usuário: \n" + frase;
@@ -47,7 +47,7 @@ public class OpenAIChatClientImpl implements OpenAIChatClient
             return objectMapper.readValue( content, LembreteInputDTO.class );
         }
         catch ( Exception ex ) {
-            throw new ConversaoLembreteException( ex.getMessage( ) );
+            throw new ConversaoException( ex.getMessage( ) );
         }
     }
 }

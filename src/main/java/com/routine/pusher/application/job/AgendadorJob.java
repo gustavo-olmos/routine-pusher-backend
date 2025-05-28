@@ -1,7 +1,7 @@
 package com.routine.pusher.application.job;
 
-import com.routine.pusher.data.model.domain.Lembrete;
-import com.routine.pusher.infrastructure.common.util.AgendadorJobUtil;
+import com.routine.pusher.core.domain.lembrete.Lembrete;
+import com.routine.pusher.infrastructure.common.helper.AgendadorJobBuilder;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.quartz.*;
@@ -30,8 +30,8 @@ public class AgendadorJob
 
     public static void agendar( Lembrete lembrete )
     {
-        JobDetail jobDetail = AgendadorJobUtil.montarNovoJob( lembrete );
-        Trigger trigger = AgendadorJobUtil.montarNovoTrigger( lembrete );
+        JobDetail jobDetail = AgendadorJobBuilder.montarNovoJob( lembrete );
+        Trigger trigger = AgendadorJobBuilder.montarNovoTrigger( lembrete );
 
         try {
             scheduler.scheduleJob( jobDetail, trigger );

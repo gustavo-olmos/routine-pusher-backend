@@ -1,7 +1,7 @@
 package com.routine.pusher.application.service.interfaces;
 
-import com.routine.pusher.data.model.dto.LembreteInputDTO;
-import com.routine.pusher.data.model.dto.LembreteOutputDTO;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 
 import java.util.List;
 

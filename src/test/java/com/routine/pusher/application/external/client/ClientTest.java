@@ -1,11 +1,11 @@
 package com.routine.pusher.application.external.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.routine.pusher.data.example.input.LembreteInputDTOExample;
-import com.routine.pusher.data.example.output.LembreteOutputDTOExample;
-import com.routine.pusher.data.model.dto.LembreteInputDTO;
-import com.routine.pusher.data.model.dto.LembreteOutputDTO;
-import com.routine.pusher.infrastructure.exceptions.ConversaoLembreteException;
+import com.routine.pusher.core.example.input.LembreteInputDTOExample;
+import com.routine.pusher.core.example.output.LembreteOutputDTOExample;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
+import com.routine.pusher.infrastructure.exceptions.ConversaoException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +25,7 @@ class ClientTest
 
     @Test
     @DisplayName("Processar: Testa XXX de YYY com ZZZ")
-    void testProcessar01( ) throws ConversaoLembreteException, JsonProcessingException
+    void testProcessar01( ) throws ConversaoException, JsonProcessingException
     {
         LembreteInputDTO input   = LembreteInputDTOExample.simples( );
         LembreteOutputDTO retorno = LembreteOutputDTOExample.simples( );

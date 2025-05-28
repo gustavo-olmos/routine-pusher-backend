@@ -1,10 +1,10 @@
 package com.routine.pusher.application.service;
 
 import com.routine.pusher.application.service.interfaces.CategoriaService;
-import com.routine.pusher.data.mapper.CategoriaMapper;
-import com.routine.pusher.data.model.dto.CategoriaInputDTO;
-import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
-import com.routine.pusher.data.repository.CategoriaRepository;
+import com.routine.pusher.core.domain.categoria.CategoriaMapper;
+import com.routine.pusher.core.domain.categoria.dto.CategoriaInputDTO;
+import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
+import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;

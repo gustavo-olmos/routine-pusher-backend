@@ -1,10 +1,10 @@
 package com.routine.pusher.application.external.controller;
 
 import com.routine.pusher.application.service.interfaces.CategoriaService;
-import com.routine.pusher.data.example.input.CategoriaInputDTOExample;
-import com.routine.pusher.data.example.output.CategoriaOutputDTOExample;
-import com.routine.pusher.data.model.dto.CategoriaInputDTO;
-import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
+import com.routine.pusher.core.example.input.CategoriaInputDTOExample;
+import com.routine.pusher.core.example.output.CategoriaOutputDTOExample;
+import com.routine.pusher.core.domain.categoria.dto.CategoriaInputDTO;
+import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

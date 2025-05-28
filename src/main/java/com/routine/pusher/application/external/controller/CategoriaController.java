@@ -1,7 +1,7 @@
 package com.routine.pusher.application.external.controller;
 
-import com.routine.pusher.data.model.dto.CategoriaInputDTO;
-import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
+import com.routine.pusher.core.domain.categoria.dto.CategoriaInputDTO;
+import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
 import com.routine.pusher.application.service.interfaces.CategoriaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

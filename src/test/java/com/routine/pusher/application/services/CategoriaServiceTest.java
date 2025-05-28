@@ -1,14 +1,13 @@
 package com.routine.pusher.application.services;
 
 import com.routine.pusher.application.service.CategoriaServiceImpl;
-import com.routine.pusher.data.mapper.CategoriaMapper;
-import com.routine.pusher.data.mapper.CategoriaMapperImpl;
-import com.routine.pusher.data.model.dto.CategoriaInputDTO;
-import com.routine.pusher.data.model.dto.CategoriaOutputDTO;
-import com.routine.pusher.data.example.input.CategoriaInputDTOExample;
-import com.routine.pusher.data.example.output.CategoriaOutputDTOExample;
-import com.routine.pusher.data.model.entities.CategoriaEntity;
-import com.routine.pusher.data.repository.CategoriaRepository;
+import com.routine.pusher.core.mapper.CategoriaMapperImpl;
+import com.routine.pusher.core.domain.categoria.dto.CategoriaInputDTO;
+import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
+import com.routine.pusher.core.example.input.CategoriaInputDTOExample;
+import com.routine.pusher.core.example.output.CategoriaOutputDTOExample;
+import com.routine.pusher.core.domain.categoria.CategoriaEntity;
+import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

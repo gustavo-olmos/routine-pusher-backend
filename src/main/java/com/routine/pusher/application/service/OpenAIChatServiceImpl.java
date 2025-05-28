@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.routine.pusher.application.external.client.OpenAIChatClient;
 import com.routine.pusher.application.service.interfaces.LembreteService;
 import com.routine.pusher.application.service.interfaces.OpenAIChatService;
-import com.routine.pusher.data.model.dto.LembreteOutputDTO;
-import com.routine.pusher.infrastructure.exceptions.ConversaoLembreteException;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
+import com.routine.pusher.infrastructure.exceptions.ConversaoException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class OpenAIChatServiceImpl implements OpenAIChatService
         try {
             return service.salvar( client.buildLembreteChat( frase ) );
         }
-        catch ( JsonProcessingException | ConversaoLembreteException ex ) {
+        catch (JsonProcessingException | ConversaoException ex ) {
             throw new RuntimeException( ex );
         }
     }

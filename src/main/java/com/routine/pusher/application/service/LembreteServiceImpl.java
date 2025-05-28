@@ -1,12 +1,12 @@
 package com.routine.pusher.application.service;
 
 import com.routine.pusher.application.service.interfaces.LembreteService;
-import com.routine.pusher.data.mapper.LembreteMapper;
-import com.routine.pusher.data.model.domain.Lembrete;
-import com.routine.pusher.data.model.dto.LembreteInputDTO;
-import com.routine.pusher.data.model.dto.LembreteOutputDTO;
-import com.routine.pusher.data.model.entities.LembreteEntity;
-import com.routine.pusher.data.repository.LembreteRepository;
+import com.routine.pusher.core.domain.lembrete.LembreteMapper;
+import com.routine.pusher.core.domain.lembrete.Lembrete;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
+import com.routine.pusher.core.domain.lembrete.LembreteEntity;
+import com.routine.pusher.core.domain.lembrete.LembreteRepository;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;

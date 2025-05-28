@@ -1,7 +1,7 @@
 package com.routine.pusher.application.external.controller;
 
 import com.routine.pusher.application.service.interfaces.OpenAIChatService;
-import com.routine.pusher.data.model.dto.LembreteOutputDTO;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

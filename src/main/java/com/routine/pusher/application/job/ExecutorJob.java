@@ -1,11 +1,9 @@
 package com.routine.pusher.application.job;
 
 import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
-import com.routine.pusher.data.model.domain.Lembrete;
-import com.routine.pusher.data.model.domain.Recorrencia;
-import com.routine.pusher.data.model.dto.LembreteOutputDTO;
-import com.routine.pusher.data.model.dto.RecorrenciaOutputDTO;
-import com.routine.pusher.infrastructure.common.util.AgendadorJobUtil;
+import com.routine.pusher.core.domain.lembrete.Lembrete;
+import com.routine.pusher.core.domain.recorrencia.Recorrencia;
+import com.routine.pusher.infrastructure.common.helper.AgendadorJobBuilder;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 import org.quartz.*;
@@ -92,7 +90,7 @@ public class ExecutorJob implements Job
         List<LocalDateTime> notificacoesAgendadas = lembrete.getDatasEspecificas( );
         if ( notificacoesAgendadas.isEmpty( ) ) return;
 
-        Trigger novoTrigger = AgendadorJobUtil.montarNovoTrigger( lembrete );
+        Trigger novoTrigger = AgendadorJobBuilder.montarNovoTrigger( lembrete );
         AgendadorJob.reagendar( scheduler, lembrete.getId( ).toString( ), novoTrigger );
     }
 
@@ -100,8 +98,8 @@ public class ExecutorJob implements Job
     {
         String cronExpression = lembrete.getRecorrencia( ).getIntervaloCronExp( );
         Trigger novoTrigger = ( lembrete.getRecorrencia( ).getValidade( ) != null )
-            ? AgendadorJobUtil.montarTriggerComValidade( lembrete, cronExpression )
-            : AgendadorJobUtil.montarTriggerComCronExpression( lembrete, cronExpression );
+            ? AgendadorJobBuilder.montarTriggerComValidade( lembrete, cronExpression )
+            : AgendadorJobBuilder.montarTriggerComCronExpression( lembrete, cronExpression );
 
         AgendadorJob.reagendar( scheduler, lembrete.getId( ).toString( ), novoTrigger );
     }
@@ -109,7 +107,7 @@ public class ExecutorJob implements Job
     private void reagendarComRecorrenciaFinita( Scheduler scheduler, Lembrete lembrete )
     {
         String cronExpression = lembrete.getRecorrencia( ).getIntervaloCronExp( );
-        Trigger novoTrigger = AgendadorJobUtil.montarTriggerComQuantidade( lembrete, cronExpression );
+        Trigger novoTrigger = AgendadorJobBuilder.montarTriggerComQuantidade( lembrete, cronExpression );
         AgendadorJob.reagendar( scheduler, lembrete.getId( ).toString( ), novoTrigger );
     }
 }
