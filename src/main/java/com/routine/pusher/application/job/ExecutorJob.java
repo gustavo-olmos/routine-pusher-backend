@@ -2,7 +2,6 @@ package com.routine.pusher.application.job;
 
 import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
-import com.routine.pusher.core.domain.recorrencia.Recorrencia;
 import com.routine.pusher.infrastructure.common.helper.AgendadorJobBuilder;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.Nullable;
@@ -31,12 +30,12 @@ public class ExecutorJob implements Job
         Lembrete lembrete = obterLembrete( jobDataMap, jobId );
         if( lembrete == null ) return;
 
-        List<LocalDateTime> notificacoesAgendadas = lembrete.getDatasEspecificas( );
+        List<LocalDateTime> notificacoesAgendadas = lembrete.getMomentosEspecificados( );
         if( notificacoesAgendadas.isEmpty( ) )
             excluirJob( executionContext, jobId );
 
         notificar( notificacoesAgendadas.get( 0 ), jobId, lembrete.getTitulo( ) );
-        reagendar(executionContext, lembrete);
+        reagendar( executionContext.getScheduler( ), lembrete);
     }
 
 
@@ -71,43 +70,9 @@ public class ExecutorJob implements Job
         }
     }
 
-    private void reagendar( JobExecutionContext executionContext, Lembrete lembrete )
+    private void reagendar( Scheduler scheduler, Lembrete lembrete )
     {
-        Recorrencia recorrencia = lembrete.getRecorrencia( );
-        if ( recorrencia != null ) {
-            if( recorrencia.getValidade( ) != null )
-                reagendarComRecorrencia( executionContext.getScheduler( ), lembrete );
-
-            if( recorrencia.getQuantidade( ) > 0 )
-                reagendarComRecorrenciaFinita( executionContext.getScheduler( ), lembrete );
-        } else {
-            reagendarComDataEspecifica( executionContext.getScheduler( ), lembrete );
-        }
-    }
-
-    private void reagendarComDataEspecifica( Scheduler scheduler, Lembrete lembrete )
-    {
-        List<LocalDateTime> notificacoesAgendadas = lembrete.getDatasEspecificas( );
-        if ( notificacoesAgendadas.isEmpty( ) ) return;
-
         Trigger novoTrigger = AgendadorJobBuilder.montarNovoTrigger( lembrete );
-        AgendadorJob.reagendar( scheduler, lembrete.getId( ).toString( ), novoTrigger );
-    }
-
-    private void reagendarComRecorrencia( Scheduler scheduler, Lembrete lembrete )
-    {
-        String cronExpression = lembrete.getRecorrencia( ).getIntervaloCronExp( );
-        Trigger novoTrigger = ( lembrete.getRecorrencia( ).getValidade( ) != null )
-            ? AgendadorJobBuilder.montarTriggerComValidade( lembrete, cronExpression )
-            : AgendadorJobBuilder.montarTriggerComCronExpression( lembrete, cronExpression );
-
-        AgendadorJob.reagendar( scheduler, lembrete.getId( ).toString( ), novoTrigger );
-    }
-
-    private void reagendarComRecorrenciaFinita( Scheduler scheduler, Lembrete lembrete )
-    {
-        String cronExpression = lembrete.getRecorrencia( ).getIntervaloCronExp( );
-        Trigger novoTrigger = AgendadorJobBuilder.montarTriggerComQuantidade( lembrete, cronExpression );
         AgendadorJob.reagendar( scheduler, lembrete.getId( ).toString( ), novoTrigger );
     }
 }

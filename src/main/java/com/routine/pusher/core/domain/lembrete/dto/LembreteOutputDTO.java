@@ -27,5 +27,7 @@ public record LembreteOutputDTO(
         @JsonDeserialize(using = LocalDateTimeListWrapper.LocalDateTimeListDeserializer.class)
         List<LocalDateTime> datasEspecificas,
 
-        List<String> metodoNotificacao
+        List<String> metodoNotificacao,
+
+        LocalDateTime aPartirDe
 ) { }

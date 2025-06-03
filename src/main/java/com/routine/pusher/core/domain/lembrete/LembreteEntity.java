@@ -35,12 +35,15 @@ public class LembreteEntity
     private CategoriaEntity categoria;
 
     @OneToOne(mappedBy = "lembrete", fetch = FetchType.EAGER,
-            cascade = CascadeType.ALL, orphanRemoval = true)
+              cascade = CascadeType.ALL, orphanRemoval = true)
     private RecorrenciaEntity recorrencia;
 
-    @Column(name = "datasEspecificas")
+    @Column(name = "datas_especificas")
     private List<LocalDateTime> datasEspecificas;
 
-    @Column(name = "metodoNotificacao")
+    @Column(name = "metodo_notificacao")
     private List<String> metodoNotificacao;
+
+    @Column(name = "a_partir_de")
+    private LocalDateTime aPartirDe;
 }

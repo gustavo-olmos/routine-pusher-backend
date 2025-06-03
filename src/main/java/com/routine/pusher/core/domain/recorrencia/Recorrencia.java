@@ -5,9 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -16,52 +16,21 @@ public class Recorrencia
 {
     private Long id;
 
-    private int quantidade;
     private LocalDateTime validade;
-    private LocalDateTime aPartirDe;
-    private LocalDateTime momentoDinamico;
+    private Integer quantidade;
+    
+    /*Sem CronExpression*/
+    private Integer intervaloDias;
+    private Integer intervaloHoras;
+    private Integer intervaloMinutos;
 
-    private int intervaloHoras;
-    private int intervaloMinutos;
-
-    private List<EnumDiasDaSemana> diasDaSemana;
-    private int posicaoDaSemanaNoMes;
+    /*Com CronExpression*/
+    private Integer posicaoDaSemanaNoMes;
     private List<Integer> diasFixosNoMes;
-    private String cronExpression;
+    private List<EnumDiasDaSemana> diasDaSemana;
 
-
-    public String buildCronExprDiasDaSemana( LocalDateTime momento )
+    public Duration montarIntevalo( )
     {
-        String diasSemanaJoin = diasDaSemana.stream( )
-                .map( EnumDiasDaSemana::getAbreviaturaIngles )
-                .collect( Collectors.joining( "," ) );
-
-        cronExpression = String.format( "%d %d %d ? * %s",
-            momento.getSecond( ), momento.getMinute( ), momento.getHour( ), diasSemanaJoin );
-
-        return cronExpression;
-    }
-
-    public String buildCronExprComPosicaoDaSemana( LocalDateTime momento, int posicao )
-    {
-        if( diasDaSemana.size() == 1) {
-            cronExpression = String.format("%d %d %d ? * %d#%d",
-                momento.getSecond( ), momento.getMinute( ), momento.getHour( ),
-                diasDaSemana.get( 0 ).getCodigo( ), posicao );
-        }
-
-        return cronExpression;
-    }
-
-    public String buildCronExprComDiaFixo( LocalDateTime momento )
-    {
-        String diasFixosJoin = diasFixosNoMes.stream()
-                .map(Object::toString)
-                .collect(Collectors.joining(","));
-
-        cronExpression = String.format( "%d %d %d %s * ?",
-            momento.getSecond(), momento.getMinute(), momento.getHour(), diasFixosJoin);
-
-        return  cronExpression;
+        return Duration.ofDays( intervaloDias ).plusHours( intervaloHoras ).plusHours( intervaloHoras );
     }
 }

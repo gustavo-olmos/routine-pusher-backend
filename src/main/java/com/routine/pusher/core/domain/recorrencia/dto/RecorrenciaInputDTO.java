@@ -9,15 +9,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record RecorrenciaInputDTO(
+        int quantidade,
+        int intervaloDias,
+        int intervaloHoras,
+        int intervaloMinutos,
+        int posicaoDaSemanaNoMes,
+        List<Integer> diasFixosNoMes,
+        List<EnumDiasDaSemana> diasDaSemana,
+
         @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
-        LocalDateTime validade,
-        int quantidade,
-
-        int numeroSemanaNoMes,
-        List<EnumDiasDaSemana> diasSemana,
-        int diaFixoNoMes,
-        int intervaloEmMinutos,
-        int intervaloEmHoras,
-        int intervaloEmDias
+        LocalDateTime validade
 ){ }
+

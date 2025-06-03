@@ -25,4 +25,7 @@ public class RecorrenciaEntity {
 
     @Column(name = "quantidade")
     private int quantidade;
+
+    @Column(name = "cron_expression")
+    private String cronExpression;
 }
