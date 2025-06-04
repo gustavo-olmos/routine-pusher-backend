@@ -9,11 +9,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record RecorrenciaInputDTO(
-        int quantidade,
-        int intervaloDias,
-        int intervaloHoras,
-        int intervaloMinutos,
-        int posicaoDaSemanaNoMes,
+        Integer quantidade,
+        Integer intervaloDias,
+        Integer intervaloHoras,
+        Integer intervaloMinutos,
+        Integer posicaoDaSemanaNoMes,
         List<Integer> diasFixosNoMes,
         List<EnumDiasDaSemana> diasDaSemana,
 

@@ -1,9 +1,9 @@
 package com.routine.pusher.application.services;
 
 import com.routine.pusher.application.service.LembreteServiceImpl;
+import com.routine.pusher.core.domain.lembrete.LembreteMapper;
 import com.routine.pusher.core.example.input.LembreteInputDTOExample;
 import com.routine.pusher.core.example.output.LembreteOutputDTOExample;
-import com.routine.pusher.core.mapper.LembreteMapperImpl;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
@@ -26,7 +26,7 @@ class LembreteServiceTest
     LembreteRepository repository;
 
     @Spy
-    LembreteMapperImpl mapper;
+    LembreteMapper mapper;
 
 
     @Test

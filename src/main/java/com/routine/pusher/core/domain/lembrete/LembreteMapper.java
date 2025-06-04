@@ -13,6 +13,7 @@ public interface LembreteMapper
 {
     LembreteMapper INSTANCE = Mappers.getMapper( LembreteMapper.class );
 
+    //TODO: Mapear corretamente recorrenciaInput para recorrenciaDomain
     @Mapping(target = "categoria.id", source = "categoriaId")
     Lembrete toDomain( LembreteInputDTO inputDto );
     Lembrete toDomain( LembreteEntity entity );

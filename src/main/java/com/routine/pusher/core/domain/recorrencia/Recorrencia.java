@@ -18,7 +18,7 @@ public class Recorrencia
 
     private LocalDateTime validade;
     private Integer quantidade;
-    
+
     /*Sem CronExpression*/
     private Integer intervaloDias;
     private Integer intervaloHoras;

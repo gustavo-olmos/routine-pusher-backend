@@ -1,7 +1,7 @@
 package com.routine.pusher.application.services;
 
 import com.routine.pusher.application.service.CategoriaServiceImpl;
-import com.routine.pusher.core.mapper.CategoriaMapperImpl;
+import com.routine.pusher.core.domain.categoria.CategoriaMapper;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaInputDTO;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
 import com.routine.pusher.core.example.input.CategoriaInputDTOExample;
@@ -25,7 +25,7 @@ class CategoriaServiceTest
     CategoriaRepository repository;
 
     @Spy
-    CategoriaMapperImpl mapper;
+    CategoriaMapper mapper;
 
     @Test
     @DisplayName("Processar: Testa XXX de YYY com ZZZ")

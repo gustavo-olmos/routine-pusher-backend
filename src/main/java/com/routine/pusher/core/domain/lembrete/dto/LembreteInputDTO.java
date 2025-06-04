@@ -14,10 +14,10 @@ public record LembreteInputDTO(
         String status,
         Long categoriaId,
         RecorrenciaInputDTO recorrencia,
-        List<String> metodoNotificacao,
-        LocalDateTime aPartirDe,
 
         @JsonSerialize(using = LocalDateTimeListWrapper.LocalDateTimeListSerializer.class)
         @JsonDeserialize(using = LocalDateTimeListWrapper.LocalDateTimeListDeserializer.class)
-        List<LocalDateTime> datasEspecificas
+        List<LocalDateTime> momentosEspecificados,
+        List<String> metodoNotificacao,
+        LocalDateTime aPartirDe
 ) {}

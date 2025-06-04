@@ -10,24 +10,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record LembreteOutputDTO(
-
         Long id,
 
         String titulo,
-
         String descricao,
-
         String status,
-
         CategoriaOutputDTO categoria,
-
         RecorrenciaOutputDTO recorrencia,
 
         @JsonSerialize(using = LocalDateTimeListWrapper.LocalDateTimeListSerializer.class)
         @JsonDeserialize(using = LocalDateTimeListWrapper.LocalDateTimeListDeserializer.class)
-        List<LocalDateTime> datasEspecificas,
-
+        List<LocalDateTime> momentosEspecificados,
         List<String> metodoNotificacao,
-
         LocalDateTime aPartirDe
 ) { }
