@@ -1,13 +1,13 @@
 package com.routine.pusher.application.services;
 
 import com.routine.pusher.application.service.CategoriaServiceImpl;
-import com.routine.pusher.core.domain.categoria.CategoriaMapper;
+import com.routine.pusher.core.domain.categoria.CategoriaEntity;
+import com.routine.pusher.core.domain.categoria.CategoriaMapperImpl;
+import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaInputDTO;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
 import com.routine.pusher.core.example.input.CategoriaInputDTOExample;
 import com.routine.pusher.core.example.output.CategoriaOutputDTOExample;
-import com.routine.pusher.core.domain.categoria.CategoriaEntity;
-import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +25,7 @@ class CategoriaServiceTest
     CategoriaRepository repository;
 
     @Spy
-    CategoriaMapper mapper;
+    CategoriaMapperImpl mapper;
 
     @Test
     @DisplayName("Processar: Testa XXX de YYY com ZZZ")

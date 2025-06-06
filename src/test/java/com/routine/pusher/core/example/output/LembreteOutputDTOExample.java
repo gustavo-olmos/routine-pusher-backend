@@ -6,6 +6,7 @@ import com.routine.pusher.core.domain.recorrencia.dto.RecorrenciaOutputDTO;
 import com.routine.pusher.core.enums.EnumDiasDaSemana;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 public abstract class LembreteOutputDTOExample
@@ -20,7 +21,8 @@ public abstract class LembreteOutputDTOExample
                 List.of( EnumDiasDaSemana.SEGUNDA, EnumDiasDaSemana.QUARTA, EnumDiasDaSemana.SEXTA ),
                 LocalDateTime.now( ).plusDays( 30L ) );
 
-        return new LembreteOutputDTO( 1L, "TESTE", "Lembrete teste", "PENDENTE", categoria, recorrencia,
-                null, List.of("vibração"), LocalDateTime.now( )  );
+        return new LembreteOutputDTO( 1L, "TESTE", "Lembrete teste",
+                "PENDENTE", categoria, recorrencia, null,
+                LocalTime.of(15, 10), List.of("vibração"), LocalDateTime.now( )  );
     }
 }

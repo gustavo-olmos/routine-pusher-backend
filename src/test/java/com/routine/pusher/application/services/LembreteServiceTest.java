@@ -1,14 +1,14 @@
 package com.routine.pusher.application.services;
 
 import com.routine.pusher.application.service.LembreteServiceImpl;
-import com.routine.pusher.core.domain.lembrete.LembreteMapper;
-import com.routine.pusher.core.example.input.LembreteInputDTOExample;
-import com.routine.pusher.core.example.output.LembreteOutputDTOExample;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
+import com.routine.pusher.core.domain.lembrete.LembreteEntity;
+import com.routine.pusher.core.domain.lembrete.LembreteMapperImpl;
+import com.routine.pusher.core.domain.lembrete.LembreteRepository;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
-import com.routine.pusher.core.domain.lembrete.LembreteEntity;
-import com.routine.pusher.core.domain.lembrete.LembreteRepository;
+import com.routine.pusher.core.example.input.LembreteInputDTOExample;
+import com.routine.pusher.core.example.output.LembreteOutputDTOExample;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +26,7 @@ class LembreteServiceTest
     LembreteRepository repository;
 
     @Spy
-    LembreteMapper mapper;
+    LembreteMapperImpl mapper;
 
 
     @Test

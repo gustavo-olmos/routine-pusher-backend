@@ -38,7 +38,7 @@ public class LembreteServiceImpl implements LembreteService
 
         return mapper.toOutputDto( entidade );
     }
-
+    
     @Override
     public LembreteOutputDTO atualizar( Long id, LembreteInputDTO inputDTO )
     {

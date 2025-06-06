@@ -5,6 +5,7 @@ import com.routine.pusher.core.domain.recorrencia.dto.RecorrenciaInputDTO;
 import com.routine.pusher.core.enums.EnumDiasDaSemana;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 public abstract class LembreteInputDTOExample {
@@ -17,8 +18,8 @@ public abstract class LembreteInputDTOExample {
                 List.of( EnumDiasDaSemana.SEGUNDA, EnumDiasDaSemana.QUARTA, EnumDiasDaSemana.SEXTA ),
                 LocalDateTime.now( ).plusDays( 30L ) );
 
-        return new LembreteInputDTO( "TESTE", "Lembrete teste", "PENDENTE",
-                1L, recorrencia, List.of( LocalDateTime.now( ) ), List.of("vibração"),
-                LocalDateTime.now( ) );
+        return new LembreteInputDTO( "TESTE", "Lembrete teste",
+                "PENDENTE", 1L, recorrencia, List.of( LocalDateTime.now( ) ),
+                LocalTime.of(15, 10), List.of("vibração"), LocalDateTime.now( ) );
     }
 }

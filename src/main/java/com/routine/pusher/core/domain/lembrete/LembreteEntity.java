@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Getter @Setter
@@ -38,8 +39,11 @@ public class LembreteEntity
               cascade = CascadeType.ALL, orphanRemoval = true)
     private RecorrenciaEntity recorrencia;
 
-    @Column(name = "datas_especificas")
-    private List<LocalDateTime> datasEspecificas;
+    @Column(name = "momentos_especificos")
+    private List<LocalDateTime> momentosEpecificados;
+
+    @Column(name = "horario_fixo")
+    private LocalTime horarioFixo;
 
     @Column(name = "metodo_notificacao")
     private List<String> metodoNotificacao;

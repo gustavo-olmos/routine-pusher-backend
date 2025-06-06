@@ -7,6 +7,8 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Objects;
 
 public class TriggerRecorrenciaQuantidadeStrategy implements TriggerStrategy
@@ -18,18 +20,19 @@ public class TriggerRecorrenciaQuantidadeStrategy implements TriggerStrategy
         Recorrencia recorrencia = lembrete.getRecorrencia( );
 
         String cronExpression = lembrete.montaCronExpression( );
-        if( Objects.equals( cronExpression, "" ) ) {
+        if( !Objects.equals( cronExpression, "" ) ) {
              trigger = TriggerBuilder.newTrigger( )
                      .withIdentity( lembrete.getId( ).toString( ) )
-                     .withSchedule( CronScheduleBuilder.cronSchedule( lembrete.montaCronExpression( ) ) )
+                     .withSchedule( CronScheduleBuilder.cronSchedule( cronExpression ) )
                      .build( );
         }
 
         LocalDateTime momento = lembrete.calcularProxNotificacaoComIntervalo( );
         if( Objects.nonNull( momento ) ) {
+            Date dataInicio = Date.from( momento.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             trigger = TriggerBuilder.newTrigger( )
                     .withIdentity( lembrete.getId( ).toString( ) )
-                    .withSchedule( CronScheduleBuilder.cronSchedule( lembrete.montaCronExpression( ) ) )
+                    .startAt( dataInicio )
                     .build( );
         }
 

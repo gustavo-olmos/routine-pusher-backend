@@ -9,6 +9,7 @@ import com.routine.pusher.infrastructure.common.helper.CronExpessionBuilder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Data
@@ -22,7 +23,7 @@ public class Lembrete
     private Categoria categoria;
     private Recorrencia recorrencia;
     private List<LocalDateTime> momentosEspecificados;
-    private LocalDateTime momento;
+    private LocalTime horarioFixo;
     private List<String> metodoNotificacao;
     private LocalDateTime aPartirDe;
 
@@ -49,17 +50,17 @@ public class Lembrete
 
         List<EnumDiasDaSemana> diasSemana = recorrencia.getDiasDaSemana( );
         if( !diasSemana.isEmpty( ) )
-            cronExpression = CronExpessionBuilder.montarCronExprComDiasDaSemana( momento, diasSemana );
+            cronExpression = CronExpessionBuilder.montarCronExprComDiasDaSemana( horarioFixo, diasSemana );
 
         int posicao = recorrencia.getPosicaoDaSemanaNoMes( );
         if( posicao > 0 && diasSemana.size( ) == 1 ) {
             int codigoDia = diasSemana.get( 0 ).getCodigo( );
-            cronExpression = CronExpessionBuilder.montarCronExprComPosicaoDaSemana( momento, codigoDia , posicao );
+            cronExpression = CronExpessionBuilder.montarCronExprComPosicaoDaSemana( horarioFixo, codigoDia , posicao );
         }
 
         List<Integer> diasFixosNoMes = recorrencia.getDiasFixosNoMes();
         if( !diasFixosNoMes.isEmpty( ) )
-            cronExpression = CronExpessionBuilder.montarCronExprComDiaFixo( momento, diasFixosNoMes );
+            cronExpression = CronExpessionBuilder.montarCronExprComDiaFixo( horarioFixo, diasFixosNoMes );
 
         return cronExpression;
     }

@@ -20,7 +20,7 @@ public class TriggerRecorrenciaValidadeStrategy implements TriggerStrategy
         LocalDateTime validade = recorrencia.getValidade( );
 
         String cronExpression = lembrete.montaCronExpression( );
-        if( Objects.equals( cronExpression, "" ) ) {
+        if( !Objects.equals( cronExpression, "" ) ) {
             Date dataFim = Date.from( validade.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )
                     .withIdentity( lembrete.getId( ).toString( ) )
@@ -38,6 +38,6 @@ public class TriggerRecorrenciaValidadeStrategy implements TriggerStrategy
                     .build( );
         }
 
-        throw new RuntimeException("Po meu parceiro, ramelou também");
+        throw new RuntimeException("Não foi possível agendar o lembrete");
     }
 }

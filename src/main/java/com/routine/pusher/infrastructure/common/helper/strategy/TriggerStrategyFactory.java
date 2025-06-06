@@ -15,13 +15,11 @@ public class TriggerStrategyFactory
 
         Recorrencia recorrencia = lembrete.getRecorrencia( );
         if ( Objects.nonNull( recorrencia ) ) {
-
-            LocalDateTime validade = recorrencia.getValidade();
-            if ( Objects.nonNull( validade ) )
-                return new TriggerRecorrenciaValidadeStrategy( );
-
             if ( recorrencia.getQuantidade( ) > 0 )
                 return new TriggerRecorrenciaQuantidadeStrategy( );
+
+            if ( Objects.nonNull( recorrencia.getValidade( ) ) )
+                return new TriggerRecorrenciaValidadeStrategy( );
         }
 
         throw new IllegalArgumentException("Não há notificações disponíveis para esse lembrete");
