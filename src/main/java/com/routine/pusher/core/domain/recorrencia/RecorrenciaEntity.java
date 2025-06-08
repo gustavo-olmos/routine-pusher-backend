@@ -22,9 +22,6 @@ public class RecorrenciaEntity {
     @JoinColumn(name = "lembrete_id")
     private LembreteEntity lembrete;
 
-    @Column(name = "validade")
-    private LocalDateTime validade;
-
     @Column(name = "quantidade")
     private int quantidade;
 

@@ -35,19 +35,25 @@ public class LembreteEntity
     @JoinColumn(name = "categoria_id")
     private CategoriaEntity categoria;
 
+    @Column(name = "metodo_notificacao")
+    private List<String> metodoNotificacao;
+
     @OneToOne(mappedBy = "lembrete", fetch = FetchType.EAGER,
               cascade = CascadeType.ALL, orphanRemoval = true)
     private RecorrenciaEntity recorrencia;
 
-    @Column(name = "momentos_especificos")
-    private List<LocalDateTime> momentosEpecificados;
-
     @Column(name = "horario_fixo")
     private LocalTime horarioFixo;
 
-    @Column(name = "metodo_notificacao")
-    private List<String> metodoNotificacao;
+    @Column(name = "prox_notificacao")
+    private LocalDateTime proxNotificacao;
 
-    @Column(name = "a_partir_de")
-    private LocalDateTime aPartirDe;
+    @Column(name = "data_inicio")
+    private LocalDateTime dataInicio;
+
+    @Column(name = "data_fim")
+    private LocalDateTime dataFim;
+
+    @Column(name = "datas_especificadas")
+    private List<LocalDateTime> datasEpecificadas;
 }

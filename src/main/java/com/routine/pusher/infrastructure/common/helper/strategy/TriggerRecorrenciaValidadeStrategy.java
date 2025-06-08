@@ -16,8 +16,7 @@ public class TriggerRecorrenciaValidadeStrategy implements TriggerStrategy
     @Override
     public Trigger criarTrigger( Lembrete lembrete )
     {
-        Recorrencia recorrencia = lembrete.getRecorrencia( );
-        LocalDateTime validade = recorrencia.getValidade( );
+        LocalDateTime validade = lembrete.getDataFim( );
 
         String cronExpression = lembrete.montaCronExpression( );
         if( !Objects.equals( cronExpression, "" ) ) {

@@ -40,7 +40,7 @@ class ClientTest
                 ( ) -> assertEquals( esperado.descricao( ), output.descricao( ) ),
                 ( ) -> assertEquals( esperado.status( ), output.status( ) ),
                 ( ) -> assertEquals( esperado.categoria( ).id( ), output.categoriaId( ) ),
-                ( ) -> assertEquals( esperado.momentosEspecificados( ), output.momentosEspecificados( ) ),
+                ( ) -> assertEquals( esperado.datasEspecificadas( ), output.datasEspecificadas( ) ),
                 ( ) -> assertEquals( esperado.metodoNotificacao( ), output.metodoNotificacao( ) ) );
     }
 }

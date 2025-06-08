@@ -13,8 +13,8 @@ public class TriggerDatasEspecificasStrategy implements TriggerStrategy
     @Override
     public Trigger criarTrigger( Lembrete lembrete )
     {
-        LocalDateTime proximaNotificacao = lembrete.getMomentosEspecificados( ).get( 0 );
-        lembrete.getMomentosEspecificados( ).remove( 0 );
+        LocalDateTime proximaNotificacao = lembrete.getDatasEspecificadas( ).get( 0 );
+        lembrete.getDatasEspecificadas( ).remove( 0 );
 
         Date dataExecucao = Date.from( proximaNotificacao.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
 

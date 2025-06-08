@@ -67,7 +67,7 @@ class LembreteControllerTest
                 ( ) -> assertEquals( outputEsperado.status( ), responseBody.status( ) ),
                 ( ) -> assertEquals( outputEsperado.categoria( ), responseBody.categoria( ) ),
                 ( ) -> assertEquals( outputEsperado.recorrencia( ), responseBody.recorrencia( ) ),
-                ( ) -> assertEquals( outputEsperado.momentosEspecificados( ), responseBody.momentosEspecificados( ) ),
+                ( ) -> assertEquals( outputEsperado.datasEspecificadas( ), responseBody.datasEspecificadas( ) ),
                 ( ) -> assertEquals( outputEsperado.metodoNotificacao( ), responseBody.metodoNotificacao( ) ) );
     }
 

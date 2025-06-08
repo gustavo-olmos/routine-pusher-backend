@@ -10,17 +10,15 @@ public class TriggerStrategyFactory
 {
     public static TriggerStrategy getStrategy( Lembrete lembrete )
     {
-        if ( !lembrete.getMomentosEspecificados( ).isEmpty( ) )
+        if ( !lembrete.getDatasEspecificadas( ).isEmpty( ) )
             return new TriggerDatasEspecificasStrategy( );
 
-        Recorrencia recorrencia = lembrete.getRecorrencia( );
-        if ( Objects.nonNull( recorrencia ) ) {
-            if ( recorrencia.getQuantidade( ) > 0 )
-                return new TriggerRecorrenciaQuantidadeStrategy( );
+        if ( Objects.nonNull( lembrete.getDataFim( ) ) )
+            return new TriggerRecorrenciaValidadeStrategy( );
 
-            if ( Objects.nonNull( recorrencia.getValidade( ) ) )
-                return new TriggerRecorrenciaValidadeStrategy( );
-        }
+        Recorrencia recorrencia = lembrete.getRecorrencia( );
+        if ( Objects.nonNull( recorrencia ) && recorrencia.getQuantidade( ) > 0 )
+                return new TriggerRecorrenciaQuantidadeStrategy( );
 
         throw new IllegalArgumentException("Não há notificações disponíveis para esse lembrete");
     }

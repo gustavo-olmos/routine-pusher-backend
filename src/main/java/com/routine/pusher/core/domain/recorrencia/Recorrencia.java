@@ -16,7 +16,6 @@ public class Recorrencia
 {
     private Long id;
 
-    private LocalDateTime validade;
     private Integer quantidade;
 
     /*Sem CronExpression*/

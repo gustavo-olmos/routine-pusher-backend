@@ -17,15 +17,19 @@ public class Lembrete
 {
     private Long id;
     private LocalDateTime dataCriacao;
+
     private String titulo;
     private String descricao;
     private String status;
     private Categoria categoria;
-    private Recorrencia recorrencia;
-    private List<LocalDateTime> momentosEspecificados;
-    private LocalTime horarioFixo;
     private List<String> metodoNotificacao;
-    private LocalDateTime aPartirDe;
+    private Recorrencia recorrencia;
+
+    private LocalTime horarioFixo;
+    private LocalDateTime proxNotificacao;
+    private LocalDateTime dataInicio;
+    private LocalDateTime dataFim;
+    private List<LocalDateTime> datasEspecificadas;
 
     public Lembrete( )
     {
@@ -66,7 +70,7 @@ public class Lembrete
     }
 
     public LocalDateTime calcularProxNotificacaoComIntervalo( ) {
-        setAPartirDe( aPartirDe.plus( recorrencia.montarIntevalo( ) ) );
-        return aPartirDe;
+        setDataInicio( dataInicio.plus( recorrencia.montarIntevalo( ) ) );
+        return dataInicio;
     }
 }

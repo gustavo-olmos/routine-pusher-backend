@@ -17,19 +17,22 @@ public record LembreteInputDTO(
         String descricao,
         String status,
         Long categoriaId,
+        List<String> metodoNotificacao,
         RecorrenciaInputDTO recorrencia,
 
-        @JsonSerialize(using = LocalDateTimeListWrapper.LocalDateTimeListSerializer.class)
-        @JsonDeserialize(using = LocalDateTimeListWrapper.LocalDateTimeListDeserializer.class)
-        List<LocalDateTime> momentosEspecificados,
-
-        @Schema(pattern = "HH:mm", example = "12:00")
+        @Schema(pattern = "HH:mm")
         @JsonFormat(pattern = "HH:mm")
         LocalTime horarioFixo,
 
-        List<String> metodoNotificacao,
+        @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
+        @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
+        LocalDateTime dataInicio,
 
         @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
-        LocalDateTime aPartirDe
+        LocalDateTime dataFim,
+
+        @JsonSerialize(using = LocalDateTimeListWrapper.LocalDateTimeListSerializer.class)
+        @JsonDeserialize(using = LocalDateTimeListWrapper.LocalDateTimeListDeserializer.class)
+        List<LocalDateTime> datasEspecificadas
 ) { }
