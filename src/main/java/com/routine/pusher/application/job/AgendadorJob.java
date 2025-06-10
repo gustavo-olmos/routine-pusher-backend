@@ -31,8 +31,8 @@ public class AgendadorJob
     public static void agendar( Lembrete lembrete )
     {
         QuartzScheduler<Lembrete> quartz = new QuartzScheduler<>( );
-        JobDetail jobDetail = quartz.montarNovoJob( lembrete, lembrete.getId( ).toString( ) );
-        Trigger trigger = quartz.montarNovoTrigger( lembrete );
+        JobDetail jobDetail = quartz.criarJob( lembrete, lembrete.getId( ).toString( ) );
+        Trigger trigger = quartz.criarTrigger( lembrete );
 
         try {
             scheduler.scheduleJob( jobDetail, trigger );
@@ -42,10 +42,10 @@ public class AgendadorJob
         }
     }
 
-    public static void reagendar( Scheduler scheduler, String key, Trigger novoTrigger )
+    public static void reagendar( JobExecutionContext context, String key, Trigger novoTrigger )
     {
         try {
-            scheduler.rescheduleJob( new TriggerKey( key ), novoTrigger );
+            context.getScheduler( ).rescheduleJob( new TriggerKey( key ), novoTrigger );
             LOGGER.info("Reagendado job para {}", key);
         }
         catch ( SchedulerException e ) {

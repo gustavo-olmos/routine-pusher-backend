@@ -15,7 +15,6 @@ import java.util.List;
 public record LembreteInputDTO(
         String titulo,
         String descricao,
-        String status,
         Long categoriaId,
         List<String> metodoNotificacao,
         RecorrenciaInputDTO recorrencia,

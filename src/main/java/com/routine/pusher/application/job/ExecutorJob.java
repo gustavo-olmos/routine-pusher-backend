@@ -19,61 +19,36 @@ public class ExecutorJob implements Job
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorJob.class);
 
+    private final QuartzScheduler<Lembrete> quartz = new QuartzScheduler<>( );
     private final NotificadorSSEService notificadorService;
 
     @Override
     public void execute( JobExecutionContext executionContext )
     {
-        JobDataMap jobDataMap = executionContext.getJobDetail( ).getJobDataMap( );
-        String jobId = executionContext.getJobDetail( ).getKey( ).getName( );
+        JobDataMap jobDataMap = executionContext.getJobDetail().getJobDataMap();
+        String jobId = executionContext.getJobDetail().getKey().getName();
 
-        Lembrete lembrete = obterLembrete( jobDataMap, jobId );
-        if( lembrete == null ) return;
+        Lembrete lembrete = quartz.obterJob(jobDataMap, jobId);
+        if( lembrete == null ) {
+            LOGGER.error("LembreteDTO não encontrado para o job ID: {}", jobId);
+            return;
+        }
 
         List<LocalDateTime> notificacoesAgendadas = lembrete.getDatasEspecificadas( );
-        if( notificacoesAgendadas.isEmpty( ) )
-            excluirJob( executionContext, jobId );
+        if ( notificacoesAgendadas.isEmpty( ) )
+            quartz.excluirJob( executionContext );
 
         notificar( notificacoesAgendadas.get( 0 ), jobId, lembrete.getTitulo( ) );
-        reagendar( executionContext.getScheduler( ), lembrete);
+        AgendadorJob.reagendar( executionContext, lembrete.getId( ).toString( ),
+                quartz.criarTrigger( lembrete ) );
     }
 
-
-    @Nullable
-    private static Lembrete obterLembrete( JobDataMap jobDataMap, String jobId )
-    {
-        Lembrete dto = (Lembrete) jobDataMap.get( jobId );
-        if( dto == null ) {
-            LOGGER.error("LembreteDTO não encontrado para o job ID: {}", jobId);
-            return null;
-        }
-        return dto;
-    }
-
-    private static void excluirJob( JobExecutionContext executionContext, String jobId )
-    {
-        try {
-            LOGGER.info("Nenhuma notificação pendente para o job {}", jobId);
-            executionContext.getScheduler( ).deleteJob( executionContext.getJobDetail( ).getKey( ) );
-        } catch ( SchedulerException ex ) {
-            LOGGER.error("Erro ao remover job {}", ex.getMessage( ));
-            throw new RuntimeException( );
-        }
-    }
-
-    private void notificar( LocalDateTime proximaNotificacao, String jobId, String mensagem)
+    private void notificar( LocalDateTime proximaNotificacao, String jobId, String mensagem )
     {
         LocalDateTime agora = LocalDateTime.now( );
-        if( proximaNotificacao.isEqual( agora ) || proximaNotificacao.isBefore( agora ) ) {
+        if( !proximaNotificacao.isAfter( agora ) ) {
             LOGGER.info("Notificando job com id: {}", jobId);
             notificadorService.adicionarEnvio( mensagem );
         }
-    }
-
-    private void reagendar( Scheduler scheduler, Lembrete lembrete )
-    {
-        QuartzScheduler<Lembrete> quartz = new QuartzScheduler<>( );
-        Trigger novoTrigger = quartz.montarNovoTrigger( lembrete );
-        AgendadorJob.reagendar( scheduler, lembrete.getId( ).toString( ), novoTrigger );
     }
 }
