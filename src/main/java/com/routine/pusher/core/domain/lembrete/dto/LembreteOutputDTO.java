@@ -23,9 +23,9 @@ public record LembreteOutputDTO(
         List<String> metodoNotificacao,
         RecorrenciaOutputDTO recorrencia,
 
-        @Schema(pattern = "HH:mm")
         @JsonFormat(pattern = "HH:mm")
-        LocalTime horarioFixo,
+        @Schema(pattern = "HH:mm", example = "00:00")
+        LocalTime horario,
 
         @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)

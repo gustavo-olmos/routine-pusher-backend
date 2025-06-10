@@ -1,7 +1,7 @@
 package com.routine.pusher.application.job;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
-import com.routine.pusher.infrastructure.common.helper.AgendadorJobBuilder;
+import com.routine.pusher.infrastructure.common.scheduler.QuartzScheduler;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.quartz.*;
@@ -30,8 +30,9 @@ public class AgendadorJob
 
     public static void agendar( Lembrete lembrete )
     {
-        JobDetail jobDetail = AgendadorJobBuilder.montarNovoJob( lembrete );
-        Trigger trigger = AgendadorJobBuilder.montarNovoTrigger( lembrete );
+        QuartzScheduler<Lembrete> quartz = new QuartzScheduler<>( );
+        JobDetail jobDetail = quartz.montarNovoJob( lembrete, lembrete.getId( ).toString( ) );
+        Trigger trigger = quartz.montarNovoTrigger( lembrete );
 
         try {
             scheduler.scheduleJob( jobDetail, trigger );

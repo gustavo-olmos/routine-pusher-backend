@@ -2,7 +2,7 @@ package com.routine.pusher.application.job;
 
 import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
-import com.routine.pusher.infrastructure.common.helper.AgendadorJobBuilder;
+import com.routine.pusher.infrastructure.common.scheduler.QuartzScheduler;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 import org.quartz.*;
@@ -30,7 +30,7 @@ public class ExecutorJob implements Job
         Lembrete lembrete = obterLembrete( jobDataMap, jobId );
         if( lembrete == null ) return;
 
-        List<LocalDateTime> notificacoesAgendadas = lembrete.getMomentosEspecificados( );
+        List<LocalDateTime> notificacoesAgendadas = lembrete.getDatasEspecificadas( );
         if( notificacoesAgendadas.isEmpty( ) )
             excluirJob( executionContext, jobId );
 
@@ -72,7 +72,8 @@ public class ExecutorJob implements Job
 
     private void reagendar( Scheduler scheduler, Lembrete lembrete )
     {
-        Trigger novoTrigger = AgendadorJobBuilder.montarNovoTrigger( lembrete );
+        QuartzScheduler<Lembrete> quartz = new QuartzScheduler<>( );
+        Trigger novoTrigger = quartz.montarNovoTrigger( lembrete );
         AgendadorJob.reagendar( scheduler, lembrete.getId( ).toString( ), novoTrigger );
     }
 }

@@ -42,8 +42,8 @@ public class LembreteEntity
               cascade = CascadeType.ALL, orphanRemoval = true)
     private RecorrenciaEntity recorrencia;
 
-    @Column(name = "horario_fixo")
-    private LocalTime horarioFixo;
+    @Column(name = "horario")
+    private LocalTime horario;
 
     @Column(name = "prox_notificacao")
     private LocalDateTime proxNotificacao;

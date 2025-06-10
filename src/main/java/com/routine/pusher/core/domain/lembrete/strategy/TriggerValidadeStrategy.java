@@ -1,7 +1,7 @@
-package com.routine.pusher.infrastructure.common.helper.strategy;
+package com.routine.pusher.core.domain.lembrete.strategy;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
-import com.routine.pusher.core.domain.recorrencia.Recorrencia;
+import com.routine.pusher.core.strategy.TriggerStrategy;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
@@ -11,19 +11,19 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Objects;
 
-public class TriggerRecorrenciaValidadeStrategy implements TriggerStrategy
+public class TriggerValidadeStrategy implements TriggerStrategy<Lembrete>
 {
     @Override
-    public Trigger criarTrigger( Lembrete lembrete )
+    public Trigger criarTrigger( Lembrete lembrete)
     {
         LocalDateTime validade = lembrete.getDataFim( );
 
-        String cronExpression = lembrete.montaCronExpression( );
+        String cronExpression = lembrete.montarCronExpression( );
         if( !Objects.equals( cronExpression, "" ) ) {
             Date dataFim = Date.from( validade.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )
                     .withIdentity( lembrete.getId( ).toString( ) )
-                    .withSchedule( CronScheduleBuilder.cronSchedule( lembrete.montaCronExpression( ) ) )
+                    .withSchedule( CronScheduleBuilder.cronSchedule( cronExpression ) )
                     .endAt( dataFim )
                     .build( );
         }

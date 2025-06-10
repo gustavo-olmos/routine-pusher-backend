@@ -1,6 +1,7 @@
-package com.routine.pusher.infrastructure.common.helper.strategy;
+package com.routine.pusher.core.domain.lembrete.strategy;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
+import com.routine.pusher.core.strategy.TriggerStrategy;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 
@@ -8,7 +9,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-public class TriggerDatasEspecificasStrategy implements TriggerStrategy
+public class TriggerDatasEspecificasStrategy implements TriggerStrategy<Lembrete>
 {
     @Override
     public Trigger criarTrigger( Lembrete lembrete )

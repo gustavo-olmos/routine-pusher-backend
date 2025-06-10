@@ -3,9 +3,7 @@ package com.routine.pusher.core.domain.lembrete;
 import com.routine.pusher.application.job.AgendadorJob;
 import com.routine.pusher.core.domain.recorrencia.Recorrencia;
 import com.routine.pusher.core.domain.categoria.Categoria;
-import com.routine.pusher.core.enums.EnumDiasDaSemana;
 import com.routine.pusher.core.enums.EnumStatusConclusao;
-import com.routine.pusher.infrastructure.common.helper.CronExpessionBuilder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -25,7 +23,7 @@ public class Lembrete
     private List<String> metodoNotificacao;
     private Recorrencia recorrencia;
 
-    private LocalTime horarioFixo;
+    private LocalTime horario;
     private LocalDateTime proxNotificacao;
     private LocalDateTime dataInicio;
     private LocalDateTime dataFim;
@@ -48,29 +46,14 @@ public class Lembrete
         this.setStatus( EnumStatusConclusao.CONCLUIDO.name( ) );
     }
 
-    public String montaCronExpression( )
-    {
-        String cronExpression = "";
-
-        List<EnumDiasDaSemana> diasSemana = recorrencia.getDiasDaSemana( );
-        if( !diasSemana.isEmpty( ) )
-            cronExpression = CronExpessionBuilder.montarCronExprComDiasDaSemana( horarioFixo, diasSemana );
-
-        int posicao = recorrencia.getPosicaoDaSemanaNoMes( );
-        if( posicao > 0 && diasSemana.size( ) == 1 ) {
-            int codigoDia = diasSemana.get( 0 ).getCodigo( );
-            cronExpression = CronExpessionBuilder.montarCronExprComPosicaoDaSemana( horarioFixo, codigoDia , posicao );
-        }
-
-        List<Integer> diasFixosNoMes = recorrencia.getDiasFixosNoMes();
-        if( !diasFixosNoMes.isEmpty( ) )
-            cronExpression = CronExpessionBuilder.montarCronExprComDiaFixo( horarioFixo, diasFixosNoMes );
-
-        return cronExpression;
-    }
-
     public LocalDateTime calcularProxNotificacaoComIntervalo( ) {
         setDataInicio( dataInicio.plus( recorrencia.montarIntevalo( ) ) );
         return dataInicio;
+    }
+
+    public String montarCronExpression( )
+    {
+        return String.format("%d %d %d", horario.getSecond( ), horario.getMinute( ), horario.getHour( ) )
+                     .concat( recorrencia.montarCronExpression( ) );
     }
 }

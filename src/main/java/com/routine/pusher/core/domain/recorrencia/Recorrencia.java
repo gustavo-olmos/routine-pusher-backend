@@ -1,12 +1,12 @@
 package com.routine.pusher.core.domain.recorrencia;
 
+import com.routine.pusher.core.domain.recorrencia.cron.CronExpressionBuilder;
 import com.routine.pusher.core.enums.EnumDiasDaSemana;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -31,5 +31,23 @@ public class Recorrencia
     public Duration montarIntevalo( )
     {
         return Duration.ofDays( intervaloDias ).plusHours( intervaloHoras ).plusHours( intervaloHoras );
+    }
+
+    public String montarCronExpression( )
+    {
+        String cronExpression = "";
+
+        if( !diasDaSemana.isEmpty( ) )
+            cronExpression = CronExpressionBuilder.montarCronExprComDiasDaSemana( diasDaSemana );
+
+        if( posicaoDaSemanaNoMes > 0 && diasDaSemana.size( ) == 1 ) {
+            int codigoDia = diasDaSemana.get( 0 ).getCodigo( );
+            cronExpression = CronExpressionBuilder.montarCronExprComPosicaoDaSemana( codigoDia , posicaoDaSemanaNoMes );
+        }
+
+        if( !diasFixosNoMes.isEmpty( ) )
+            cronExpression = CronExpressionBuilder.montarCronExprComDiaFixo( diasFixosNoMes );
+
+        return cronExpression;
     }
 }
