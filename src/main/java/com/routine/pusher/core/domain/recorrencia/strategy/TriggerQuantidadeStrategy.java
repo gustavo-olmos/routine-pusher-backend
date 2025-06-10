@@ -28,7 +28,7 @@ public class TriggerQuantidadeStrategy implements TriggerStrategy<Lembrete>
                      .build( );
         }
 
-        LocalDateTime momento = lembrete.calcularProxNotificacaoComIntervalo( );
+        LocalDateTime momento = lembrete.calcularProximaNotificacao( );
         if( Objects.nonNull( momento ) ) {
             Date dataInicio = Date.from( momento.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             trigger = TriggerBuilder.newTrigger( )

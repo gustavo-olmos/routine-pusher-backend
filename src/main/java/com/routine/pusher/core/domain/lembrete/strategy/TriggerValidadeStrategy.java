@@ -14,7 +14,7 @@ import java.util.Objects;
 public class TriggerValidadeStrategy implements TriggerStrategy<Lembrete>
 {
     @Override
-    public Trigger criarTrigger( Lembrete lembrete)
+    public Trigger criarTrigger( Lembrete lembrete )
     {
         LocalDateTime validade = lembrete.getDataFim( );
 
@@ -28,7 +28,7 @@ public class TriggerValidadeStrategy implements TriggerStrategy<Lembrete>
                     .build( );
         }
 
-        LocalDateTime momento = lembrete.calcularProxNotificacaoComIntervalo( );
+        LocalDateTime momento = lembrete.calcularProximaNotificacao( );
         if( Objects.nonNull( momento ) && momento.isBefore( validade ) ) {
             Date dataInicio = Date.from( momento.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )

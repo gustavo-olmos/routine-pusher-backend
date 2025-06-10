@@ -6,6 +6,7 @@ import com.routine.pusher.core.domain.categoria.Categoria;
 import com.routine.pusher.core.enums.EnumStatusConclusao;
 import lombok.Data;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -46,9 +47,11 @@ public class Lembrete
         this.setStatus( EnumStatusConclusao.CONCLUIDO.name( ) );
     }
 
-    public LocalDateTime calcularProxNotificacaoComIntervalo( ) {
-        setDataInicio( dataInicio.plus( recorrencia.montarIntevalo( ) ) );
-        return dataInicio;
+    public LocalDateTime calcularProximaNotificacao( )
+    {
+        Duration intervalo = recorrencia.montarIntevalo( );
+        proxNotificacao = ( intervalo.isZero( ) ) ? proxNotificacao : ( proxNotificacao.plus( intervalo ) );
+        return proxNotificacao;
     }
 
     public String montarCronExpression( )

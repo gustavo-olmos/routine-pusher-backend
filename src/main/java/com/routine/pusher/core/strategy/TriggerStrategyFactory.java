@@ -13,7 +13,7 @@ public class TriggerStrategyFactory
 {
     public static TriggerStrategy<Lembrete> getStrategy( Lembrete lembrete )
     {
-        if( !lembrete.getDatasEspecificadas( ).isEmpty( ) )
+        if( lembrete.getDatasEspecificadas( ) != null )
             return new TriggerDatasEspecificasStrategy( );
 
         if( Objects.nonNull( lembrete.getDataFim( ) ) ) {
@@ -25,7 +25,5 @@ public class TriggerStrategyFactory
 
             return new TriggerIlimitadoStrategy( );
         }
-
-        throw new IllegalArgumentException("Não há notificações disponíveis para esse lembrete");
     }
 }

@@ -8,6 +8,7 @@ import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.core.domain.lembrete.LembreteEntity;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
+import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -34,7 +35,13 @@ public class LembreteServiceImpl implements LembreteService
         Lembrete lembrete = mapper.toDomain( inputDto );
         LembreteEntity entidade = repository.save( mapper.toEntity( lembrete ) );
         lembrete.setId( entidade.getId( ) );
-        lembrete.agendarLembrete( );
+
+        try {
+            lembrete.agendarLembrete( );
+        } catch ( Exception ex ) {
+            repository.deleteById( entidade.getId( ) );
+            throw new ProcessoException( "Agendamento" );
+        }
 
         return mapper.toOutputDto( entidade );
     }
