@@ -29,7 +29,11 @@ public record LembreteOutputDTO(
 
         @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
-        LocalDateTime proxNotificacao,
+        LocalDateTime proximaNotificacao,
+
+        @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
+        @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
+        LocalDateTime ultimaNotificacao,
 
         @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)

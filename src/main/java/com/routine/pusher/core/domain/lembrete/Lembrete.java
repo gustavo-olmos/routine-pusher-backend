@@ -25,7 +25,8 @@ public class Lembrete
     private Recorrencia recorrencia;
 
     private LocalTime horario;
-    private LocalDateTime proxNotificacao;
+    private LocalDateTime proximaNotificacao;
+    private LocalDateTime ultimaNotificacao;
     private LocalDateTime dataInicio;
     private LocalDateTime dataFim;
     private List<LocalDateTime> datasEspecificadas;
@@ -51,16 +52,16 @@ public class Lembrete
     public LocalDateTime calcularProximaNotificacao( )
     {
         if( !datasEspecificadas.isEmpty( ) )
-            proxNotificacao = datasEspecificadas.get( 0 );
+            proximaNotificacao = datasEspecificadas.get( 0 );
 
         Duration intervalo = recorrencia.montarIntevalo( );
         if( intervalo.isPositive( ) )
-            proxNotificacao = dataInicio.plus( intervalo );
+            proximaNotificacao = dataInicio.plus( intervalo );
         // ainda precisa validar com campo ultimaExecucao;
 
         //TODO: implementar os casos em strategies
 
-        return proxNotificacao;
+        return proximaNotificacao;
     }
 
     public String montarCronExpression( )

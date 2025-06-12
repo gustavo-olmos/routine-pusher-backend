@@ -25,6 +25,9 @@ public class ExecutorJob implements Job
     @Override
     public void execute( JobExecutionContext executionContext )
     {
+        //TODO: REFATORAR EXECUÇÃO DE JOB:
+        // AO EXECUTAR JOB -> NOTIFICAR -> VERIFICAR SE AINDA HÁ NOTIFICAÇÕES
+        // REAGENDAR OU EXCLUIR JOB
         JobDataMap jobDataMap = executionContext.getJobDetail().getJobDataMap();
         String jobId = executionContext.getJobDetail().getKey().getName();
 
