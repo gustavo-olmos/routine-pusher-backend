@@ -40,7 +40,7 @@ public class LembreteServiceImpl implements LembreteService
             lembrete.agendarLembrete( );
         } catch ( Exception ex ) {
             repository.deleteById( entidade.getId( ) );
-            throw new ProcessoException( "Agendamento" );
+            throw new ProcessoException( "Agendamento", ex.getMessage( ) );
         }
 
         return mapper.toOutputDto( entidade );

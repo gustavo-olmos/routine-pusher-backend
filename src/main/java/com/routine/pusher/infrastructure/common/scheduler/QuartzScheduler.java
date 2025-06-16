@@ -30,9 +30,10 @@ public final class QuartzScheduler<T>
     }
 
     @Nullable
-    public T obterJob( JobDataMap jobDataMap, String jobId )
+    public T obterJob( JobDataMap jobDataMap, String jobId, Class<T> tipoEsperado )
     {
-        return (T) jobDataMap.get( jobId );
+        Object job = jobDataMap.get( jobId );
+        return ( tipoEsperado.isInstance( job ) ) ? tipoEsperado.cast( job ) : null;
     }
 
     public void excluirJob( JobExecutionContext executionContext )

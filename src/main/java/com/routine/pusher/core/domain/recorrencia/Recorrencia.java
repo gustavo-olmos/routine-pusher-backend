@@ -50,4 +50,11 @@ public class Recorrencia
 
         return cronExpression;
     }
+
+    public int proximoDiaDaSemana( int codigoDia )
+    {
+         return ( codigoDia == ( diasDaSemana.size( ) -1 ) )
+                 ? diasDaSemana.get( 0 ).getCodigo( )
+                 : diasDaSemana.get( codigoDia + 1 ).getCodigo( );
+    }
 }

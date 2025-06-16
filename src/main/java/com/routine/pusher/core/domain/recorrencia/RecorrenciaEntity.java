@@ -3,13 +3,14 @@ package com.routine.pusher.core.domain.recorrencia;
 import com.routine.pusher.core.domain.lembrete.LembreteEntity;
 import com.routine.pusher.core.enums.EnumDiasDaSemana;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter @Setter
+@Data
 @Entity
 @Table(name = "recorrencia")
 public class RecorrenciaEntity {

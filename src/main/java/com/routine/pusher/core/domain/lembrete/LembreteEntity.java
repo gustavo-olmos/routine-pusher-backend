@@ -3,6 +3,7 @@ package com.routine.pusher.core.domain.lembrete;
 import com.routine.pusher.core.domain.recorrencia.RecorrenciaEntity;
 import com.routine.pusher.core.domain.categoria.CategoriaEntity;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-@Getter @Setter
+@Data
 @Entity
 @Table(name = "lembrete")
 public class LembreteEntity
@@ -45,8 +46,11 @@ public class LembreteEntity
     @Column(name = "horario")
     private LocalTime horario;
 
-    @Column(name = "prox_notificacao")
-    private LocalDateTime proxNotificacao;
+    @Column(name = "proxima_notificacao")
+    private LocalDateTime proximaNotificacao;
+
+    @Column(name = "ultima_execucao")
+    private LocalDateTime ultimaExecucao;
 
     @Column(name = "data_inicio")
     private LocalDateTime dataInicio;

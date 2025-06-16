@@ -2,6 +2,7 @@ package com.routine.pusher.application.job;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.infrastructure.common.scheduler.QuartzScheduler;
+import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.quartz.*;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Component;
 public class AgendadorJob
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgendadorJob.class);
-
     private static Scheduler scheduler = initializeScheduler( );
 
     private AgendadorJob( Scheduler scheduler )
@@ -22,10 +22,15 @@ public class AgendadorJob
         AgendadorJob.scheduler = scheduler;
     }
 
+
     private static Scheduler initializeScheduler( )
     {
-        try { return new StdSchedulerFactory( ).getScheduler( ); }
-        catch (SchedulerException e) { throw new RuntimeException(e); }
+        try {
+            return new StdSchedulerFactory( ).getScheduler( );
+        }
+        catch ( SchedulerException ex ) {
+            throw new ProcessoException( "Inicialização de Scheduler", ex.getMessage( ) );
+        }
     }
 
     public static void agendar( Lembrete lembrete )
