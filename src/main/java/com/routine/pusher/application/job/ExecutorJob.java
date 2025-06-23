@@ -2,6 +2,7 @@ package com.routine.pusher.application.job;
 
 import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
+import com.routine.pusher.core.domain.notificacao.Notificacao;
 import com.routine.pusher.infrastructure.common.scheduler.QuartzScheduler;
 import lombok.AllArgsConstructor;
 import org.quartz.Job;
@@ -35,7 +36,8 @@ public class ExecutorJob implements Job
         notificar( jobId, lembrete );
         quartz.excluirJob( executionContext );
 
-        if( lembrete.aindaTemNotificacao( ) )
+        Notificacao notificacao = lembrete.getNotificacao( );
+        if( notificacao.aindaTemNotificacao( lembrete ) )
             AgendadorJob.reagendar( executionContext, jobId, quartz.criarTrigger( lembrete ) );
     }
 

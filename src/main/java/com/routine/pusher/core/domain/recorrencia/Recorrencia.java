@@ -1,5 +1,6 @@
 package com.routine.pusher.core.domain.recorrencia;
 
+import com.routine.pusher.core.domain.notificacao.Notificacao;
 import com.routine.pusher.core.domain.recorrencia.cron.CronExpressionBuilder;
 import com.routine.pusher.core.enums.EnumDiasDaSemana;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Duration;
+import java.time.LocalTime;
 import java.util.List;
 
 @Data
@@ -33,7 +35,7 @@ public class Recorrencia
         return Duration.ofDays( intervaloDias ).plusHours( intervaloHoras ).plusHours( intervaloHoras );
     }
 
-    public String montarCronExpression( )
+    public String montarCronExpression( Notificacao notificacao )
     {
         String cronExpression = "";
 
@@ -48,13 +50,11 @@ public class Recorrencia
         if( !diasFixosNoMes.isEmpty( ) )
             cronExpression = CronExpressionBuilder.montarCronExprComDiaFixo( diasFixosNoMes );
 
-        return cronExpression;
-    }
+        LocalTime horario = notificacao.getHorario( );
+        int hora = horario.getHour( );
+        int minuto = horario.getMinute( );
+        int segundo = horario.getSecond( );
 
-    public int proximoDiaDaSemana( int codigoDia )
-    {
-         return ( codigoDia == ( diasDaSemana.size( ) -1 ) )
-                 ? diasDaSemana.get( 0 ).getCodigo( )
-                 : diasDaSemana.get( codigoDia + 1 ).getCodigo( );
+        return String.format("%d %d %d", segundo, minuto, hora ).concat( cronExpression );
     }
 }

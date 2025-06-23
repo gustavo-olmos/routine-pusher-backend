@@ -4,6 +4,7 @@ import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.lembrete.LembreteMapper;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
+import com.routine.pusher.core.domain.notificacao.Notificacao;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -31,7 +32,8 @@ public class NotificadorSSEServiceImpl implements NotificadorSSEService
     {
         sink.tryEmitNext( lembrete.getTitulo( ) );
 
-        lembrete.setUltimaNotificacao( LocalDateTime.now( ) );
+        Notificacao notificacao = lembrete.getNotificacao( );
+        notificacao.setUltimaExecucao( LocalDateTime.now( ) );
         repository.save( mapper.toEntity( lembrete ) );
     }
 }

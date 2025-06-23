@@ -1,8 +1,10 @@
 package com.routine.pusher.core.domain.recorrencia.strategy;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
+import com.routine.pusher.core.domain.notificacao.Notificacao;
 import com.routine.pusher.core.domain.recorrencia.Recorrencia;
 import com.routine.pusher.core.strategy.TriggerStrategy;
+import com.routine.pusher.infrastructure.exceptions.StrategyException;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
@@ -17,7 +19,8 @@ public class TriggerIlimitadoStrategy implements TriggerStrategy<Lembrete>
     @Override
     public Trigger criarTrigger( Lembrete lembrete )
     {
-        String cronExpression = lembrete.montarCronExpression( );
+        Recorrencia recorrencia = lembrete.getRecorrencia( );
+        String cronExpression = recorrencia.montarCronExpression( lembrete.getNotificacao( ) );
         if( !Objects.equals( cronExpression, "" ) ) {
             return TriggerBuilder.newTrigger( )
                     .withIdentity( lembrete.getId( ).toString( ) )
@@ -25,7 +28,8 @@ public class TriggerIlimitadoStrategy implements TriggerStrategy<Lembrete>
                     .build( );
         }
 
-        LocalDateTime momento = lembrete.calcularProximaNotificacao( );
+        Notificacao notificacao = lembrete.getNotificacao( );
+        LocalDateTime momento = notificacao.calcularProximaNotificacao( lembrete );
         if( Objects.nonNull( momento ) ) {
             Date dataInicio = Date.from( momento.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )
@@ -34,6 +38,6 @@ public class TriggerIlimitadoStrategy implements TriggerStrategy<Lembrete>
                     .build( );
         }
 
-        throw new RuntimeException("Não foi possível agendar o lembrete");
+        throw new StrategyException("Não foi possível agendar o lembrete");
     }
 }

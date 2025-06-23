@@ -1,7 +1,10 @@
 package com.routine.pusher.core.domain.lembrete.strategy;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
+import com.routine.pusher.core.domain.notificacao.Notificacao;
+import com.routine.pusher.core.domain.recorrencia.Recorrencia;
 import com.routine.pusher.core.strategy.TriggerStrategy;
+import com.routine.pusher.infrastructure.exceptions.StrategyException;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
@@ -16,9 +19,11 @@ public class TriggerValidadeStrategy implements TriggerStrategy<Lembrete>
     @Override
     public Trigger criarTrigger( Lembrete lembrete )
     {
-        LocalDateTime validade = lembrete.getDataFim( );
+        Notificacao notificacao = lembrete.getNotificacao( );
+        LocalDateTime validade = notificacao.getDataFim( );
 
-        String cronExpression = lembrete.montarCronExpression( );
+        Recorrencia recorrencia = lembrete.getRecorrencia( );
+        String cronExpression = recorrencia.montarCronExpression( lembrete.getNotificacao( ) );
         if( !Objects.equals( cronExpression, "" ) ) {
             Date dataFim = Date.from( validade.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )
@@ -28,7 +33,7 @@ public class TriggerValidadeStrategy implements TriggerStrategy<Lembrete>
                     .build( );
         }
 
-        LocalDateTime momento = lembrete.calcularProximaNotificacao( );
+        LocalDateTime momento = notificacao.calcularProximaNotificacao( lembrete );
         if( Objects.nonNull( momento ) && momento.isBefore( validade ) ) {
             Date dataInicio = Date.from( momento.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )
@@ -37,6 +42,6 @@ public class TriggerValidadeStrategy implements TriggerStrategy<Lembrete>
                     .build( );
         }
 
-        throw new RuntimeException("Não foi possível agendar o lembrete");
+        throw new StrategyException( "Não foi possível agendar o lembrete" );
     }
 }
