@@ -38,8 +38,6 @@ class ClientTest
         assertAll(
                 ( ) -> assertEquals( esperado.titulo( ), output.titulo( ) ),
                 ( ) -> assertEquals( esperado.descricao( ), output.descricao( ) ),
-                ( ) -> assertEquals( esperado.categoria( ).id( ), output.categoriaId( ) ),
-                ( ) -> assertEquals( esperado.datasEspecificadas( ), output.datasEspecificadas( ) ),
-                ( ) -> assertEquals( esperado.metodoNotificacao( ), output.metodoNotificacao( ) ) );
+                ( ) -> assertEquals( esperado.categoria( ).id( ), output.categoriaId( ) ) );
     }
 }

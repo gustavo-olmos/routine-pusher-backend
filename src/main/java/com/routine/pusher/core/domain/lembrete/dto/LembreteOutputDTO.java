@@ -1,17 +1,8 @@
 package com.routine.pusher.core.domain.lembrete.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.routine.pusher.core.domain.recorrencia.dto.RecorrenciaOutputDTO;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
-import com.routine.pusher.infrastructure.common.shared.LocalDateTimeListWrapper;
-import com.routine.pusher.infrastructure.common.shared.LocalDateTimeWrapper;
-import io.swagger.v3.oas.annotations.media.Schema;
-
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
+import com.routine.pusher.core.domain.notificacao.dto.NotificacaoOutputDTO;
+import com.routine.pusher.core.domain.recorrencia.dto.RecorrenciaOutputDTO;
 
 public record LembreteOutputDTO(
         Long id,
@@ -20,30 +11,6 @@ public record LembreteOutputDTO(
         String descricao,
         String status,
         CategoriaOutputDTO categoria,
-        List<String> metodoNotificacao,
         RecorrenciaOutputDTO recorrencia,
-
-        @JsonFormat(pattern = "HH:mm")
-        @Schema(pattern = "HH:mm", example = "00:00")
-        LocalTime horario,
-
-        @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
-        @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
-        LocalDateTime proximaNotificacao,
-
-        @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
-        @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
-        LocalDateTime ultimaNotificacao,
-
-        @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
-        @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
-        LocalDateTime dataInicio,
-
-        @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
-        @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
-        LocalDateTime dataFim,
-
-        @JsonSerialize(using = LocalDateTimeListWrapper.LocalDateTimeListSerializer.class)
-        @JsonDeserialize(using = LocalDateTimeListWrapper.LocalDateTimeListDeserializer.class)
-        List<LocalDateTime> datasEspecificadas
+        NotificacaoOutputDTO notificacao
 ) { }

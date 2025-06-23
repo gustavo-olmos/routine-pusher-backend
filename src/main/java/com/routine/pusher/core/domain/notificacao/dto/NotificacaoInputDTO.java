@@ -20,14 +20,6 @@ public record NotificacaoInputDTO(
 
         @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
-        LocalDateTime proximaExecucao,
-
-        @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
-        @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
-        LocalDateTime ultimaExecucao,
-
-        @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
-        @JsonDeserialize(using = LocalDateTimeWrapper.LocalDateTimeDeserializer.class)
         LocalDateTime dataInicio,
 
         @JsonSerialize(using = LocalDateTimeWrapper.LocalDateTimeSerializer.class)
