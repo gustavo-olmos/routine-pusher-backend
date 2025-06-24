@@ -2,7 +2,7 @@ package com.routine.pusher.core.domain.notificacao;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.strategy.ProximaNotificacaoStrategy;
-import com.routine.pusher.core.strategy.factory.ProximaNotificacaoFactory;
+import com.routine.pusher.core.factory.ProximaNotificacaoFactory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

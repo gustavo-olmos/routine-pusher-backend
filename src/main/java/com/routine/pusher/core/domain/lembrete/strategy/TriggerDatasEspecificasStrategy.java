@@ -15,6 +15,7 @@ public class TriggerDatasEspecificasStrategy implements TriggerStrategy<Lembrete
     @Override
     public Trigger criarTrigger( Lembrete lembrete )
     {
+        //TODO: Essa strategy deve ser movida para notificacao
         Notificacao notificacao = lembrete.getNotificacao( );
         LocalDateTime proximaNotificacao = notificacao.getDatasEspecificadas( ).get( 0 );
         notificacao.getDatasEspecificadas( ).remove( 0 );

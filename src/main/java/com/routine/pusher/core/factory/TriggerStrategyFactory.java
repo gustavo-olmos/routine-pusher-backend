@@ -1,4 +1,4 @@
-package com.routine.pusher.core.strategy.factory;
+package com.routine.pusher.core.factory;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.lembrete.strategy.TriggerDatasEspecificasStrategy;

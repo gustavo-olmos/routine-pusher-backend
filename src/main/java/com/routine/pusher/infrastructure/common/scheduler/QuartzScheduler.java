@@ -3,7 +3,7 @@ package com.routine.pusher.infrastructure.common.scheduler;
 import com.routine.pusher.application.job.ExecutorJob;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.strategy.TriggerStrategy;
-import com.routine.pusher.core.strategy.factory.TriggerStrategyFactory;
+import com.routine.pusher.core.factory.TriggerStrategyFactory;
 import com.routine.pusher.infrastructure.exceptions.ExclusaoException;
 import org.jetbrains.annotations.Nullable;
 import org.quartz.*;
