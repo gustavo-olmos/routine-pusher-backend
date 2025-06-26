@@ -26,7 +26,4 @@ public class CategoriaEntity
 
     @Column(name = "fatorOrdem", unique = true, nullable = false)
     private int fatorOrdem;
-
-    @OneToMany(mappedBy = "categoria")
-    private List<LembreteEntity> lembrete;
 }

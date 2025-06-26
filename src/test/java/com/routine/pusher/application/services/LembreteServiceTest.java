@@ -7,6 +7,7 @@ import com.routine.pusher.core.domain.lembrete.LembreteMapperImpl;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
+import com.routine.pusher.core.domain.lembrete.factory.LembreteFactory;
 import com.routine.pusher.core.example.input.LembreteInputDTOExample;
 import com.routine.pusher.core.example.output.LembreteOutputDTOExample;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +26,9 @@ class LembreteServiceTest
     @Mock
     LembreteRepository repository;
 
+    @Mock
+    LembreteFactory factory;
+
     @Spy
     LembreteMapperImpl mapper;
 
@@ -35,11 +39,14 @@ class LembreteServiceTest
     {
         LembreteInputDTO input = LembreteInputDTOExample.simples( );
         LembreteOutputDTO esperado = LembreteOutputDTOExample.simples( );
-        Lembrete lembrete = mapper.toDomain( input );
 
         doReturn( esperado ).when( repository ).save( any( LembreteEntity.class ) );
 
-        LembreteOutputDTO output = new LembreteServiceImpl( mapper, repository  ).salvar( input );
+        LembreteOutputDTO output = new LembreteServiceImpl( mapper, factory, repository ).salvar( input );
+        Lembrete lembrete = mapper.toDomain( input );
+
+        LembreteEntity entidade = mapper.toEntity( lembrete );
+        lembrete = mapper.toDomain( entidade );
 
         verify( lembrete ).agendarLembrete( );
         verify( repository, times( 1 ) ).save( mapper.toEntity( lembrete ) );

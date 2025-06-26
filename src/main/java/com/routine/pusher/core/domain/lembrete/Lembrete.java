@@ -31,7 +31,6 @@ public class Lembrete
     {
         this.dataCriacao = LocalDateTime.now( );
         this.status = EnumStatusConclusao.PENDENTE.name( );
-        notificacao.calcularProximaNotificacao( this );
     }
 
 

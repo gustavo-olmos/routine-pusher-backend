@@ -11,7 +11,9 @@ public interface CategoriaMapper
 {
     CategoriaMapper INSTANCE = Mappers.getMapper( CategoriaMapper.class );
 
-    CategoriaOutputDTO toOutputDto(CategoriaEntity categoria );
+    CategoriaOutputDTO toOutputDto( CategoriaEntity categoria );
+
+    Categoria toDomain( CategoriaOutputDTO outputDTO );
 
     CategoriaEntity toEntity( CategoriaInputDTO categoria );
 

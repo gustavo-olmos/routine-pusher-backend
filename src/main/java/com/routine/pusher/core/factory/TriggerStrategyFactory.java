@@ -9,6 +9,8 @@ import com.routine.pusher.core.domain.recorrencia.strategy.TriggerQuantidadeStra
 import com.routine.pusher.core.domain.lembrete.strategy.TriggerValidadeStrategy;
 import com.routine.pusher.core.strategy.TriggerStrategy;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 public class TriggerStrategyFactory
@@ -16,7 +18,8 @@ public class TriggerStrategyFactory
     public static TriggerStrategy<Lembrete> getStrategy( Lembrete lembrete )
     {
         Notificacao notificacao = lembrete.getNotificacao( );
-        if( notificacao.getDatasEspecificadas( ) != null )
+        List<LocalDateTime> datasEspecificadas = notificacao.getDatasEspecificadas();
+        if( datasEspecificadas != null && !datasEspecificadas.isEmpty( ) )
             return new TriggerDatasEspecificasStrategy( );
 
         if( Objects.nonNull( notificacao.getDataFim( ) ) ) {

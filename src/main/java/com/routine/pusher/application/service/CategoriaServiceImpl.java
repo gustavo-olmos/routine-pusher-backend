@@ -48,6 +48,16 @@ public class CategoriaServiceImpl implements CategoriaService
     }
 
     @Override
+    public CategoriaOutputDTO buscarPeloId( Long id )
+    {
+        LOGGER.debug("Buscando categoria de id: {}", id);
+
+        return repository.findById( id )
+                .map( mapper::toOutputDto )
+                .orElseThrow( () -> new EntityNotFoundException("Categoria não encontrada") );
+    }
+
+    @Override
     public CategoriaOutputDTO atualizar( Long id, CategoriaInputDTO inputDto )
     {
         LOGGER.debug("Alterando categoria");

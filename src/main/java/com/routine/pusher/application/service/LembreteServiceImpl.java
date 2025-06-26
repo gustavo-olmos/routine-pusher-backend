@@ -1,12 +1,12 @@
 package com.routine.pusher.application.service;
 
 import com.routine.pusher.application.service.interfaces.LembreteService;
-import com.routine.pusher.core.domain.lembrete.LembreteMapper;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
+import com.routine.pusher.core.domain.lembrete.LembreteMapper;
+import com.routine.pusher.core.domain.lembrete.LembreteRepository;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
-import com.routine.pusher.core.domain.lembrete.LembreteEntity;
-import com.routine.pusher.core.domain.lembrete.LembreteRepository;
+import com.routine.pusher.core.domain.lembrete.factory.LembreteFactory;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
 import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,6 +24,7 @@ public class LembreteServiceImpl implements LembreteService
     private final Logger LOGGER = LoggerFactory.getLogger( LembreteServiceImpl.class );
 
     private final LembreteMapper mapper;
+    private final LembreteFactory factory;
     private final LembreteRepository repository;
 
 
@@ -32,18 +33,17 @@ public class LembreteServiceImpl implements LembreteService
     {
         LOGGER.debug("Adicionando lembrete");
 
-        Lembrete lembrete = mapper.toDomain( inputDto );
-        LembreteEntity entidade = repository.save( mapper.toEntity( lembrete ) );
-        lembrete.setId( entidade.getId( ) );
+        Lembrete lembrete = factory.criarLembrete( mapper.toDomain( inputDto ) );
+        lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
 
         try {
             lembrete.agendarLembrete( );
         } catch ( Exception ex ) {
-            repository.deleteById( entidade.getId( ) );
+            repository.deleteById( lembrete.getId( ) );
             throw new ProcessoException( "Agendamento", ex.getMessage( ) );
         }
 
-        return mapper.toOutputDto( entidade );
+        return mapper.toOutputDto( lembrete );
     }
     
     @Override
@@ -51,10 +51,8 @@ public class LembreteServiceImpl implements LembreteService
     {
         LOGGER.debug("Alterando lembrete de id {}", id);
 
-        Lembrete lembrete = mapper.toDomain( inputDTO );
-
         return repository.findById( id )
-                .map( entidade -> mapper.updateEntity( lembrete, entidade ) )
+                .map( entidade -> mapper.updateEntity( inputDTO, entidade ) )
                 .map( repository::save )
                 .map( mapper::toOutputDto )
                 .orElseThrow( ( ) -> new EntityNotFoundException("Lembrete não encontrado para o id" + id) );

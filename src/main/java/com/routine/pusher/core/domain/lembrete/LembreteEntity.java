@@ -33,8 +33,8 @@ public class LembreteEntity
     @Column(name = "status")
     private String status;
 
-    @ManyToOne
-    @JoinColumn(name = "categoria_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "categoria_id", nullable = false)
     private CategoriaEntity categoria;
 
     @OneToOne(mappedBy = "lembrete", fetch = FetchType.EAGER,

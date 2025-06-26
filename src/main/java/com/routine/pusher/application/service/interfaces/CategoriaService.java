@@ -11,6 +11,8 @@ public interface CategoriaService
 
     List<CategoriaOutputDTO> listar( String atributo, boolean ordemReversa );
 
+    CategoriaOutputDTO buscarPeloId( Long id );
+
     CategoriaOutputDTO atualizar( Long id, CategoriaInputDTO inputDto);
 
     boolean excluir( Long id );

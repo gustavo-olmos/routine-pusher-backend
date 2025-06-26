@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring", builder = @Builder( disableBuilder = true ))
+@Mapper(componentModel = "spring")
 public interface LembreteMapper
 {
     LembreteMapper INSTANCE = Mappers.getMapper( LembreteMapper.class );
@@ -17,8 +17,10 @@ public interface LembreteMapper
     Lembrete toDomain( LembreteInputDTO inputDto );
     Lembrete toDomain( LembreteEntity entity );
 
+    LembreteOutputDTO toOutputDto( Lembrete lembrete );
     LembreteOutputDTO toOutputDto( LembreteEntity entity );
 
     LembreteEntity toEntity( Lembrete lembrete );
-    LembreteEntity updateEntity( Lembrete lembrete, @MappingTarget LembreteEntity entity );
+
+    LembreteEntity updateEntity( LembreteInputDTO inputDTO, @MappingTarget LembreteEntity entity );
 }
