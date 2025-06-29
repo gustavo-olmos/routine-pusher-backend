@@ -34,6 +34,12 @@ public class Lembrete
     }
 
 
+    public void setExecucao( )
+    {
+        if( notificacao.aindaTemNotificacao( this ) )
+            notificacao.setProximaExecucao( notificacao.calcularProximaNotificacao( this ) );
+    }
+
     public void agendarLembrete( )
     {
         AgendadorJob.agendar( this );

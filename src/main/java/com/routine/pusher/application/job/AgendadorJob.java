@@ -51,7 +51,7 @@ public class AgendadorJob
     {
         try {
             context.getScheduler( ).rescheduleJob( new TriggerKey( key ), novoTrigger );
-            LOGGER.info("Reagendado job para {}", key);
+            LOGGER.info("Reagendando job de id {} para {}", key, novoTrigger.getNextFireTime( ) );
         }
         catch ( SchedulerException e ) {
             LOGGER.error("Erro ao reagendar job {}", key, e);

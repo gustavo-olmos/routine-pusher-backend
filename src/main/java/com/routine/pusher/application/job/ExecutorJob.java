@@ -43,7 +43,7 @@ public class ExecutorJob implements Job
 
     private void notificar( String jobId, Lembrete lembrete )
     {
-        LOGGER.info("Notificando job com id: {}", jobId);
+        LOGGER.info("Notificando job de id: {}", jobId);
 
         notificadorService.adicionarEnvio( lembrete );
     }

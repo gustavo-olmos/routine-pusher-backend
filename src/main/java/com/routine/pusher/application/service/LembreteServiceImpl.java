@@ -34,6 +34,8 @@ public class LembreteServiceImpl implements LembreteService
         LOGGER.debug("Adicionando lembrete");
 
         Lembrete lembrete = factory.criarLembrete( mapper.toDomain( inputDto ) );
+        lembrete.setExecucao( );
+        
         lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
 
         try {
