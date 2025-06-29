@@ -1,6 +1,6 @@
 package com.routine.pusher.application.external.controller;
 
-import com.routine.pusher.application.service.interfaces.LembreteService;
+import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.core.example.input.LembreteInputDTOExample;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.doReturn;
 class LembreteControllerTest
 {
     @Mock
-    private LembreteService service;
+    private CRUDUseCase<LembreteInputDTO, LembreteOutputDTO> useCase;
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -45,7 +45,7 @@ class LembreteControllerTest
         LembreteInputDTO input           = LembreteInputDTOExample.simples( );
         LembreteOutputDTO outputEsperado = LembreteOutputDTOExample.simples( );
 
-        doReturn( outputEsperado ).when( service ).salvar( any( LembreteInputDTO.class ) );
+        doReturn( outputEsperado ).when( useCase ).adicionar( any( LembreteInputDTO.class ) );
 
         HttpHeaders headers = new HttpHeaders( );
         headers.setContentType( MediaType.APPLICATION_JSON );

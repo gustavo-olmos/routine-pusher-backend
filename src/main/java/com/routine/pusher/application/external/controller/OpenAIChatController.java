@@ -1,6 +1,6 @@
 package com.routine.pusher.application.external.controller;
 
-import com.routine.pusher.application.service.interfaces.OpenAIChatService;
+import com.routine.pusher.application.usecase.ChatUseCase;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Open-AI", description = "Operações de chat relacionadas à lembretes")
 public class OpenAIChatController
 {
-    private OpenAIChatService service;
+    private ChatUseCase useCase;
 
 
     @PostMapping
     public ResponseEntity<LembreteOutputDTO> criarLembreteViaChat( @RequestBody String frase )
     {
-        return ResponseEntity.ok( ).body( service.criarLembreteViaChat( frase ) );
+        return ResponseEntity.ok( ).body( useCase.criarLembreteViaChat( frase ) );
     }
 }

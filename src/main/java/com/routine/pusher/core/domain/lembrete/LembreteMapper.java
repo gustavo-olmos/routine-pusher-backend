@@ -17,7 +17,6 @@ public interface LembreteMapper
     Lembrete toDomain( LembreteInputDTO inputDto );
     Lembrete toDomain( LembreteEntity entity );
 
-    LembreteOutputDTO toOutputDto( Lembrete lembrete );
     LembreteOutputDTO toOutputDto( LembreteEntity entity );
 
     LembreteEntity toEntity( Lembrete lembrete );

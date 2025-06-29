@@ -1,6 +1,6 @@
 package com.routine.pusher.application.external.controller;
 
-import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
+import com.routine.pusher.application.usecase.NotificacaoUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
@@ -15,11 +15,11 @@ import reactor.core.publisher.Flux;
 @Tag(name = "Notificador", description = "Operações WebFlux relacionadas à notificações")
 public class NotificadorSSEController
 {
-    private final NotificadorSSEService service;
+    private final NotificacaoUseCase useCase;
 
     @GetMapping(path = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> subscribe( )
     {
-        return service.obterFluxoNotificacoes( );
+        return useCase.obterFluxoNotificacoes( );
     }
 }

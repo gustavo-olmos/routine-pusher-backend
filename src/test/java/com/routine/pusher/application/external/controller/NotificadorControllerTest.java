@@ -1,6 +1,6 @@
 package com.routine.pusher.application.external.controller;
 
-import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
+import com.routine.pusher.application.usecase.NotificacaoUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -9,7 +9,7 @@ import org.mockito.Mock;
 public class NotificadorControllerTest
 {
     @Mock
-    private NotificadorSSEService service;
+    private NotificacaoUseCase useCase;
 
     @InjectMocks
     private NotificadorSSEController controller;

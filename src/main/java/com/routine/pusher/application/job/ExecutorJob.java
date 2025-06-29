@@ -1,6 +1,6 @@
 package com.routine.pusher.application.job;
 
-import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
+import com.routine.pusher.application.usecase.NotificacaoUseCase;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.notificacao.Notificacao;
 import com.routine.pusher.infrastructure.common.scheduler.QuartzScheduler;
@@ -18,8 +18,8 @@ public class ExecutorJob implements Job
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorJob.class);
 
+    private final NotificacaoUseCase useCase;
     private final QuartzScheduler<Lembrete> quartz = new QuartzScheduler<>( );
-    private final NotificadorSSEService notificadorService;
 
     @Override
     public void execute( JobExecutionContext executionContext )
@@ -45,6 +45,6 @@ public class ExecutorJob implements Job
     {
         LOGGER.info("Notificando job de id: {}", jobId);
 
-        notificadorService.adicionarEnvio( lembrete );
+        useCase.adicionarEnvio( lembrete );
     }
 }

@@ -1,6 +1,6 @@
 package com.routine.pusher.application.services;
 
-import com.routine.pusher.application.service.LembreteServiceImpl;
+import com.routine.pusher.application.service.LembreteService;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.lembrete.LembreteEntity;
 import com.routine.pusher.core.domain.lembrete.LembreteMapperImpl;
@@ -42,7 +42,7 @@ class LembreteServiceTest
 
         doReturn( esperado ).when( repository ).save( any( LembreteEntity.class ) );
 
-        LembreteOutputDTO output = new LembreteServiceImpl( mapper, factory, repository ).salvar( input );
+        LembreteOutputDTO output = new LembreteService( mapper, factory, repository ).adicionar( input );
         Lembrete lembrete = mapper.toDomain( input );
 
         LembreteEntity entidade = mapper.toEntity( lembrete );

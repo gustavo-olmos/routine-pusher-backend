@@ -1,12 +1,12 @@
 package com.routine.pusher.application.external.controller;
 
+import com.routine.pusher.application.usecase.CRUDUseCase;
+import com.routine.pusher.application.usecase.ConcluirUseCase;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
-import com.routine.pusher.application.service.interfaces.LembreteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,14 +18,15 @@ import java.util.List;
 @Tag(name = "Lembrete", description = "Operações CRUD relacionadas à lembretes")
 public class LembreteController
 {
-    private final LembreteService service;
+    private final CRUDUseCase<LembreteInputDTO, LembreteOutputDTO> crudUseCase;
+    private final ConcluirUseCase concluirUseCase;
 
 
     @PostMapping
     @Operation(summary = "Adiciona lembrete")
     public ResponseEntity<LembreteOutputDTO> salvar( @RequestBody LembreteInputDTO dto )
     {
-        return ResponseEntity.ok( ).body( service.salvar( dto ) );
+        return ResponseEntity.ok( ).body( crudUseCase.adicionar( dto ) );
     }
 
     @GetMapping
@@ -33,7 +34,7 @@ public class LembreteController
     public ResponseEntity<List<LembreteOutputDTO>> listar( @RequestParam("sortInfo") String atributo,
                                                            @RequestParam("decrescente") boolean ordemReversa )
     {
-        return ResponseEntity.ok( ).body( service.listar( atributo, ordemReversa ) );
+        return ResponseEntity.ok( ).body( crudUseCase.listar( atributo, ordemReversa ) );
     }
 
     @PutMapping(path = "{id}")
@@ -41,7 +42,7 @@ public class LembreteController
     public ResponseEntity<LembreteOutputDTO> atualizar( @PathVariable(value = "id") Long id,
                                                         @RequestBody LembreteInputDTO dto )
     {
-        return ResponseEntity.ok( ).body( service.atualizar( id, dto ) );
+        return ResponseEntity.ok( ).body( crudUseCase.atualizar( id, dto ) );
     }
 
 
@@ -49,7 +50,7 @@ public class LembreteController
     @Operation(summary = "Conclui lembrete")
     public ResponseEntity<Void> concluir( @PathVariable(value = "id") Long id )
     {
-        service.concluir( id );
+        concluirUseCase.concluir( id );
         return ResponseEntity.ok( ).build( );
     }
 
@@ -57,8 +58,7 @@ public class LembreteController
     @Operation(summary = "Exclui lembrete")
     public ResponseEntity<String> excluir( @PathVariable(value = "id") Long id )
     {
-        return ( service.excluir( id ) )
-                ? ResponseEntity.ok( "Lembrete excluído com sucesso!" )
-                : ResponseEntity.status( HttpStatus.NOT_FOUND ).body( "Lembrete não encontrado" );
+        crudUseCase.excluir( id );
+        return ResponseEntity.ok( "Lembrete excluído com sucesso!" );
     }
 }

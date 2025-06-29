@@ -1,6 +1,7 @@
 package com.routine.pusher.application.service;
 
-import com.routine.pusher.application.service.interfaces.LembreteService;
+import com.routine.pusher.application.usecase.CRUDUseCase;
+import com.routine.pusher.application.usecase.ConcluirUseCase;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.lembrete.LembreteMapper;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
@@ -8,7 +9,6 @@ import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.core.domain.lembrete.factory.LembreteFactory;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
-import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -19,9 +19,9 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class LembreteServiceImpl implements LembreteService
+public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOutputDTO>, ConcluirUseCase
 {
-    private final Logger LOGGER = LoggerFactory.getLogger( LembreteServiceImpl.class );
+    private final Logger LOGGER = LoggerFactory.getLogger( LembreteService.class );
 
     private final LembreteMapper mapper;
     private final LembreteFactory factory;
@@ -29,43 +29,14 @@ public class LembreteServiceImpl implements LembreteService
 
 
     @Override
-    public LembreteOutputDTO salvar( LembreteInputDTO inputDto )
+    public LembreteOutputDTO adicionar( LembreteInputDTO inputDto )
     {
         LOGGER.debug("Adicionando lembrete");
 
-        Lembrete lembrete = factory.criarLembrete( mapper.toDomain( inputDto ) );
-        lembrete.setExecucao( );
-        
-        lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
+        Lembrete lembrete = mapper.toDomain( inputDto );
+        factory.construirLembrete( lembrete );
 
-        try {
-            lembrete.agendarLembrete( );
-        } catch ( Exception ex ) {
-            repository.deleteById( lembrete.getId( ) );
-            throw new ProcessoException( "Agendamento", ex.getMessage( ) );
-        }
-
-        return mapper.toOutputDto( lembrete );
-    }
-    
-    @Override
-    public LembreteOutputDTO atualizar( Long id, LembreteInputDTO inputDTO )
-    {
-        LOGGER.debug("Alterando lembrete de id {}", id);
-
-        return repository.findById( id )
-                .map( entidade -> mapper.updateEntity( inputDTO, entidade ) )
-                .map( repository::save )
-                .map( mapper::toOutputDto )
-                .orElseThrow( ( ) -> new EntityNotFoundException("Lembrete não encontrado para o id" + id) );
-    }
-
-    @Override
-    public void concluir( Long id )
-    {
-        Lembrete lembrete = mapper.toDomain( repository.findById( id ).orElse( null ) );
-        lembrete.concluirLembrete( );
-        repository.save( mapper.toEntity( lembrete ) );
+        return mapper.toOutputDto( repository.save( mapper.toEntity( lembrete ) ) );
     }
 
     @Override
@@ -80,14 +51,40 @@ public class LembreteServiceImpl implements LembreteService
     }
 
     @Override
-    public boolean excluir( Long id )
+    public LembreteOutputDTO buscarPeloId( Long id )
+    {
+        return null;
+    }
+
+    @Override
+    public LembreteOutputDTO atualizar( Long id, LembreteInputDTO inputDTO )
+    {
+        LOGGER.debug("Alterando lembrete de id {}", id);
+
+        return repository.findById( id )
+                .map( entidade -> mapper.updateEntity( inputDTO, entidade ) )
+                .map( repository::save )
+                .map( mapper::toOutputDto )
+                .orElseThrow( () -> new EntityNotFoundException("Lembrete não encontrado para o id" + id) );
+    }
+
+    @Override
+    public void concluir( Long id )
+    {
+        Lembrete lembrete = mapper.toDomain( repository.findById( id ).orElse( null ) );
+        lembrete.concluirLembrete( );
+        repository.save( mapper.toEntity( lembrete ) );
+    }
+
+    @Override
+    public void excluir( Long id )
     {
         LOGGER.debug("Excluindo lembrete");
 
-        if( repository.existsById( id ) ) {
+        if ( repository.existsById( id ) ) {
             repository.deleteById( id );
-            return true;
+        } else {
+            throw new EntityNotFoundException("Lembrete não encontrado para o id" + id);
         }
-        return false;
     }
 }

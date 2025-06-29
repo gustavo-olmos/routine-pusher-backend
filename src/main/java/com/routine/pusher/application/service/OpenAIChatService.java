@@ -2,8 +2,9 @@ package com.routine.pusher.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.routine.pusher.application.external.client.OpenAIChatClient;
-import com.routine.pusher.application.service.interfaces.LembreteService;
-import com.routine.pusher.application.service.interfaces.OpenAIChatService;
+import com.routine.pusher.application.usecase.CRUDUseCase;
+import com.routine.pusher.application.usecase.ChatUseCase;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.infrastructure.exceptions.ConversaoException;
 import lombok.AllArgsConstructor;
@@ -13,12 +14,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class OpenAIChatServiceImpl implements OpenAIChatService
+public class OpenAIChatService implements ChatUseCase
 {
-    private final Logger LOGGER = LoggerFactory.getLogger( OpenAIChatServiceImpl.class );
+    private final Logger LOGGER = LoggerFactory.getLogger( OpenAIChatService.class );
 
     private final OpenAIChatClient client;
-    private final LembreteService service;
+    private final CRUDUseCase<LembreteInputDTO, LembreteOutputDTO> useCase;
 
     @Override
     public LembreteOutputDTO criarLembreteViaChat( String frase )
@@ -26,7 +27,7 @@ public class OpenAIChatServiceImpl implements OpenAIChatService
         LOGGER.debug("Iniciando chat..");
 
         try {
-            return service.salvar( client.buildLembreteChat( frase ) );
+            return useCase.adicionar( client.buildLembreteChat( frase ) );
         }
         catch (JsonProcessingException | ConversaoException ex ) {
             throw new RuntimeException( ex );

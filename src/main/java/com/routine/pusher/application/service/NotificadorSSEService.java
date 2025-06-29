@@ -1,6 +1,6 @@
 package com.routine.pusher.application.service;
 
-import com.routine.pusher.application.service.interfaces.NotificadorSSEService;
+import com.routine.pusher.application.usecase.NotificacaoUseCase;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.lembrete.LembreteMapper;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
-public class NotificadorSSEServiceImpl implements NotificadorSSEService
+public class NotificadorSSEService implements NotificacaoUseCase
 {
     private final Sinks.Many<String> sink = Sinks.many( ).multicast( ).onBackpressureBuffer( );
 
@@ -32,6 +32,7 @@ public class NotificadorSSEServiceImpl implements NotificadorSSEService
     {
         sink.tryEmitNext( lembrete.getTitulo( ) );
 
+        //TODO: Verificar esse acoplamento
         Notificacao notificacao = lembrete.getNotificacao( );
         notificacao.setUltimaExecucao( LocalDateTime.now( ) );
         repository.save( mapper.toEntity( lembrete ) );

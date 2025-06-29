@@ -1,10 +1,10 @@
 package com.routine.pusher.application.external.controller;
 
-import com.routine.pusher.application.service.interfaces.CategoriaService;
-import com.routine.pusher.core.example.input.CategoriaInputDTOExample;
-import com.routine.pusher.core.example.output.CategoriaOutputDTOExample;
+import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaInputDTO;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
+import com.routine.pusher.core.example.input.CategoriaInputDTOExample;
+import com.routine.pusher.core.example.output.CategoriaOutputDTOExample;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.doReturn;
 public class CategoriaControllerTest
 {
     @Mock
-    private CategoriaService service;
+    private CRUDUseCase<CategoriaInputDTO, CategoriaOutputDTO> useCase;
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -45,7 +45,7 @@ public class CategoriaControllerTest
         CategoriaInputDTO input           = CategoriaInputDTOExample.simples( );
         CategoriaOutputDTO outputEsperado = CategoriaOutputDTOExample.simples( );
 
-        doReturn( outputEsperado ).when( service ).adicionar( any( CategoriaInputDTO.class ) );
+        doReturn( outputEsperado ).when(useCase).adicionar( any( CategoriaInputDTO.class ) );
 
         HttpHeaders headers = new HttpHeaders( );
         headers.setContentType( MediaType.APPLICATION_JSON );

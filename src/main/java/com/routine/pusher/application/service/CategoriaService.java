@@ -1,12 +1,13 @@
 package com.routine.pusher.application.service;
 
-import com.routine.pusher.application.service.interfaces.CategoriaService;
+import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.core.domain.categoria.CategoriaMapper;
+import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaInputDTO;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
-import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,18 +15,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class CategoriaServiceImpl implements CategoriaService
+@AllArgsConstructor
+public class CategoriaService implements CRUDUseCase<CategoriaInputDTO, CategoriaOutputDTO>
 {
-    private final Logger LOGGER = LoggerFactory.getLogger( CategoriaServiceImpl.class );
+    private final Logger LOGGER = LoggerFactory.getLogger( CategoriaService.class );
 
     private final CategoriaMapper mapper;
     private final CategoriaRepository repository;
-
-    public CategoriaServiceImpl( CategoriaMapper mapper, CategoriaRepository repository )
-    {
-        this.mapper = mapper;
-        this.repository = repository;
-    }
 
 
     @Override
@@ -70,14 +66,16 @@ public class CategoriaServiceImpl implements CategoriaService
     }
 
     @Override
-    public boolean excluir( Long id )
+    public void excluir( Long id )
     {
         LOGGER.debug("Excluindo categoria");
 
-        if( repository.existsById( id ) ) {
+        //TODO: Verificar antes de excluir se categoria está associada à algum Lembrete
+
+        if ( repository.existsById( id ) ) {
             repository.deleteById( id );
-            return true;
+        } else {
+            throw new EntityNotFoundException("Categoria não encontrada para o id" + id);
         }
-        return false;
     }
 }
