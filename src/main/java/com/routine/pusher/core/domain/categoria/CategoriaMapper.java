@@ -9,8 +9,6 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface CategoriaMapper
 {
-    CategoriaMapper INSTANCE = Mappers.getMapper( CategoriaMapper.class );
-
     CategoriaOutputDTO toOutputDto( CategoriaEntity categoria );
 
     Categoria toDomain( CategoriaOutputDTO outputDTO );

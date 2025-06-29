@@ -11,8 +11,6 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface LembreteMapper
 {
-    LembreteMapper INSTANCE = Mappers.getMapper( LembreteMapper.class );
-
     @Mapping(target = "categoria.id", source = "categoriaId")
     Lembrete toDomain( LembreteInputDTO inputDto );
     Lembrete toDomain( LembreteEntity entity );

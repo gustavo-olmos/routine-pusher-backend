@@ -7,7 +7,7 @@ import com.routine.pusher.core.domain.lembrete.LembreteMapper;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
-import com.routine.pusher.core.domain.lembrete.factory.LembreteFactory;
+import com.routine.pusher.core.domain.lembrete.LembreteFactory;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;

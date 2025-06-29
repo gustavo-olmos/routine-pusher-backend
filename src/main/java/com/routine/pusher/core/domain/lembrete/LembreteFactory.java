@@ -1,11 +1,10 @@
-package com.routine.pusher.core.domain.lembrete.factory;
+package com.routine.pusher.core.domain.lembrete;
 
 import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.core.domain.categoria.Categoria;
 import com.routine.pusher.core.domain.categoria.CategoriaMapper;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaInputDTO;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
-import com.routine.pusher.core.domain.lembrete.Lembrete;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
