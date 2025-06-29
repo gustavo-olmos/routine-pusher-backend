@@ -51,6 +51,8 @@ public class AgendadorJob
     {
         try {
             context.getScheduler( ).rescheduleJob( new TriggerKey( key ), novoTrigger );
+
+            //TODO: VERIFICAR PROXIMA EXECUCAO CORRETAMENTE PARA MELHORAR O LOG
             LOGGER.info("Reagendando job de id {} para {}", key, novoTrigger.getNextFireTime( ) );
         }
         catch ( SchedulerException e ) {
