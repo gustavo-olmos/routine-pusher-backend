@@ -2,16 +2,15 @@ package com.routine.pusher.core.domain.notificacao.strategy;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.notificacao.Notificacao;
-import com.routine.pusher.core.strategy.ProximaNotificacaoStrategy;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-public class DatasEspecificadasStrategy implements ProximaNotificacaoStrategy<Lembrete>
+public class DatasEspecificadasStrategy implements NotificacaoCaseStrategy<Lembrete>
 {
     @Override
-    public LocalDateTime calcular( Lembrete lembrete )
+    public LocalDateTime calcularProximaNotificacao(Lembrete lembrete )
     {
         Notificacao notificacao = lembrete.getNotificacao( );
         List<LocalDateTime> datasFuturas = notificacao.getDatasEspecificadas( ).stream( )

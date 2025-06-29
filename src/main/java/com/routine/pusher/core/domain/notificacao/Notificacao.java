@@ -1,8 +1,8 @@
 package com.routine.pusher.core.domain.notificacao;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
-import com.routine.pusher.core.strategy.ProximaNotificacaoStrategy;
-import com.routine.pusher.core.factory.ProximaNotificacaoFactory;
+import com.routine.pusher.core.domain.notificacao.strategy.NotificacaoCaseStrategy;
+import com.routine.pusher.core.domain.notificacao.factory.NotificacaoStrategyFactory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,7 +34,7 @@ public class Notificacao
 
     public LocalDateTime calcularProximaNotificacao( Lembrete lembrete )
     {
-        ProximaNotificacaoStrategy<Lembrete> strategy = ProximaNotificacaoFactory.getStrategy( lembrete );
-        return strategy.calcular( lembrete );
+        NotificacaoCaseStrategy<Lembrete> caseStrategy = NotificacaoStrategyFactory.getStrategy( lembrete );
+        return caseStrategy.calcularProximaNotificacao( lembrete );
     }
 }

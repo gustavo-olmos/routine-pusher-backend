@@ -1,4 +1,4 @@
-package com.routine.pusher.core.factory;
+package com.routine.pusher.core.domain.notificacao.factory;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.notificacao.Notificacao;
@@ -6,13 +6,13 @@ import com.routine.pusher.core.domain.notificacao.strategy.CronStrategy;
 import com.routine.pusher.core.domain.notificacao.strategy.DatasEspecificadasStrategy;
 import com.routine.pusher.core.domain.notificacao.strategy.IntervaloStrategy;
 import com.routine.pusher.core.domain.recorrencia.Recorrencia;
-import com.routine.pusher.core.strategy.ProximaNotificacaoStrategy;
+import com.routine.pusher.core.domain.notificacao.strategy.NotificacaoCaseStrategy;
 
 import java.time.Duration;
 
-public class ProximaNotificacaoFactory
+public class NotificacaoStrategyFactory
 {
-    public static ProximaNotificacaoStrategy<Lembrete> getStrategy( Lembrete lembrete )
+    public static NotificacaoCaseStrategy<Lembrete> getStrategy(Lembrete lembrete )
     {
         if( lembrete == null ) return null;
 

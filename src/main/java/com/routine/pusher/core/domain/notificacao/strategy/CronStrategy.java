@@ -3,7 +3,6 @@ package com.routine.pusher.core.domain.notificacao.strategy;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.notificacao.Notificacao;
 import com.routine.pusher.core.domain.recorrencia.Recorrencia;
-import com.routine.pusher.core.strategy.ProximaNotificacaoStrategy;
 import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import org.quartz.CronExpression;
 
@@ -12,10 +11,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-public class CronStrategy implements ProximaNotificacaoStrategy<Lembrete>
+public class CronStrategy implements NotificacaoCaseStrategy<Lembrete>
 {
     @Override
-    public LocalDateTime calcular( Lembrete lembrete )
+    public LocalDateTime calcularProximaNotificacao(Lembrete lembrete )
     {
         Recorrencia recorrencia = lembrete.getRecorrencia( );
         Notificacao notificacao = lembrete.getNotificacao( );

@@ -1,9 +1,9 @@
-package com.routine.pusher.core.domain.lembrete.strategy;
+package com.routine.pusher.core.trigger.strategy;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.notificacao.Notificacao;
 import com.routine.pusher.core.domain.recorrencia.Recorrencia;
-import com.routine.pusher.core.strategy.TriggerStrategy;
+import com.routine.pusher.core.trigger.TriggerCaseStrategy;
 import com.routine.pusher.infrastructure.exceptions.StrategyException;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Trigger;
@@ -14,27 +14,23 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Objects;
 
-public class TriggerValidadeStrategy implements TriggerStrategy<Lembrete>
+public class TriggerIlimitadoStrategy implements TriggerCaseStrategy<Lembrete>
 {
     @Override
     public Trigger criarTrigger( Lembrete lembrete )
     {
-        Notificacao notificacao = lembrete.getNotificacao( );
-        LocalDateTime validade = notificacao.getDataFim( );
-
         Recorrencia recorrencia = lembrete.getRecorrencia( );
         String cronExpression = recorrencia.montarCronExpression( lembrete.getNotificacao( ) );
         if( !Objects.equals( cronExpression, "" ) ) {
-            Date dataFim = Date.from( validade.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )
                     .withIdentity( lembrete.getId( ).toString( ) )
                     .withSchedule( CronScheduleBuilder.cronSchedule( cronExpression ) )
-                    .endAt( dataFim )
                     .build( );
         }
 
+        Notificacao notificacao = lembrete.getNotificacao( );
         LocalDateTime momento = notificacao.calcularProximaNotificacao( lembrete );
-        if( Objects.nonNull( momento ) && momento.isBefore( validade ) ) {
+        if( Objects.nonNull( momento ) ) {
             Date dataInicio = Date.from( momento.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )
                     .withIdentity( lembrete.getId( ).toString( ) )
@@ -42,6 +38,6 @@ public class TriggerValidadeStrategy implements TriggerStrategy<Lembrete>
                     .build( );
         }
 
-        throw new StrategyException( "Não foi possível agendar o lembrete" );
+        throw new StrategyException("Não foi possível agendar o lembrete");
     }
 }
