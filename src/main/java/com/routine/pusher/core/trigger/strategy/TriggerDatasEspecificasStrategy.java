@@ -1,4 +1,4 @@
-package com.routine.pusher.core.domain.lembrete.strategy;
+package com.routine.pusher.core.trigger.strategy;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.notificacao.Notificacao;

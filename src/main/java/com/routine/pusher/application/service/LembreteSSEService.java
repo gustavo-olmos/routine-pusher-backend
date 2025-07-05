@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
-public class NotificadorSSEService implements NotificacaoUseCase
+public class LembreteSSEService implements NotificacaoUseCase<Lembrete>
 {
     private final Sinks.Many<String> sink = Sinks.many( ).multicast( ).onBackpressureBuffer( );
 
@@ -32,7 +32,6 @@ public class NotificadorSSEService implements NotificacaoUseCase
     {
         sink.tryEmitNext( lembrete.getTitulo( ) );
 
-        //TODO: Verificar esse acoplamento
         Notificacao notificacao = lembrete.getNotificacao( );
         notificacao.setUltimaExecucao( LocalDateTime.now( ) );
         repository.save( mapper.toEntity( lembrete ) );

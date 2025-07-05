@@ -1,7 +1,7 @@
 package com.routine.pusher.core.trigger.factory;
 
 import com.routine.pusher.core.domain.lembrete.Lembrete;
-import com.routine.pusher.core.domain.lembrete.strategy.TriggerDatasEspecificasStrategy;
+import com.routine.pusher.core.trigger.strategy.TriggerDatasEspecificasStrategy;
 import com.routine.pusher.core.trigger.strategy.TriggerValidadeStrategy;
 import com.routine.pusher.core.domain.notificacao.Notificacao;
 import com.routine.pusher.core.domain.recorrencia.Recorrencia;

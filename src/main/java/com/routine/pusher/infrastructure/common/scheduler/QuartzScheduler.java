@@ -1,6 +1,6 @@
 package com.routine.pusher.infrastructure.common.scheduler;
 
-import com.routine.pusher.application.job.ExecutorJob;
+import com.routine.pusher.application.job.LembreteExecutorJob;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.trigger.TriggerCaseStrategy;
 import com.routine.pusher.core.trigger.factory.TriggerStrategyFactory;
@@ -17,7 +17,7 @@ public final class QuartzScheduler<T>
         JobDataMap jobDataMap = new JobDataMap( );
         jobDataMap.put( key, t );
 
-        return JobBuilder.newJob( ExecutorJob.class )
+        return JobBuilder.newJob( LembreteExecutorJob.class )
                          .withIdentity( key )
                          .setJobData( jobDataMap )
                          .build( );

@@ -14,11 +14,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
-public class ExecutorJob implements Job
+public class LembreteExecutorJob implements Job
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LembreteExecutorJob.class);
 
-    private final NotificacaoUseCase useCase;
+    private final NotificacaoUseCase<Lembrete> useCase;
     private final QuartzScheduler<Lembrete> quartz = new QuartzScheduler<>( );
 
     @Override

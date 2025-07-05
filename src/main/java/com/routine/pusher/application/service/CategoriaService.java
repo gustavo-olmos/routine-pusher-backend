@@ -71,7 +71,6 @@ public class CategoriaService implements CRUDUseCase<CategoriaInputDTO, Categori
         LOGGER.debug("Excluindo categoria");
 
         //TODO: Verificar antes de excluir se categoria está associada à algum Lembrete
-
         if ( repository.existsById( id ) ) {
             repository.deleteById( id );
         } else {

@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Component
 public class AgendadorJob
 {
@@ -22,6 +24,27 @@ public class AgendadorJob
         AgendadorJob.scheduler = scheduler;
     }
 
+    @PostConstruct
+    public void init( )
+    {
+        try {
+            scheduler.start( );
+        }
+        catch ( SchedulerException e ) {
+            LOGGER.error(e.getMessage( ), e);
+        }
+    }
+
+    @PreDestroy
+    public void preDestroy( )
+    {
+        try {
+            scheduler.shutdown( );
+        }
+        catch ( SchedulerException e ) {
+            LOGGER.error(e.getMessage( ), e);
+        }
+    }
 
     private static Scheduler initializeScheduler( )
     {
@@ -50,36 +73,13 @@ public class AgendadorJob
     public static void reagendar( JobExecutionContext context, String key, Trigger novoTrigger )
     {
         try {
-            context.getScheduler( ).rescheduleJob( new TriggerKey( key ), novoTrigger );
+            Date fireTime = context.getScheduler( )
+                                   .rescheduleJob( new TriggerKey( key ), novoTrigger );
 
-            //TODO: VERIFICAR PROXIMA EXECUCAO CORRETAMENTE PARA MELHORAR O LOG
-            LOGGER.info("Reagendando job de id {} para {}", key, novoTrigger.getNextFireTime( ) );
+            LOGGER.info("Reagendando job de id {} para {}", key, fireTime);
         }
         catch ( SchedulerException e ) {
             LOGGER.error("Erro ao reagendar job {}", key, e);
         }
     }
-
-    @PostConstruct
-    public void init( )
-    {
-        try {
-            scheduler.start( );
-        }
-        catch ( SchedulerException e ) {
-            LOGGER.error(e.getMessage( ), e);
-        }
-    }
-
-    @PreDestroy
-    public void preDestroy( )
-    {
-       try {
-           scheduler.shutdown( );
-       }
-       catch ( SchedulerException e ) {
-           LOGGER.error(e.getMessage( ), e);
-       }
-    }
-
 }
