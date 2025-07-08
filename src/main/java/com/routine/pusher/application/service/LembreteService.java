@@ -2,12 +2,12 @@ package com.routine.pusher.application.service;
 
 import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.application.usecase.ConcluirUseCase;
+import com.routine.pusher.core.domain.categoria.port.CategoriaQueryPort;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.lembrete.LembreteMapper;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
-import com.routine.pusher.core.domain.lembrete.factory.LembreteFactory;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
 import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,8 +25,8 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     private final Logger LOGGER = LoggerFactory.getLogger( LembreteService.class );
 
     private final LembreteMapper mapper;
-    private final LembreteFactory factory;
     private final LembreteRepository repository;
+    private final CategoriaQueryPort categoriaQueryPort;
 
 
     @Override
@@ -34,12 +34,16 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     {
         LOGGER.debug("Adicionando lembrete");
 
-        Lembrete lembrete = factory.comporLembrete( inputDto );
+        Lembrete lembrete = mapper.toDomain( inputDto );
+        lembrete.setCategoria( categoriaQueryPort.buscarPorId( inputDto.categoriaId( ) ) );
+        lembrete.setExecucao( );
+
         lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
 
         try {
             lembrete.agendarLembrete( );
-        } catch ( Exception e ) {
+        }
+        catch ( Exception e ) {
             repository.deleteById( lembrete.getId( ) );
             throw new ProcessoException( e.getLocalizedMessage( ), e.getMessage( ) );
         }
@@ -89,10 +93,9 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     {
         LOGGER.debug("Excluindo lembrete");
 
-        if ( repository.existsById( id ) ) {
-            repository.deleteById( id );
-        } else {
+        if ( !repository.existsById( id ) )
             throw new EntityNotFoundException("Lembrete não encontrado para o id" + id);
-        }
+
+        repository.deleteById( id );
     }
 }

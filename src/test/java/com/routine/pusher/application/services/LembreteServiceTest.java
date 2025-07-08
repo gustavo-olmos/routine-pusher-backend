@@ -1,13 +1,13 @@
 package com.routine.pusher.application.services;
 
 import com.routine.pusher.application.service.LembreteService;
+import com.routine.pusher.core.domain.categoria.port.CategoriaQueryPort;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.lembrete.LembreteEntity;
 import com.routine.pusher.core.domain.lembrete.LembreteMapperImpl;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
-import com.routine.pusher.core.domain.lembrete.factory.LembreteFactory;
 import com.routine.pusher.core.example.input.LembreteInputDTOExample;
 import com.routine.pusher.core.example.output.LembreteOutputDTOExample;
 import org.junit.jupiter.api.DisplayName;
@@ -23,14 +23,14 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class LembreteServiceTest
 {
+    @Spy
+    LembreteMapperImpl mapper;
+
     @Mock
     LembreteRepository repository;
 
     @Mock
-    LembreteFactory factory;
-
-    @Spy
-    LembreteMapperImpl mapper;
+    CategoriaQueryPort categoriaQueryPort;
 
 
     @Test
@@ -42,7 +42,7 @@ class LembreteServiceTest
 
         doReturn( esperado ).when( repository ).save( any( LembreteEntity.class ) );
 
-        LembreteOutputDTO output = new LembreteService( mapper, factory, repository ).adicionar( input );
+        LembreteOutputDTO output = new LembreteService( mapper, repository, categoriaQueryPort ).adicionar( input );
         Lembrete lembrete = mapper.toDomain( input );
 
         LembreteEntity entidade = mapper.toEntity( lembrete );

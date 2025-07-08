@@ -1,6 +1,7 @@
 package com.routine.pusher.application.services;
 
 import com.routine.pusher.application.service.CategoriaService;
+import com.routine.pusher.core.domain.lembrete.LembreteQueryPort;
 import com.routine.pusher.core.domain.categoria.CategoriaEntity;
 import com.routine.pusher.core.domain.categoria.CategoriaMapperImpl;
 import com.routine.pusher.core.domain.categoria.CategoriaRepository;
@@ -27,6 +28,9 @@ class CategoriaServiceTest
     @Spy
     CategoriaMapperImpl mapper;
 
+    @Mock
+    LembreteQueryPort lembreteQueryPort;
+
     @Test
     @DisplayName("Processar: Testa XXX de YYY com ZZZ")
     void testProcessar01( )
@@ -36,7 +40,7 @@ class CategoriaServiceTest
 
         doReturn( esperado ).when( repository ).save( any( CategoriaEntity.class ) );
 
-        CategoriaOutputDTO output = new CategoriaService( mapper, repository ).adicionar( input );
+        CategoriaOutputDTO output = new CategoriaService( mapper, repository, lembreteQueryPort ).adicionar( input );
 
         assertThat( output ).isEqualTo( esperado );
         verify( repository, times( 1 ) ).save( mapper.toEntity( input ) );
