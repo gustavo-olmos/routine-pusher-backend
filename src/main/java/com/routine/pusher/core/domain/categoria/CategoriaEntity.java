@@ -1,13 +1,8 @@
 package com.routine.pusher.core.domain.categoria;
 
 
-import com.routine.pusher.core.domain.lembrete.LembreteEntity;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.util.List;
 
 @Data
 @Entity

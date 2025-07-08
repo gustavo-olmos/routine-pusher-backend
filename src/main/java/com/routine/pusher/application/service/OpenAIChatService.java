@@ -1,7 +1,7 @@
 package com.routine.pusher.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.routine.pusher.application.external.client.OpenAIChatClient;
+import com.routine.pusher.application.external.client.ChatClient;
 import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.application.usecase.ChatUseCase;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
@@ -14,11 +14,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class OpenAIChatService implements ChatUseCase
+public class OpenAIChatService implements ChatUseCase<LembreteOutputDTO>
 {
     private final Logger LOGGER = LoggerFactory.getLogger( OpenAIChatService.class );
 
-    private final OpenAIChatClient client;
+    private final ChatClient<LembreteInputDTO> client;
     private final CRUDUseCase<LembreteInputDTO, LembreteOutputDTO> useCase;
 
     @Override

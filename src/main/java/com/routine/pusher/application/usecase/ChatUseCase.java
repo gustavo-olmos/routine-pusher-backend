@@ -1,8 +1,6 @@
 package com.routine.pusher.application.usecase;
 
-import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
-
-public interface ChatUseCase
+public interface ChatUseCase<T>
 {
-    LembreteOutputDTO criarLembreteViaChat( String frase );
+    T criarLembreteViaChat( String frase );
 }

@@ -21,7 +21,7 @@ import static org.mockito.Mockito.doReturn;
 class ClientTest
 {
     @Mock
-    OpenAIChatClient client;
+    ChatClient client;
 
     @Test
     @DisplayName("Processar: Testa XXX de YYY com ZZZ")
@@ -32,7 +32,7 @@ class ClientTest
 
         doReturn( retorno ).when( client ).buildLembreteChat( anyString( ) );
 
-        LembreteInputDTO output   = new OpenAIChatClientImpl( ).buildLembreteChat( String.valueOf( input ) );
+        LembreteInputDTO output   = new OpenAIChatClient( ).buildLembreteChat( String.valueOf( input ) );
         LembreteOutputDTO esperado = LembreteOutputDTOExample.simples( );
 
         assertAll(

@@ -7,7 +7,7 @@ import com.routine.pusher.core.domain.lembrete.LembreteMapper;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
-import com.routine.pusher.core.domain.lembrete.LembreteFactory;
+import com.routine.pusher.core.domain.lembrete.factory.LembreteFactory;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
 import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import jakarta.persistence.EntityNotFoundException;
@@ -34,7 +34,7 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     {
         LOGGER.debug("Adicionando lembrete");
 
-        Lembrete lembrete = factory.construirLembrete( inputDto );
+        Lembrete lembrete = factory.comporLembrete( inputDto );
         lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
 
         try {

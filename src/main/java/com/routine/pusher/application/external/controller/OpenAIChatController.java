@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Open-AI", description = "Operações de chat relacionadas à lembretes")
 public class OpenAIChatController
 {
-    private ChatUseCase useCase;
+    private ChatUseCase<LembreteOutputDTO> useCase;
 
 
     @PostMapping

@@ -5,7 +5,9 @@ import com.routine.pusher.core.domain.categoria.CategoriaMapper;
 import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaInputDTO;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
+import com.routine.pusher.core.domain.categoria.factory.CategoriaFactory;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
+import com.routine.pusher.infrastructure.exceptions.ExclusaoException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -21,6 +23,7 @@ public class CategoriaService implements CRUDUseCase<CategoriaInputDTO, Categori
     private final Logger LOGGER = LoggerFactory.getLogger( CategoriaService.class );
 
     private final CategoriaMapper mapper;
+    private final CategoriaFactory factory;
     private final CategoriaRepository repository;
 
 
@@ -68,13 +71,14 @@ public class CategoriaService implements CRUDUseCase<CategoriaInputDTO, Categori
     @Override
     public void excluir( Long id )
     {
-        LOGGER.debug("Excluindo categoria");
+        LOGGER.debug("Excluindo categoria com id {}", id);
 
-        //TODO: Verificar antes de excluir se categoria está associada à algum Lembrete
-        if ( repository.existsById( id ) ) {
-            repository.deleteById( id );
-        } else {
-            throw new EntityNotFoundException("Categoria não encontrada para o id" + id);
-        }
+        if( !repository.existsById( id ) )
+            throw new EntityNotFoundException("Categoria não encontrada para o id " + id);
+
+        if( !factory.podeDecomporCategoria( id ) )
+            throw new ExclusaoException("Não foi possível concluir a exclusão dessa categoria. Ainda restam lembretes associados");
+
+        repository.deleteById( id );
     }
 }
