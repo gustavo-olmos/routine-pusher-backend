@@ -3,8 +3,7 @@ package com.routine.pusher.application.external.controller;
 import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
-import com.routine.pusher.core.example.input.LembreteInputDTOExample;
-import com.routine.pusher.core.example.output.LembreteOutputDTOExample;
+import com.routine.pusher.example.LembreteExample;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,8 +41,8 @@ class LembreteControllerTest
     void testaSalvar_01( )
     {
         // 1. Arrange
-        LembreteInputDTO input           = LembreteInputDTOExample.simples( );
-        LembreteOutputDTO outputEsperado = LembreteOutputDTOExample.simples( );
+        LembreteInputDTO input           = LembreteExample.simplesInput( );
+        LembreteOutputDTO outputEsperado = LembreteExample.simplesOutput( );
 
         doReturn( outputEsperado ).when( useCase ).adicionar( any( LembreteInputDTO.class ) );
 

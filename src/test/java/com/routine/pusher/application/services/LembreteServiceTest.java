@@ -8,8 +8,7 @@ import com.routine.pusher.core.domain.lembrete.LembreteMapperImpl;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
-import com.routine.pusher.core.example.input.LembreteInputDTOExample;
-import com.routine.pusher.core.example.output.LembreteOutputDTOExample;
+import com.routine.pusher.example.LembreteExample;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,8 +36,8 @@ class LembreteServiceTest
     @DisplayName("Processar: Testa XXX de YYY com ZZZ")
     void testProcessar01( )
     {
-        LembreteInputDTO input = LembreteInputDTOExample.simples( );
-        LembreteOutputDTO esperado = LembreteOutputDTOExample.simples( );
+        LembreteInputDTO input = LembreteExample.simplesInput( );
+        LembreteOutputDTO esperado = LembreteExample.simplesOutput( );
 
         doReturn( esperado ).when( repository ).save( any( LembreteEntity.class ) );
 

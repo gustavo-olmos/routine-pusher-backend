@@ -1,4 +1,4 @@
-package com.routine.pusher.core;
+package com.routine.pusher.example;
 
 public abstract class NotificadorExample
 {
