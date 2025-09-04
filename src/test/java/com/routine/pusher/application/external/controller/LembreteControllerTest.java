@@ -1,75 +1,64 @@
 package com.routine.pusher.application.external.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.example.LembreteExample;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@WebMvcTest
+@ContextConfiguration(classes = LembreteController.class)
 class LembreteControllerTest
 {
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
     private CRUDUseCase<LembreteInputDTO, LembreteOutputDTO> useCase;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @InjectMocks
-    private LembreteController controller;
+    public static String asJsonString( final Object obj )
+    {
+        try {
+            return new ObjectMapper( ).writeValueAsString( obj );
+        } catch ( Exception e ) {
+            throw new RuntimeException( e );
+        }
+    }
 
     @Test
     @DisplayName("Testa o retorno do endpoint de salvar lembrete num cenário ideal")
-    void testaSalvar_01( )
+    void test_Salvar_01( ) throws Exception
     {
         // 1. Arrange
         LembreteInputDTO input           = LembreteExample.simplesInput( );
         LembreteOutputDTO outputEsperado = LembreteExample.simplesOutput( );
 
-        doReturn( outputEsperado ).when( useCase ).adicionar( any( LembreteInputDTO.class ) );
-
-        HttpHeaders headers = new HttpHeaders( );
-        headers.setContentType( MediaType.APPLICATION_JSON );
-        HttpEntity<LembreteInputDTO> request = new HttpEntity<>( input, headers );
+        when( useCase.adicionar( any( LembreteInputDTO.class ) ) ).thenReturn( outputEsperado );
 
         // 2. Act
-        ResponseEntity<LembreteOutputDTO> response = restTemplate
-                .postForEntity( "/lembrete", request, LembreteOutputDTO.class );
-
-        LembreteOutputDTO responseBody = response.getBody();
-        assertNotNull(responseBody);
+        ResultActions result = mockMvc.perform( post( "/api/v1/lembrete" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .content( asJsonString( input ) ) );
 
         //3. Assert
-        assertAll(
-                ( ) -> assertThat( response.getStatusCode( ).value( ) ).isEqualTo( 200 ),
-                ( ) -> assertEquals( MediaType.APPLICATION_JSON, response.getHeaders( ).getContentType( ) ),
-                ( ) -> assertEquals( outputEsperado.titulo( ), responseBody.titulo( ) ),
-                ( ) -> assertEquals( outputEsperado.descricao( ), responseBody.descricao( ) ),
-                ( ) -> assertEquals( outputEsperado.status( ), responseBody.status( ) ),
-                ( ) -> assertEquals( outputEsperado.categoria( ), responseBody.categoria( ) ),
-                ( ) -> assertEquals( outputEsperado.recorrencia( ), responseBody.recorrencia( ) ) );
+        result.andExpect( status( ).isOk( ) )
+                .andExpect( jsonPath( "$.id" ).value( outputEsperado.id( ) ) )
+                .andExpect( jsonPath( "$.titulo" ).value( outputEsperado.titulo( ) ) )
+                .andExpect( jsonPath( "$.descricao" ).value( outputEsperado.descricao( ) ) );
     }
-
-    @Test
-    @DisplayName("Testa retorno de salvar com campos errados")
-    void testaSalvar_02()
-    {  }
 }

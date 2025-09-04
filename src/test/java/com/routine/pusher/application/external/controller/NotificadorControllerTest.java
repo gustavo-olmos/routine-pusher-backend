@@ -16,7 +16,7 @@ public class NotificadorControllerTest
 
     @Test
     @DisplayName("Testa o fluxo de notificações via Server-Side-Event")
-    void testaStream( )
+    void test_Stream_01( )
     {
     }
 }

@@ -6,7 +6,6 @@ import com.routine.pusher.core.domain.categoria.CategoriaMapperImpl;
 import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaInputDTO;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
-import com.routine.pusher.core.domain.lembrete.LembreteQueryPort;
 import com.routine.pusher.example.CategoriaExample;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,9 +30,6 @@ class CategoriaServiceTest
 
     @Mock
     private CategoriaRepository repository;
-
-    @Mock
-    private LembreteQueryPort lembreteQueryPort;
 
 
     @Test

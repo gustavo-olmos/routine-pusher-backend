@@ -43,7 +43,7 @@ public class CategoriaControllerTest
 
     @Test
     @DisplayName("Testa o retorno do endpoint de adicionar categoria num cenário ideal")
-    void testaSalvar_01( ) throws Exception
+    void test_Salvar_01( ) throws Exception
     {
         // 1. Arrange
         CategoriaInputDTO input = CategoriaExample.inputDTO( );
