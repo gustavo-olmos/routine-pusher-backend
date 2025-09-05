@@ -37,7 +37,7 @@ public class LembreteController
         return ResponseEntity.ok( ).body( crudUseCase.listar( atributo, ordemReversa ) );
     }
 
-    @PutMapping(path = "{id}")
+    @PutMapping(path = "/{id}")
     @Operation(summary = "Atualiza lembrete")
     public ResponseEntity<LembreteOutputDTO> atualizar( @PathVariable(value = "id") Long id,
                                                         @RequestBody LembreteInputDTO dto )
@@ -46,7 +46,7 @@ public class LembreteController
     }
 
 
-    @PatchMapping(path = "{id}")
+    @PatchMapping(path = "/{id}")
     @Operation(summary = "Conclui lembrete")
     public ResponseEntity<Void> concluir( @PathVariable(value = "id") Long id )
     {
@@ -54,7 +54,7 @@ public class LembreteController
         return ResponseEntity.ok( ).build( );
     }
 
-    @DeleteMapping(path = "{id}")
+    @DeleteMapping(path = "/{id}")
     @Operation(summary = "Exclui lembrete")
     public ResponseEntity<String> excluir( @PathVariable(value = "id") Long id )
     {

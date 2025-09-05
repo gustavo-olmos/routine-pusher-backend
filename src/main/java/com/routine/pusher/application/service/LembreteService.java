@@ -63,12 +63,6 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     }
 
     @Override
-    public LembreteOutputDTO buscarPeloId( Long id )
-    {
-        return null;
-    }
-
-    @Override
     public LembreteOutputDTO atualizar( Long id, LembreteInputDTO inputDTO )
     {
         LOGGER.debug("Alterando lembrete de id {}", id);

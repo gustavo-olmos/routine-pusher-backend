@@ -8,7 +8,9 @@ public interface CRUDUseCase<I, O>
 
     List<O> listar( String atributo, boolean ordemReversa );
 
-    O buscarPeloId( Long id );
+    default O buscarPeloId( Long id ) {
+        return null;
+    };
 
     O atualizar( Long id, I inputDTO );
 

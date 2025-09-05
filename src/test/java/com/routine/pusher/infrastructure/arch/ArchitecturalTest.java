@@ -1,20 +1,17 @@
 package com.routine.pusher.infrastructure.arch;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMembers;
-import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS;
-import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_THROW_GENERIC_EXCEPTIONS;
-import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
-import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
-import static com.tngtech.archunit.library.plantuml.rules.PlantUmlArchCondition.adhereToPlantUmlDiagram;
-import static com.tngtech.archunit.library.plantuml.rules.PlantUmlArchCondition.Configuration.consideringOnlyDependenciesInDiagram;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMembers;
+import static com.tngtech.archunit.library.GeneralCodingRules.*;
+import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
+import static com.tngtech.archunit.library.plantuml.rules.PlantUmlArchCondition.Configuration.consideringOnlyDependenciesInDiagram;
+import static com.tngtech.archunit.library.plantuml.rules.PlantUmlArchCondition.adhereToPlantUmlDiagram;
 
 @AnalyzeClasses(packages = "com.routine.pusher", importOptions = ImportOption.DoNotIncludeTests.class)
 public class ArchitecturalTest
@@ -60,29 +57,11 @@ public class ArchitecturalTest
     @ArchTest
     public static final ArchRule regraNomenclatura30 = classes( ).that( ).haveSimpleNameEndingWith( "Mapper" ).should( ).resideInAPackage( PKG_MATCHER_MAPPERS );
 
-//    @ArchTest
-//    public static final ArchRule regraNomenclatura40 = classes( ).that( ).haveSimpleNameEndingWith( "Integration" ).should( ).resideInAPackage( PKG_MATCHER_INTEGRATION );
-
-//    @ArchTest
-//    public static final ArchRule regraNomenclatura41 = classes( ).that( ).haveSimpleNameEndingWith( "IntegrationImpl" ).should( ).resideInAPackage( PKG_MATCHER_INTEGRATION_IMPL );
-
-//    @ArchTest
-//    public static final ArchRule regraNomenclatura42 = classes( ).that( ).haveSimpleNameEndingWith( "Client" ).should( ).resideInAPackage( PKG_MATCHER_INTEGRATION_CLIENT );
-
-//    @ArchTest
-//    public static final ArchRule regraNomenclatura43 = classes( ).that( ).haveSimpleNameEndingWith( "Dto" ).or( ).haveSimpleNameEndingWith( "RespostaDto" ).should( ).resideInAPackage( PKG_MATCHER_INTEGRATION_DTO );
-
     @ArchTest
     public static final ArchRule regraNomenclatura50 = classes( ).that( ).haveSimpleNameEndingWith( "Input" ).or( ).haveSimpleNameEndingWith( "Output" ).should( ).resideInAPackage( PKG_MATCHER_MODEL );
 
     @ArchTest
     public static final ArchRule regraNomenclatura60 = classes( ).that( ).haveSimpleNameEndingWith( "Configuration" ).should( ).resideInAPackage( PKG_MATCHER_CONFIG );
-
-    /**
-     * Regras dos pacotes só com interfaces
-     */
-//    @ArchTest
-//    public static final ArchRule interfacePacoteIntegration = classes( ).that( ).resideInAnyPackage( PKG_MATCHER_INTEGRATION ).should( ).beInterfaces( );
 
     @ArchTest
     public static final ArchRule interfacePacoteService = classes( ).that( ).resideInAnyPackage( PKG_MATCHER_SERVICES ).should( ).beInterfaces( );

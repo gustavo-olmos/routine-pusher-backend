@@ -35,6 +35,13 @@ public class CategoriaController
         return ResponseEntity.ok( ).body( useCase.listar( atributo, ordemReversa ) );
     }
 
+    @GetMapping(path = "/{id}")
+    @Operation(summary = "Busca de categoria por id")
+    public ResponseEntity<CategoriaOutputDTO> buscarPorId( @PathVariable("id") Long id )
+    {
+        return ResponseEntity.ok( ).body( useCase.buscarPeloId( id ) );
+    }
+
     @PutMapping("/{id}")
     @Operation(summary = "Atualiza categoria")
     public ResponseEntity<CategoriaOutputDTO> atualizar( @PathVariable(value = "id") Long id,
