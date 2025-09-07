@@ -7,6 +7,7 @@ import com.routine.pusher.application.usecase.ChatUseCase;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.infrastructure.exceptions.ConversaoException;
+import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ public class OpenAIChatService implements ChatUseCase<LembreteOutputDTO>
             return useCase.adicionar( client.buildLembreteChat( frase ) );
         }
         catch (JsonProcessingException | ConversaoException ex ) {
-            throw new RuntimeException( ex );
+            throw new ProcessoException( "Falha na criação de lembrete via chat devido a conversão de dados. \n", ex.getMessage() );
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.routine.pusher.infrastructure.common.shared;
 
+import com.routine.pusher.infrastructure.exceptions.SortingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ public class SortInfo<T> implements Comparator<T>
         catch ( NoSuchFieldException | IllegalAccessException e ) {
             LOGGER.debug("Atributo de ordenação {} não encontrado ou sem acesso.", atributoOrdenacao);
 
-            throw new RuntimeException("Erro ao comparar objetos: " + e.getMessage(), e);
+            throw new SortingException("Erro ao comparar objetos: " + e.getMessage( ));
         }
     }
 
@@ -48,7 +49,7 @@ public class SortInfo<T> implements Comparator<T>
         }
 
         if( !( rawValue1 instanceof Comparable ) || !( rawValue2 instanceof Comparable) ) {
-            throw new RuntimeException( "O atributo de ordenação não é implementável");
+            throw new SortingException("O atributo de ordenação não é implementável");
         }
 
         Comparable<Object> value1 = (Comparable<Object>) rawValue1;
