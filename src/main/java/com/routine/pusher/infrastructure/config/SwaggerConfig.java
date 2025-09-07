@@ -23,22 +23,22 @@ public class SwaggerConfig
     public OpenAPI routinePusherAPI( )
     {
         Info info = new Info( );
-//        Components components = new Components( );
-//        OAuthFlow authCode = new OAuthFlow( );
-//        SecurityScheme scheme = new SecurityScheme( );
-//
-//        Scopes scopes = new Scopes( );
-//        scopes.addString("openid", "OpenID");
-//        scopes.addString("profile", "Profile");
-//        scopes.addString("email", "Email");
-//
-//        OAuthFlows oAuthFlows = new OAuthFlows( );
-//        oAuthFlows.authorizationCode(
-//                authCode.authorizationUrl( AUTH_URL ).tokenUrl( TOKEN_URL ).scopes( scopes ) );
+        Components components = new Components( );
+        OAuthFlow authCode = new OAuthFlow( );
+        SecurityScheme scheme = new SecurityScheme( );
+
+        Scopes scopes = new Scopes( );
+        scopes.addString("openid", "OpenID");
+        scopes.addString("profile", "Profile");
+        scopes.addString("email", "Email");
+
+        OAuthFlows oAuthFlows = new OAuthFlows( );
+        oAuthFlows.authorizationCode(
+                authCode.authorizationUrl( AUTH_URL ).tokenUrl( TOKEN_URL ).scopes( scopes ) );
 
         return new OpenAPI( )
-                .info( info.title( TITULO ).description( DESCRICAO ).version("1.0") );
-//                .components( components.addSecuritySchemes(
-//                    "oauth2", scheme.type( SecurityScheme.Type.OAUTH2 ).flows( oAuthFlows ) ) );
+                .info( info.title( TITULO ).description( DESCRICAO ).version("1.0") )
+                .components( components.addSecuritySchemes(
+                    "oauth2", scheme.type( SecurityScheme.Type.OAUTH2 ).flows( oAuthFlows ) ) );
     }
 }
