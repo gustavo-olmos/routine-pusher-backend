@@ -9,6 +9,7 @@ import com.openai.models.ChatCompletionCreateParams;
 import com.openai.models.ChatModel;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.infrastructure.exceptions.ConversaoException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,10 +17,13 @@ import java.util.List;
 @Service
 public class OpenAIChatClient implements ChatClient<LembreteInputDTO>
 {
-    private final String BANANA = "BANANA";
-
     private final ObjectMapper objectMapper = new ObjectMapper( );
-    private final OpenAIClient client = OpenAIOkHttpClient.builder().apiKey(BANANA).build();
+    private final OpenAIClient client;
+
+    public OpenAIChatClient( @Value("${openai.api-key:}") String apiKey )
+    {
+        this.client = OpenAIOkHttpClient.builder( ).apiKey( apiKey ).build( );
+    }
 
     private String prompt = """
             ATENÇÃO, Sua resposta deve ser somente o JSON solicitado abaixo.\s

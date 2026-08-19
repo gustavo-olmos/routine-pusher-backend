@@ -1,5 +1,9 @@
 HELP.md
 target/
+
+### Segredos / variáveis de ambiente ###
+.env
+!.env.example
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
