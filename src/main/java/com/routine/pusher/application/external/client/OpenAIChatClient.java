@@ -22,7 +22,8 @@ public class OpenAIChatClient implements ChatClient<LembreteInputDTO>
 
     public OpenAIChatClient( @Value("${openai.api-key:}") String apiKey )
     {
-        this.client = OpenAIOkHttpClient.builder( ).apiKey( apiKey ).build( );
+        String chave = ( apiKey == null || apiKey.isBlank( ) ) ? "not-configured" : apiKey;
+        this.client = OpenAIOkHttpClient.builder( ).apiKey( chave ).build( );
     }
 
     private String prompt = """

@@ -1,6 +1,5 @@
 package com.routine.pusher.core.domain.lembrete;
 
-import com.routine.pusher.application.job.AgendadorJob;
 import com.routine.pusher.core.domain.categoria.Categoria;
 import com.routine.pusher.core.domain.notificacao.Notificacao;
 import com.routine.pusher.core.domain.recorrencia.Recorrencia;
@@ -33,11 +32,6 @@ public class Lembrete
     {
         if( notificacao.aindaTemNotificacao( this ) )
             notificacao.setProximaExecucao( notificacao.calcularProximaNotificacao( this ) );
-    }
-
-    public void agendarLembrete( )
-    {
-        AgendadorJob.agendar( this );
     }
 
     public void concluirLembrete( )

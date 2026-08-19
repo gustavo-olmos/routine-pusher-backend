@@ -38,9 +38,16 @@ public class RecorrenciaEntity {
     @Column(name = "pos_semana")
     private Integer posicaoDaSemanaNoMes;
 
-    @Column(name = "dias_fixos")
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "recorrencia_dias_fixos", joinColumns = @JoinColumn(name = "recorrencia_id"))
+    @OrderColumn(name = "ordem")
+    @Column(name = "dia_fixo")
     private List<Integer> diasFixosNoMes;
 
-    @Column(name = "dias_semana")
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "recorrencia_dias_semana", joinColumns = @JoinColumn(name = "recorrencia_id"))
+    @OrderColumn(name = "ordem")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "dia_semana")
     private List<EnumDiasDaSemana> diasDaSemana;
 }

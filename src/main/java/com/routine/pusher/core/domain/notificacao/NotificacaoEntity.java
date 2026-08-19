@@ -21,6 +21,9 @@ public class NotificacaoEntity
     @JoinColumn(name = "lembrete_id")
     private LembreteEntity lembrete;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "notificacao_metodo", joinColumns = @JoinColumn(name = "notificacao_id"))
+    @OrderColumn(name = "ordem")
     @Column(name = "metodo")
     private List<String> metodo;
 
@@ -39,6 +42,9 @@ public class NotificacaoEntity
     @Column(name = "dt_fim")
     private LocalDateTime dataFim;
 
-    @Column(name = "dts_especificadas")
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "notificacao_datas", joinColumns = @JoinColumn(name = "notificacao_id"))
+    @OrderColumn(name = "ordem")
+    @Column(name = "dt_especificada")
     private List<LocalDateTime> datasEspecificadas;
 }

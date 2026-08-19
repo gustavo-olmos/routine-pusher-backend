@@ -1,5 +1,6 @@
 package com.routine.pusher.application.service;
 
+import com.routine.pusher.application.job.AgendadorJob;
 import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.application.usecase.ConcluirUseCase;
 import com.routine.pusher.core.domain.categoria.port.CategoriaQueryPort;
@@ -27,6 +28,7 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     private final LembreteMapper mapper;
     private final LembreteRepository repository;
     private final CategoriaQueryPort categoriaQueryPort;
+    private final AgendadorJob agendadorJob;
 
 
     @Override
@@ -41,7 +43,7 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
         lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
 
         try {
-            lembrete.agendarLembrete( );
+            agendadorJob.agendar( lembrete );
         }
         catch ( Exception e ) {
             repository.deleteById( lembrete.getId( ) );
