@@ -4,6 +4,7 @@ import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.infrastructure.common.scheduler.QuartzScheduler;
 import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -36,5 +37,22 @@ public class AgendadorJob
             LOGGER.error( e.getMessage( ), e );
             throw new ProcessoException( "Agendamento de lembrete", e.getMessage( ) );
         }
+    }
+
+    public void cancelar( Long id )
+    {
+        try {
+            scheduler.deleteJob( new JobKey( id.toString( ) ) );
+        }
+        catch ( SchedulerException e ) {
+            LOGGER.error( e.getMessage( ), e );
+            throw new ProcessoException( "Cancelamento de lembrete", e.getMessage( ) );
+        }
+    }
+
+    public void reagendar( Lembrete lembrete )
+    {
+        cancelar( lembrete.getId( ) );
+        agendar( lembrete );
     }
 }

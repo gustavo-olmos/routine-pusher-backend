@@ -5,6 +5,7 @@ import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.application.usecase.ConcluirUseCase;
 import com.routine.pusher.core.domain.categoria.port.CategoriaQueryPort;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
+import com.routine.pusher.core.domain.lembrete.LembreteEntity;
 import com.routine.pusher.core.domain.lembrete.LembreteMapper;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
@@ -69,19 +70,33 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     {
         LOGGER.debug("Alterando lembrete de id {}", id);
 
-        return repository.findById( id )
-                .map( entidade -> mapper.updateEntity( inputDTO, entidade ) )
-                .map( repository::save )
-                .map( mapper::toOutputDto )
+        LembreteEntity entidade = repository.findById( id )
                 .orElseThrow( () -> new EntityNotFoundException("Lembrete não encontrado para o id" + id) );
+
+        mapper.updateEntity( inputDTO, entidade );
+
+        Lembrete lembrete = mapper.toDomain( entidade );
+        lembrete.setExecucao( );
+        lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
+
+        agendadorJob.reagendar( lembrete );
+
+        return mapper.toOutputDto( lembrete );
     }
 
     @Override
     public void concluir( Long id )
     {
-        Lembrete lembrete = mapper.toDomain( repository.findById( id ).orElse( null ) );
+        LOGGER.debug("Concluindo lembrete de id {}", id);
+
+        Lembrete lembrete = repository.findById( id )
+                .map( mapper::toDomain )
+                .orElseThrow( () -> new EntityNotFoundException("Lembrete não encontrado para o id" + id) );
+
         lembrete.concluirLembrete( );
         repository.save( mapper.toEntity( lembrete ) );
+
+        agendadorJob.cancelar( id );
     }
 
     @Override
