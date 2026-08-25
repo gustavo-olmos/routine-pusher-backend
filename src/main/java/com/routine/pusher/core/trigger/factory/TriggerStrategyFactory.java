@@ -26,7 +26,8 @@ public class TriggerStrategyFactory
             return new TriggerValidadeStrategy( );
         } else {
             Recorrencia recorrencia = lembrete.getRecorrencia( );
-            if( Objects.nonNull( recorrencia ) && recorrencia.getQuantidade( ) > 0 )
+            if( Objects.nonNull( recorrencia ) && Objects.nonNull( recorrencia.getQuantidade( ) )
+                    && recorrencia.getQuantidade( ) > 0 )
                 return new TriggerQuantidadeStrategy( );
 
             return new TriggerIlimitadoStrategy( );

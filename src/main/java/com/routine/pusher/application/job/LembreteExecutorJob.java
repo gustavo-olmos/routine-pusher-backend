@@ -41,6 +41,12 @@ public class LembreteExecutorJob implements Job
         }
 
         LOGGER.info( "Notificando job de id: {}", jobId );
+
+        // Consome um disparo da cota ANTES do envio: adicionarEnvio persiste o lembrete, então o
+        // decremento fica gravado e o limite é respeitado entre execuções (o job recarrega do banco).
+        if( lembrete.getRecorrencia( ) != null )
+            lembrete.getRecorrencia( ).consumirQuantidade( );
+
         useCase.adicionarEnvio( lembrete );
 
         reagendarOuRemover( executionContext, jobId, lembrete );
@@ -49,7 +55,11 @@ public class LembreteExecutorJob implements Job
     private void reagendarOuRemover( JobExecutionContext context, String jobId, Lembrete lembrete )
     {
         try {
-            if( lembrete.getNotificacao( ).aindaTemNotificacao( lembrete ) ) {
+            boolean temProximaNotificacao = lembrete.getNotificacao( ).aindaTemNotificacao( lembrete );
+            boolean dentroDaCota = lembrete.getRecorrencia( ) == null
+                    || lembrete.getRecorrencia( ).temQuantidadeRestante( );
+
+            if( temProximaNotificacao && dentroDaCota ) {
                 Trigger novoTrigger = quartz.criarTrigger( lembrete );
                 context.getScheduler( ).rescheduleJob( new TriggerKey( jobId ), novoTrigger );
                 LOGGER.info( "Reagendando job de id {}", jobId );

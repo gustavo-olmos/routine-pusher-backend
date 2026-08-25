@@ -40,6 +40,22 @@ public class Recorrencia
         return Duration.ofDays( dias ).plusHours( horas ).plusMinutes( minutos );
     }
 
+    /**
+     * {@code quantidade} nulo significa recorrência ilimitada. Quando definido, representa o número
+     * de disparos ainda restantes — a contagem é decrementada a cada envio e persistida, de modo que
+     * o limite é respeitado mesmo com o job recarregando o lembrete do banco a cada execução.
+     */
+    public boolean temQuantidadeRestante( )
+    {
+        return quantidade == null || quantidade > 0;
+    }
+
+    public void consumirQuantidade( )
+    {
+        if( quantidade != null && quantidade > 0 )
+            quantidade = quantidade - 1;
+    }
+
     public String montarCronExpression( Notificacao notificacao )
     {
         String cronExpression = "";
