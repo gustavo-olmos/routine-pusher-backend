@@ -5,6 +5,7 @@ import com.routine.pusher.core.domain.categoria.dto.CategoriaInputDTO;
 import com.routine.pusher.core.domain.categoria.dto.CategoriaOutputDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class CategoriaController
 
     @PostMapping
     @Operation(summary = "Adiciona categoria")
-    public ResponseEntity<CategoriaOutputDTO> adicionar( @RequestBody CategoriaInputDTO dto )
+    public ResponseEntity<CategoriaOutputDTO> adicionar( @Valid @RequestBody CategoriaInputDTO dto )
     {
         return ResponseEntity.ok( ).body( useCase.adicionar( dto ) );
     }
@@ -45,7 +46,7 @@ public class CategoriaController
     @PutMapping("/{id}")
     @Operation(summary = "Atualiza categoria")
     public ResponseEntity<CategoriaOutputDTO> atualizar( @PathVariable(value = "id") Long id,
-                                                         @RequestBody CategoriaInputDTO dto )
+                                                         @Valid @RequestBody CategoriaInputDTO dto )
     {
         return ResponseEntity.ok( ).body( useCase.atualizar( id, dto ) );
     }

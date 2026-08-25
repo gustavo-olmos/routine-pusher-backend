@@ -3,16 +3,21 @@ package com.routine.pusher.core.domain.recorrencia.dto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.routine.pusher.core.enums.EnumDiasDaSemana;
-import com.routine.pusher.infrastructure.common.shared.LocalDateTimeWrapper;
+import jakarta.validation.constraints.PositiveOrZero;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public record RecorrenciaInputDTO(
+        @PositiveOrZero(message = "A quantidade não pode ser negativa")
         Integer quantidade,
 
+        @PositiveOrZero(message = "O intervalo de dias não pode ser negativo")
         Integer intervaloDias,
+
+        @PositiveOrZero(message = "O intervalo de horas não pode ser negativo")
         Integer intervaloHoras,
+
+        @PositiveOrZero(message = "O intervalo de minutos não pode ser negativo")
         Integer intervaloMinutos,
 
         Integer posicaoDaSemanaNoMes,

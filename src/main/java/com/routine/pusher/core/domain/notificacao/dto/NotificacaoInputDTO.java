@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.routine.pusher.infrastructure.common.shared.LocalDateTimeListWrapper;
 import com.routine.pusher.infrastructure.common.shared.LocalDateTimeWrapper;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
 public record NotificacaoInputDTO(
+        @NotEmpty(message = "Informe ao menos um método de notificação")
         List<String> metodo,
 
         @JsonFormat(pattern = "HH:mm")

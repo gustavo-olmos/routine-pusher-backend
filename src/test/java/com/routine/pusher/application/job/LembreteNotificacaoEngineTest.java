@@ -26,16 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * antes falhava porque o Scheduler estático deixava o job sem dependências. Também exercita a
  * persistência das coleções (@ElementCollection) e a back-reference do MapStruct.
  */
-@SpringBootTest(properties = {
-        "spring.datasource.url=jdbc:h2:mem:routinepusher;DB_CLOSE_DELAY=-1;MODE=PostgreSQL",
-        "spring.datasource.driver-class-name=org.h2.Driver",
-        "spring.datasource.username=sa",
-        "spring.datasource.password=",
-        "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.security.oauth2.client.registration.google.client-id=test-id",
-        "spring.security.oauth2.client.registration.google.client-secret=test-secret",
-        "openai.api-key=test"
-})
+@SpringBootTest
 class LembreteNotificacaoEngineTest
 {
     @Autowired

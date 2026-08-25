@@ -1,3 +1,12 @@
 package com.routine.pusher.core.domain.categoria.dto;
 
-public record CategoriaInputDTO( String nome, String cor, int fatorOrdem ) { }
+import jakarta.validation.constraints.NotBlank;
+
+public record CategoriaInputDTO(
+        @NotBlank(message = "O nome da categoria é obrigatório")
+        String nome,
+
+        String cor,
+
+        int fatorOrdem
+) { }
