@@ -108,22 +108,23 @@ formulário. É o que fazia `POST/PUT/DELETE` retornarem `403` no Postman e no S
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-O perfil `dev` (ver `DevSecurityConfig`) libera o Swagger UI sem login, desliga o CSRF e habilita
-**HTTP Basic** com um usuário em memória (`DEV_USER`/`DEV_PASSWORD` no `.env`, padrão `dev`/`dev`):
+O perfil `dev` (ver `DevSecurityConfig`) coloca **a aplicação inteira em whitelist**: nenhuma rota
+exige autenticação e o CSRF fica desligado, para exercitar qualquer endpoint sem fricção.
 
 ```sh
-curl -u dev:dev "http://localhost:8080/api/v1/categoria?sortInfo=nome&decrescente=false"
+curl "http://localhost:8080/api/v1/categoria?sortInfo=nome&decrescente=false"
 
-curl -u dev:dev -X POST http://localhost:8080/api/v1/categoria \
+curl -X POST http://localhost:8080/api/v1/categoria \
      -H "Content-Type: application/json" \
      -d '{"nome":"Saude","cor":"#FF0000","fatorOrdem":1}'
 ```
 
-No Swagger UI, o botão **Authorize** oferece os três esquemas (`bearerAuth`, `basicAuth`, `oauth2`) e
-passa a mandar o header em todas as chamadas.
+> É deliberadamente permissivo e serve só para teste local — não suba com `dev` em lugar nenhum
+> exposto. O perfil padrão não muda: lá o Swagger continua exigindo login e o navegador segue sendo
+> redirecionado ao Google.
 
-> O perfil `dev` não altera nada no perfil padrão: lá o Basic não existe, o Swagger continua exigindo
-> login e o navegador segue sendo redirecionado ao Google.
+No Swagger UI, o botão **Authorize** oferece `bearerAuth` e `oauth2`, e passa a mandar o header em
+todas as chamadas — necessário no perfil padrão, dispensável no `dev`.
 
 ### Obtendo um `id_token` no Postman
 

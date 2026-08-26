@@ -17,6 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -62,5 +64,27 @@ public class CategoriaControllerTest
         result.andExpect( status( ).isOk( ) )
               .andExpect( jsonPath( "$.id" ).value( outputEsperado.id( ) ) )
               .andExpect( jsonPath( "$.nome" ).value( outputEsperado.nome( ) ) );
+    }
+
+    /**
+     * Guarda a regressão do 500: {@code cor} é {@code nullable = false} na entidade, mas o DTO não
+     * exigia nada, então a requisição chegava ao banco e estourava violação de restrição. Tem que
+     * parar na validação, antes de qualquer acesso a dados.
+     */
+    @Test
+    @DisplayName("Adicionar categoria sem cor é rejeitado na validação, não no banco")
+    void test_Salvar_02( ) throws Exception
+    {
+        // 1. Arrange
+        CategoriaInputDTO semCor = new CategoriaInputDTO( "Importante", null, 1 );
+
+        // 2. Act
+        ResultActions result = mockMvc.perform( post( "/api/v1/categoria" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .content( asJsonString( semCor ) ) );
+
+        // 3. Assert
+        result.andExpect( status( ).isBadRequest( ) );
+        verify( useCase, never( ) ).adicionar( any( CategoriaInputDTO.class ) );
     }
 }

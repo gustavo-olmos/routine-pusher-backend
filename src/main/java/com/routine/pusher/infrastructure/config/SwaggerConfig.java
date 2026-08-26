@@ -21,7 +21,6 @@ public class SwaggerConfig
     public static final String DESCRICAO = "Documentação dos endpoints da API Routine Pusher";
 
     public static final String ESQUEMA_BEARER = "bearerAuth";
-    public static final String ESQUEMA_BASIC = "basicAuth";
     public static final String ESQUEMA_OAUTH2 = "oauth2";
 
     /**
@@ -41,10 +40,8 @@ public class SwaggerConfig
         return new OpenAPI( )
                 .info( info.title( TITULO ).description( DESCRICAO ).version("1.0") )
                 .addSecurityItem( new SecurityRequirement( ).addList( ESQUEMA_BEARER ) )
-                .addSecurityItem( new SecurityRequirement( ).addList( ESQUEMA_BASIC ) )
                 .addSecurityItem( new SecurityRequirement( ).addList( ESQUEMA_OAUTH2 ) )
                 .components( components.addSecuritySchemes( ESQUEMA_BEARER, esquemaBearer( ) )
-                                       .addSecuritySchemes( ESQUEMA_BASIC, esquemaBasic( ) )
                                        .addSecuritySchemes( ESQUEMA_OAUTH2, esquemaOAuth2( ) ) );
     }
 
@@ -58,17 +55,6 @@ public class SwaggerConfig
                 .scheme("bearer")
                 .bearerFormat("JWT")
                 .description("Cole o id_token do Google. Enviado como: Authorization: Bearer <token>");
-    }
-
-    /**
-     * Usuário local do perfil {@code dev}; não existe no perfil padrão.
-     */
-    private SecurityScheme esquemaBasic( )
-    {
-        return new SecurityScheme( )
-                .type( SecurityScheme.Type.HTTP )
-                .scheme("basic")
-                .description("Usuário em memória do perfil dev (DEV_USER/DEV_PASSWORD).");
     }
 
     private SecurityScheme esquemaOAuth2( )
