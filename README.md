@@ -87,7 +87,54 @@ DELETE /api/v1/lembretes/{id}
 
 ## Segurança
 
-A API conta com autenticação e autorização para proteger os endpoints. Em breve, será detalhado o processo de autenticação via JWT.
+Todos os endpoints exigem autenticação. Existem duas formas, habilitadas de forma global na
+`SecurityConfig` — nenhum controller declara nada por endpoint:
+
+| Forma | Como se identifica | Para quem |
+|---|---|---|
+| Sessão | cookie `JSESSIONID`, obtido no redirect do Google | navegador (tela inicial, Swagger UI) |
+| Bearer | header `Authorization: Bearer <id_token>` | Postman, curl, app cliente |
+
+O `id_token` do Google é validado pelo resource server contra o JWKS
+(`https://www.googleapis.com/oauth2/v3/certs`), conferindo assinatura, expiração, emissor e audiência
+(precisa ser o `GOOGLE_CLIENT_ID` desta aplicação — um token emitido para outro app é rejeitado).
+
+O CSRF é ignorado apenas em `/api/**`: chamada de máquina se identifica pelo header, não por cookie de
+formulário. É o que fazia `POST/PUT/DELETE` retornarem `403` no Postman e no Swagger.
+
+### Perfil `dev` — testar fora do navegador
+
+```sh
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+O perfil `dev` (ver `DevSecurityConfig`) libera o Swagger UI sem login, desliga o CSRF e habilita
+**HTTP Basic** com um usuário em memória (`DEV_USER`/`DEV_PASSWORD` no `.env`, padrão `dev`/`dev`):
+
+```sh
+curl -u dev:dev "http://localhost:8080/api/v1/categoria?sortInfo=nome&decrescente=false"
+
+curl -u dev:dev -X POST http://localhost:8080/api/v1/categoria \
+     -H "Content-Type: application/json" \
+     -d '{"nome":"Saude","cor":"#FF0000","fatorOrdem":1}'
+```
+
+No Swagger UI, o botão **Authorize** oferece os três esquemas (`bearerAuth`, `basicAuth`, `oauth2`) e
+passa a mandar o header em todas as chamadas.
+
+> O perfil `dev` não altera nada no perfil padrão: lá o Basic não existe, o Swagger continua exigindo
+> login e o navegador segue sendo redirecionado ao Google.
+
+### Obtendo um `id_token` no Postman
+
+Em *Authorization → OAuth 2.0*, use `Authorization Code` com:
+
+- Auth URL: `https://accounts.google.com/o/oauth2/v2/auth`
+- Access Token URL: `https://oauth2.googleapis.com/token`
+- Callback URL: `https://oauth.pstmn.io/v1/callback` (precisa estar registrada no Google Console)
+- Scope: `openid profile email`
+
+Na resposta, use o **`id_token`** (não o `access_token`, que é opaco e não é um JWT).
 
 ## Contribuição
 

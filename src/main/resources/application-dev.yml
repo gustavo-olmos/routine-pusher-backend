@@ -1,0 +1,5 @@
+# Perfil local de teste. Suba com: ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+# Ele ativa a DevSecurityConfig: Swagger liberado, CSRF desligado e HTTP Basic habilitado.
+dev:
+  usuario: ${DEV_USER:dev}
+  senha: ${DEV_PASSWORD:dev}

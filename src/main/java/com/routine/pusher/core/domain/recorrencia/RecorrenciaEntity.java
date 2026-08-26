@@ -23,8 +23,10 @@ public class RecorrenciaEntity {
     @JoinColumn(name = "lembrete_id")
     private LembreteEntity lembrete;
 
+    // Integer (nullable) e não int: 'quantidade' nula = recorrência ilimitada. Com int primitivo o
+    // default 0 seria lido como "cota esgotada" e mataria lembretes cron/intervalo após o 1º disparo.
     @Column(name = "quantidade")
-    private int quantidade;
+    private Integer quantidade;
 
     @Column(name = "intervalo_dias")
     private Integer intervaloDias;
