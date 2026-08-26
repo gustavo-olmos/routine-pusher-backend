@@ -1,11 +1,17 @@
 package com.routine.pusher.core.domain.recorrencia;
 
+import com.routine.pusher.core.domain.notificacao.Notificacao;
+import com.routine.pusher.core.enums.EnumDiasDaSemana;
+import com.routine.pusher.infrastructure.exceptions.StrategyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.time.LocalTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class RecorrenciaTest
 {
@@ -66,5 +72,43 @@ class RecorrenciaTest
 
         recorrencia.consumirQuantidade( );                       // não vai abaixo de zero
         assertThat( recorrencia.getQuantidade( ) ).isZero( );
+    }
+
+    /**
+     * Contrato de que TriggerIlimitadoStrategy e TriggerValidadeStrategy dependem: expressão vazia
+     * significa "não é recorrência de calendário, agende por intervalo". Quando isto passou a lançar
+     * por falta de horário, todo lembrete de intervalo parou de ser criado.
+     */
+    @Test
+    @DisplayName("montarCronExpression devolve vazio quando não há componente de calendário")
+    void montarCronExpression_semCalendario_deveDevolverVazio( )
+    {
+        Recorrencia soIntervalo = comIntervalo( null, null, 30 );
+
+        assertThat( soIntervalo.montarCronExpression( new Notificacao( ) ) ).isEmpty( );
+    }
+
+    @Test
+    @DisplayName("montarCronExpression exige horário apenas quando há recorrência de calendário")
+    void montarCronExpression_comCalendarioSemHorario_deveLancar( )
+    {
+        Recorrencia porDiaDaSemana = new Recorrencia( );
+        porDiaDaSemana.setDiasDaSemana( List.of( EnumDiasDaSemana.SEGUNDA ) );
+
+        assertThatThrownBy( () -> porDiaDaSemana.montarCronExpression( new Notificacao( ) ) )
+                .isInstanceOf( StrategyException.class );
+    }
+
+    @Test
+    @DisplayName("montarCronExpression prefixa o horário na expressão de calendário")
+    void montarCronExpression_comCalendarioEHorario_deveMontar( )
+    {
+        Recorrencia porDiaDaSemana = new Recorrencia( );
+        porDiaDaSemana.setDiasDaSemana( List.of( EnumDiasDaSemana.SEGUNDA ) );
+
+        Notificacao notificacao = new Notificacao( );
+        notificacao.setHorario( LocalTime.of( 9, 30 ) );
+
+        assertThat( porDiaDaSemana.montarCronExpression( notificacao ) ).startsWith( "0 30 9" );
     }
 }

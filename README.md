@@ -126,6 +126,39 @@ curl -X POST http://localhost:8080/api/v1/categoria \
 No Swagger UI, o botão **Authorize** oferece `bearerAuth` e `oauth2`, e passa a mandar o header em
 todas as chamadas — necessário no perfil padrão, dispensável no `dev`.
 
+### Testando rápido depois de subir
+
+O schema é `create-drop` e os jobs do Quartz vivem em memória: **nada sobrevive ao restart**, por
+escolha. Por isso o teste manual parte sempre de um banco vazio.
+
+Para não perder tempo com isso, `scripts/routine-pusher.postman_collection.json` é uma coleção
+Postman pronta: 22 requisições em 4 pastas, encadeadas para rodar de ponta a ponta no **Collection
+Runner**. A pasta 1 cria a categoria e guarda o id numa variável de coleção; as pastas seguintes
+dependem dele.
+
+1. Postman > **Import** > arraste o arquivo (ou *Raw text*, colando o conteúdo)
+2. Suba a aplicação no perfil `dev`, que não exige autenticação
+3. Rode a coleção, **desmarcando a pasta 4 (SSE)** — ela mantém a conexão aberta e travaria a execução
+
+Cada requisição traz assertivas (`pm.test`), então o Runner dá pass/fail em vez de só devolver
+resposta. A pasta 3 cobre os erros esperados (400, 404, 405, 409, 422), útil para conferir o
+`GlobalExceptionHandler` sem forçar nada na mão. `cor` e `fatorOrdem` são sorteados a cada execução,
+então dá para rodar várias vezes seguidas sem reiniciar a aplicação.
+
+Alternativa sem arquivo nenhum: **Import > Link > `http://localhost:8080/v3/api-docs`** gera a
+coleção a partir do OpenAPI — mas sem payloads de exemplo, sem encadeamento e sem assertivas.
+
+Para ver os disparos chegando, deixe o SSE aberto em outro terminal:
+
+```sh
+curl -N http://localhost:8080/api/v1/notificar/sse
+```
+
+Duas regras que economizam tentativa e erro ao montar um lembrete novo:
+
+- recorrência por **intervalo** exige `notificacao.dataInicio` (é a base do cálculo)
+- recorrência por **cron** (`diasDaSemana`, `diasFixosNoMes`) exige `notificacao.horario`
+
 ### Obtendo um `id_token` no Postman
 
 Em *Authorization → OAuth 2.0*, use `Authorization Code` com:

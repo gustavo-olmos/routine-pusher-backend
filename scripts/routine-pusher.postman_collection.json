@@ -1,0 +1,1007 @@
+{
+  "info": {
+    "_postman_id": "b7d3f1a2-4c6e-4f8a-9b21-routinepusher1",
+    "name": "Routine Pusher API",
+    "description": "Coleção de teste da Routine Pusher.\n\nCOMO USAR\n1. Suba a aplicação no perfil dev, que não exige autenticação:\n   ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev\n2. Rode no Collection Runner, DESMARCANDO a pasta 4 (SSE): ela mantém a conexão aberta e travaria a execução.\n\nAs pastas 1 a 3 são uma sequência. A pasta 1 cria a categoria e guarda o id numa variável de coleção; as demais dependem dele, então rodar fora de ordem quebra o encadeamento.\n\nO schema é create-drop: cada restart da aplicação zera tudo e os ids voltam a 1. A coleção sorteia cor e fatorOrdem a cada execução, então pode rodar várias vezes seguidas sem reiniciar.\n\nAUTENTICAÇÃO: no perfil dev nada é exigido, deixe a variável token vazia. Fora do dev, preencha token com o id_token do Google (não o access_token, que é opaco e não é um JWT).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Roda antes de CADA requisicao. As datas precisam ser hora LOCAL sem fuso: a API",
+          "// desserializa com ISO_LOCAL_DATE_TIME, entao toISOString() (que e UTC) agendaria",
+          "// no horario errado.",
+          "const p = n => String(n).padStart(2, '0');",
+          "const isoLocal = ms => {",
+          "  const d = new Date(ms);",
+          "  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate())",
+          "       + 'T' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());",
+          "};",
+          "pm.collectionVariables.set('agora', isoLocal(Date.now()));",
+          "pm.collectionVariables.set('daquiA2min', isoLocal(Date.now() + 2 * 60 * 1000));",
+          "pm.collectionVariables.set('daquiA10min', isoLocal(Date.now() + 10 * 60 * 1000));"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoriaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lembreteId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Categoria",
+      "item": [
+        {
+          "name": "Criar categoria",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categoria",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categoria"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Saúde\",\n  \"cor\": \"{{corNova}}\",\n  \"fatorOrdem\": {{fatorNovo}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// cor e fatorOrdem sao UNIQUE no banco. Sortear deixa a colecao rodavel varias",
+                  "// vezes seguidas sem reiniciar a aplicacao (senao o 2o run daria 409).",
+                  "const hex = Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0');",
+                  "pm.collectionVariables.set('corNova', '#' + hex);",
+                  "pm.collectionVariables.set('fatorNovo', 1000 + Math.floor(Math.random() * 100000));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const c = pm.response.json();",
+                  "pm.collectionVariables.set('categoriaId', c.id);",
+                  "pm.collectionVariables.set('corCriada', c.cor);",
+                  "pm.collectionVariables.set('fatorCriado', c.fatorOrdem);",
+                  "pm.test('devolveu id', () => pm.expect(c.id).to.be.a('number'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar categorias",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categoria?sortInfo=nome&decrescente=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categoria"
+              ],
+              "query": [
+                {
+                  "key": "sortInfo",
+                  "value": "nome"
+                },
+                {
+                  "key": "decrescente",
+                  "value": "false"
+                }
+              ]
+            },
+            "description": "sortInfo e decrescente sao obrigatorios; sem eles a API responde 400."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('veio lista', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar categoria por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categoria/{{categoriaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categoria",
+                "{{categoriaId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('id confere', () => pm.expect(pm.response.json().id)",
+                  "    .to.eql(Number(pm.collectionVariables.get('categoriaId'))));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Atualizar categoria",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categoria/{{categoriaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categoria",
+                "{{categoriaId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Saúde e bem-estar\",\n  \"cor\": \"{{corCriada}}\",\n  \"fatorOrdem\": {{fatorCriado}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('nome atualizado', () => pm.expect(pm.response.json().nome)",
+                  "    .to.eql('Saúde e bem-estar'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Lembrete",
+      "item": [
+        {
+          "name": "Criar — intervalo ilimitado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete"
+              ]
+            },
+            "description": "Recorrencia por intervalo exige notificacao.dataInicio: e a base do calculo da proxima execucao. Sem quantidade nem dataFim, repete para sempre.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Beber água\",\n  \"descricao\": \"Hidratação a cada 2 minutos\",\n  \"categoriaId\": {{categoriaId}},\n  \"recorrencia\": {\n    \"intervaloMinutos\": 2\n  },\n  \"notificacao\": {\n    \"metodo\": [\n      \"pop-up\"\n    ],\n    \"dataInicio\": \"{{agora}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const l = pm.response.json();",
+                  "pm.collectionVariables.set('lembreteId', l.id);",
+                  "pm.test('agendou no futuro', () =>",
+                  "    pm.expect(new Date(l.notificacao.proximaExecucao)).to.be.greaterThan(new Date()));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar — intervalo com cota",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete"
+              ]
+            },
+            "description": "quantidade e o numero de disparos restantes. O motor decrementa a cada envio e para de reagendar quando zera.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Alongar\",\n  \"categoriaId\": {{categoriaId}},\n  \"recorrencia\": {\n    \"quantidade\": 3,\n    \"intervaloMinutos\": 2\n  },\n  \"notificacao\": {\n    \"metodo\": [\n      \"pop-up\"\n    ],\n    \"dataInicio\": \"{{agora}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('cota preservada', () =>",
+                  "    pm.expect(pm.response.json().recorrencia.quantidade).to.eql(3));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar — intervalo com validade",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete"
+              ]
+            },
+            "description": "dataFim encerra a recorrencia por tempo, em vez de por contagem.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Pausa para o café\",\n  \"categoriaId\": {{categoriaId}},\n  \"recorrencia\": {\n    \"intervaloMinutos\": 1\n  },\n  \"notificacao\": {\n    \"metodo\": [\n      \"som\"\n    ],\n    \"dataInicio\": \"{{agora}}\",\n    \"dataFim\": \"{{daquiA10min}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const l = pm.response.json();",
+                  "pm.test('proxima execucao dentro da validade', () =>",
+                  "    pm.expect(new Date(l.notificacao.proximaExecucao))",
+                  "      .to.be.lessThan(new Date(pm.collectionVariables.get('daquiA10min'))));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar — cron por dias da semana",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete"
+              ]
+            },
+            "description": "Recorrencia de calendario exige notificacao.horario. Valores aceitos em diasDaSemana: SEGUNDA, TERCA, QUARTA, QUINTA, SEXTA, SABADO, DOMINGO.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Reunião de alinhamento\",\n  \"categoriaId\": {{categoriaId}},\n  \"recorrencia\": {\n    \"diasDaSemana\": [\n      \"SEGUNDA\",\n      \"QUARTA\",\n      \"SEXTA\"\n    ]\n  },\n  \"notificacao\": {\n    \"metodo\": [\n      \"e-mail\"\n    ],\n    \"horario\": \"09:00\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar — cron por dias fixos do mês",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Pagar contas\",\n  \"categoriaId\": {{categoriaId}},\n  \"recorrencia\": {\n    \"diasFixosNoMes\": [\n      5,\n      20\n    ]\n  },\n  \"notificacao\": {\n    \"metodo\": [\n      \"pop-up\"\n    ],\n    \"horario\": \"10:30\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar — datas específicas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete"
+              ]
+            },
+            "description": "datasEspecificadas tem precedencia sobre recorrencia, por isso vai sem recorrencia nenhuma. O motor agenda sempre a menor data ainda futura.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Consulta médica\",\n  \"categoriaId\": {{categoriaId}},\n  \"notificacao\": {\n    \"metodo\": [\n      \"pop-up\"\n    ],\n    \"datasEspecificadas\": [\n      \"{{daquiA2min}}\",\n      \"{{daquiA10min}}\"\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const l = pm.response.json();",
+                  "pm.test('escolheu a data mais proxima', () =>",
+                  "    pm.expect(new Date(l.notificacao.proximaExecucao))",
+                  "      .to.be.lessThan(new Date(pm.collectionVariables.get('daquiA10min'))));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar lembretes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete?sortInfo=titulo&decrescente=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete"
+              ],
+              "query": [
+                {
+                  "key": "sortInfo",
+                  "value": "titulo"
+                },
+                {
+                  "key": "decrescente",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('criou os 6', () =>",
+                  "    pm.expect(pm.response.json().length).to.be.at.least(6));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Atualizar lembrete",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete/{{lembreteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete",
+                "{{lembreteId}}"
+              ]
+            },
+            "description": "Atualizar recalcula a proxima execucao e reagenda o job no Quartz.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Beber água (500ml)\",\n  \"categoriaId\": {{categoriaId}},\n  \"recorrencia\": {\n    \"intervaloMinutos\": 5\n  },\n  \"notificacao\": {\n    \"metodo\": [\n      \"pop-up\"\n    ],\n    \"dataInicio\": \"{{agora}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('titulo atualizado', () =>",
+                  "    pm.expect(pm.response.json().titulo).to.eql('Beber água (500ml)'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Concluir lembrete",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete/{{lembreteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete",
+                "{{lembreteId}}"
+              ]
+            },
+            "description": "Marca como CONCLUIDO e cancela o job agendado no Quartz."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Excluir lembrete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete/{{lembreteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete",
+                "{{lembreteId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Erros esperados",
+      "item": [
+        {
+          "name": "400 — campos obrigatórios ausentes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categoria",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categoria"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fatorOrdem\": 99\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('aponta os campos', () => {",
+                  "  const c = pm.response.json().camposInvalidos;",
+                  "  pm.expect(c).to.have.property('nome');",
+                  "  pm.expect(c).to.have.property('cor');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "409 — cor/fatorOrdem já usados",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categoria",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categoria"
+              ]
+            },
+            "description": "Reenvia cor e fatorOrdem da categoria criada na pasta 1: sao colunas UNIQUE.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Duplicada\",\n  \"cor\": \"{{corCriada}}\",\n  \"fatorOrdem\": {{fatorCriado}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "404 — id inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categoria/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categoria",
+                "999999"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "400 — parâmetro obrigatório ausente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categoria",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categoria"
+              ]
+            },
+            "description": "Sem sortInfo e decrescente."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "400 — id de tipo errado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categoria/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categoria",
+                "abc"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "405 — verbo não suportado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categoria/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categoria",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 405', () => pm.response.to.have.status(405));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "422 — cron sem horário",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete"
+              ]
+            },
+            "description": "Recorrencia de calendario sem notificacao.horario nao consegue montar a expressao cron.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Cron sem horário\",\n  \"categoriaId\": {{categoriaId}},\n  \"recorrencia\": {\n    \"diasDaSemana\": [\n      \"SEGUNDA\"\n    ]\n  },\n  \"notificacao\": {\n    \"metodo\": [\n      \"pop-up\"\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Notificações (NÃO incluir no Runner)",
+      "item": [
+        {
+          "name": "Stream SSE",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notificar/sse",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "notificar",
+                "sse"
+              ]
+            },
+            "description": "Conexao que fica aberta recebendo os disparos. Rode manualmente e deixe numa aba; no Collection Runner ela travaria a execucao."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -72,7 +72,15 @@ public class Recorrencia
         if( diasFixosNoMes != null && !diasFixosNoMes.isEmpty( ) )
             cronExpression = CronExpressionBuilder.montarCronExprComDiaFixo( diasFixosNoMes );
 
+        // Sem componente de calendário não há expressão cron a montar. Devolver "" é contrato:
+        // TriggerIlimitadoStrategy e TriggerValidadeStrategy testam justamente esse vazio para cair
+        // no agendamento por intervalo. Exigir horário antes daqui quebrava todo lembrete de
+        // intervalo, que legitimamente não tem horário fixo.
+        if( cronExpression.isEmpty( ) )
+            return cronExpression;
+
         LocalTime horario = notificacao.getHorario( );
+
         if( horario == null )
             throw new StrategyException( "Horário é obrigatório para montar a expressão cron" );
 
