@@ -76,8 +76,12 @@ spring:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
+            # Default vazio de proposito: o demo nao tem login, e sem estes dois o Spring
+            # simplesmente nao registra o oauth2Login (rotas protegidas respondem 401 em vez
+            # de redirecionar). Sem o ":" a aplicacao declara a variavel como obrigatoria e
+            # so nao quebra o boot por acidente de ordem de avaliacao.
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
             scope:
               - openid
               - profile

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -47,6 +48,13 @@ public class SecurityConfig
 
     public static final String[] ROTAS_SWAGGER = { "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**" };
 
+    /**
+     * Categoria é cenário do demo, não dado do visitante: a lista é única e compartilhada por todos,
+     * então escrita anônima aqui deixa qualquer um poluir (ou apagar) o que todo mundo enxerga. As
+     * categorias nascem prontas pela migração V5; escrever nelas é operação de dono.
+     */
+    public static final String MATCHER_CATEGORIA = "/api/v1/categoria/**";
+
     private static final String EMISSOR_GOOGLE = "https://accounts.google.com";
 
     private static final String JWK_SET_URI = "https://www.googleapis.com/oauth2/v3/certs";
@@ -57,8 +65,14 @@ public class SecurityConfig
     {
         http.authorizeHttpRequests( authManager ->
              authManager.requestMatchers( ROTAS_PUBLICAS ).permitAll( )
-                        // Sem login na API: a identidade do visitante é a sessão anônima, resolvida
-                        // pelo filtro de cookie fora desta cadeia.
+                        // Ler categoria é necessário para o visitante escolher uma; criar, alterar
+                        // e apagar mexem na lista de todos, então exigem dono autenticado. A ordem
+                        // importa: estas regras precisam vir ANTES do permitAll de /api/**.
+                        .requestMatchers( HttpMethod.POST, MATCHER_CATEGORIA ).authenticated( )
+                        .requestMatchers( HttpMethod.PUT, MATCHER_CATEGORIA ).authenticated( )
+                        .requestMatchers( HttpMethod.DELETE, MATCHER_CATEGORIA ).authenticated( )
+                        // Sem login no resto da API: a identidade do visitante é a sessão anônima,
+                        // resolvida pelo filtro de cookie fora desta cadeia.
                         .requestMatchers( MATCHER_API ).permitAll( )
                         .anyRequest( ).authenticated( ) )
             // Aplica o CorsConfigurationSource (ver CorsConfig) antes das regras de autorização:
@@ -78,10 +92,12 @@ public class SecurityConfig
      * Decodifica e valida o {@code id_token} do Google. A assinatura é conferida contra as chaves
      * públicas publicadas no JWKS; além do padrão (expiração + emissor), exige que a audiência seja
      * este client-id — sem isso, um token emitido para qualquer outra aplicação Google seria aceito.
+     * <p>Com o client-id vazio (demo sem login configurado) o validador de audiência nunca casa,
+     * então todo Bearer é recusado — falha fechada, que é o lado certo para errar.</p>
      */
     @Bean
     public JwtDecoder jwtDecoder(
-            @Value("${spring.security.oauth2.client.registration.google.client-id}") String clientId )
+            @Value("${spring.security.oauth2.client.registration.google.client-id:}") String clientId )
     {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri( JWK_SET_URI ).build( );
         decoder.setJwtValidator( validadorDeToken( clientId ) );
