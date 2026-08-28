@@ -172,6 +172,18 @@
 
 	<build>
 		<plugins>
+			<!--Sem este plugin o 'mvn package' gera um jar SEM as dependencias, e 'java -jar' morre
+			    com NoClassDefFoundError: SpringApplication. Ele nao aparecia porque 'spring-boot:run'
+			    e um goal invocado direto e nao passa pelo repackage. Qualquer deploy que rode o jar
+			    (container, Railway, App Runner) depende disto.-->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<!--O manifesto executavel agora e responsabilidade do spring-boot-maven-plugin, que
+			    reescreve o Main-Class para o launcher e guarda o desta configuracao como
+			    Start-Class.-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>

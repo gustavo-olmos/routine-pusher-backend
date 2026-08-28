@@ -119,6 +119,45 @@ GET /api/v1/lembretes
 DELETE /api/v1/lembretes/{id}
 ```
 
+## Deploy
+
+A aplicação é um **processo de vida longa com agendador embutido**. Isso, e não preferência, é o que
+elimina algumas opções: precisa de um processo que fique acordado entre requisições, de HTTPS com
+domínio estável (o Google recusa redirect URI que não seja o cadastrado) e de um Postgres.
+
+| Plataforma | Serve? |
+|---|---|
+| **Railway** | sim — processo sempre no ar, domínio estável, Postgres na mesma rede |
+| **Fly.io / AWS App Runner** | sim — mesma ideia, mais peças para montar |
+| **Render (free)** | não — o plano gratuito hiberna por inatividade, e agendador dormindo não lembra |
+| **Vercel** | não — hospeda função serverless, não processo JVM de vida longa |
+
+O `Dockerfile` na raiz é multi-stage e roda em qualquer uma delas sem alteração. Manter o build ali,
+em vez de num arquivo de configuração da plataforma, é o que faz trocar de provedor não virar
+reescrita.
+
+### O que já está preparado
+
+- **`PORT`** — a plataforma injeta a porta; `server.port: ${PORT:8080}`.
+- **`/actuator/health`** liberado sem autenticação. Health check que exige credencial faz a
+  plataforma concluir que a instância está doente e reiniciar o container em laço.
+- **Desligamento gracioso** — `server.shutdown: graceful` e
+  `spring.quartz.wait-for-jobs-to-complete-on-shutdown`. Importa mais aqui do que numa API comum: um
+  SIGTERM no meio de um disparo deixaria o trigger travado em `ACQUIRED` até o `misfireThreshold`.
+- **`forward-headers-strategy: framework`** — atrás do proxy da plataforma o Spring só sabe que a
+  requisição chegou por HTTPS lendo `X-Forwarded-*`. Sem isso ele monta o redirect do OAuth em
+  `http://` e o Google recusa. É o erro clássico de primeiro deploy com OAuth.
+- **Usuário sem privilégio** no container e `MaxRAMPercentage`, porque o default da JVM em container
+  pequeno reserva pouco heap.
+
+### Antes de subir
+
+1. Variáveis de ambiente conforme `.env.example` — com `JPA_SHOW_SQL=false` e `DB_POOL_SIZE` baixo.
+2. **Não** ativar o perfil `dev`: ele libera a aplicação inteira. Sem `SPRING_PROFILES_ACTIVE`, vale
+   a cadeia de segurança normal.
+3. Registrar o redirect URI do domínio no Google Console.
+4. `QUARTZ_CLUSTERED` só junto com a segunda instância — nunca antes, nunca depois.
+
 ## Banco e migrações
 
 O schema é **versionado com Flyway** e o Hibernate roda em `validate`. Ele não cria nem altera nada:
