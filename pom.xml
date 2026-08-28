@@ -98,6 +98,13 @@
 		<!--postgreSQL-->
 		<!--flyway: schema versionado. O core nao traz mais o suporte a Postgres desde o 10, dai o
 		    artefato separado. Ambas as versoes vem gerenciadas pelo parent do Spring Boot.-->
+		<!--actuator: /actuator/health e o que a plataforma de deploy consulta para saber se a
+		    instancia esta viva. Exposicao limitada a health no application.yml.-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>

@@ -159,6 +159,41 @@ Os testes rodam em H2 com `create-drop` e **Flyway desligado** — as migraçõe
 Quem garante que a migração continua batendo com as entidades é o `validate` do perfil real: se o
 mapeamento e o SQL divergirem, a aplicação não sobe.
 
+## Agendamento (Quartz)
+
+O job store é **JDBC**, não memória. As tabelas do Quartz são criadas pela migração
+`V2__quartz.sql` — o script oficial do Quartz 2.3.2 para Postgres, versionado aqui porque schema tem
+um dono só, o Flyway (`spring.quartz.jdbc.initialize-schema: never`).
+
+Isso corrige uma falha que era invisível: com `RAMJobStore`, **todo restart apagava os triggers**.
+Os lembretes continuavam no banco e nunca mais disparavam, sem erro nenhum no log, porque nada
+reagendava no boot. Enquanto o banco também era `create-drop` a inconsistência não aparecia — os
+lembretes sumiam junto. Persistir o banco é o que tornava esse bug visível.
+
+A chave do job é o `uuid` do lembrete, não o id sequencial: agora que ela é gravada no banco, a
+estabilidade dessa chave passou a importar.
+
+### Disparo vencido (misfire)
+
+Com job store persistente surge um caso que antes não existia: o que fazer com o que venceu enquanto
+a aplicação esteve fora. O Quartz chama isso de *misfire* e, por padrão, dispara tudo de uma vez no
+boot — uma enxurrada de notificações vencidas.
+
+O que **não** dá para fazer é mandar o Quartz descartar o misfire. Os triggers daqui são de disparo
+único e quem reagenda é o próprio `LembreteExecutorJob`: trigger descartado significa lembrete órfão
+para sempre. Então o disparo acontece e o filtro fica no job — ele roda, **não notifica**, e
+reagenda para a próxima ocorrência legítima.
+
+A fronteira é `TOLERANCIA_ATRASO`, hoje 5 minutos: um reinício rápido ainda notifica, uma janela de
+indisponibilidade não. Disparo vencido também **não consome cota** — o lembrete não foi entregue,
+então não faz sentido cobrar dele.
+
+### Uma instância
+
+`isClustered` está `false` porque hoje roda uma instância só. Com duas instâncias e `false`, **as
+duas disparariam o mesmo lembrete** — é o modo cluster que garante que só uma pegue cada trigger.
+A troca é a variável `QUARTZ_CLUSTERED`; o `instanceId: AUTO` já está no lugar.
+
 ## Identidade do lembrete
 
 O lembrete tem **duas chaves, com papéis separados**:

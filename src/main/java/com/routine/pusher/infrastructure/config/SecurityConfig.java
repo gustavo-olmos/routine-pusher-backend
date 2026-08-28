@@ -39,7 +39,11 @@ public class SecurityConfig
     /** Tudo sob este prefixo é consumido como API (cliente HTTP), não como navegação de navegador. */
     public static final String MATCHER_API = "/api/**";
 
-    public static final String[] ROTAS_PUBLICAS = { "/" };
+    /**
+     * O health check e consultado pela plataforma de deploy, sem credencial nenhuma. Se exigir
+     * autenticacao, a plataforma conclui que a instancia esta doente e fica reiniciando o container.
+     */
+    public static final String[] ROTAS_PUBLICAS = { "/", "/actuator/health", "/actuator/health/**" };
 
     public static final String[] ROTAS_SWAGGER = { "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**" };
 

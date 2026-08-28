@@ -1,0 +1,9 @@
+# O build acontece dentro da imagem: nada de target local, credencial ou metadado de IDE entra.
+target/
+.git/
+.gitignore
+.idea/
+*.iml
+.env
+scripts/
+README.md

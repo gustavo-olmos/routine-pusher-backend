@@ -1,6 +1,32 @@
+server:
+  # A plataforma injeta a porta; 8080 e so o default de desenvolvimento.
+  port: ${PORT:8080}
+
+  # Desligar sem cortar disparo em andamento. Importa mais aqui do que numa API comum: um SIGTERM
+  # no meio de um job deixaria o trigger travado em ACQUIRED ate o misfireThreshold expirar.
+  shutdown: graceful
+
+  # Atras do proxy da plataforma o Spring so sabe que a requisicao chegou por HTTPS lendo os headers
+  # X-Forwarded-*. Sem isto ele monta o redirect do OAuth em http:// e o Google recusa.
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # So health. Os demais endpoints do actuator expoem ambiente e configuracao.
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
 spring:
   application:
     name: Routine-Pusher
+
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
 
   config:
     import: optional:file:.env[.properties]
@@ -21,10 +47,29 @@ spring:
     locations: classpath:db/migration
 
   quartz:
-    job-store-type: memory
+    # jdbc, nao memory: com RAMJobStore todo restart apagava os triggers e os lembretes viravam
+    # linhas no banco que nunca mais disparavam, sem nenhum erro. Agora o agendamento sobrevive.
+    job-store-type: jdbc
+    # Espera o disparo em andamento terminar antes de desligar, em vez de abandona-lo no meio.
+    wait-for-jobs-to-complete-on-shutdown: true
+    jdbc:
+      # O Flyway e dono do schema (V2__quartz.sql). O Quartz nao cria nem verifica tabela.
+      initialize-schema: never
     properties:
       org.quartz.threadPool:
-        threadCount: 5
+        threadCount: ${QUARTZ_THREADS:5}
+      org.quartz.scheduler:
+        instanceName: routine-pusher
+        # AUTO da um id unico por instancia. So tem efeito real com isClustered=true, mas deixa a
+        # troca para varias instancias ser so virar a chave.
+        instanceId: AUTO
+      org.quartz.jobStore:
+        driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+        # false porque hoje roda uma instancia so. Com duas instancias e isClustered=false, as duas
+        # disparariam o mesmo lembrete: e o cluster que garante que so uma pega cada trigger.
+        isClustered: ${QUARTZ_CLUSTERED:false}
+        # Atraso a partir do qual o Quartz considera que o disparo "perdeu a hora".
+        misfireThreshold: 60000
 
   security:
     oauth2:
