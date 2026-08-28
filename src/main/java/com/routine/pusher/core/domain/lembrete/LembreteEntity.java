@@ -2,6 +2,7 @@ package com.routine.pusher.core.domain.lembrete;
 
 import com.routine.pusher.core.domain.notificacao.NotificacaoEntity;
 import com.routine.pusher.core.domain.recorrencia.RecorrenciaEntity;
+import com.routine.pusher.core.domain.sessao.SessaoAnonimaEntity;
 import com.routine.pusher.core.domain.categoria.CategoriaEntity;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -41,6 +42,13 @@ public class LembreteEntity
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id", nullable = false)
     private CategoriaEntity categoria;
+
+    // Dona do lembrete. EAGER como as demais associações desta entidade — e por necessidade: o
+    // executor de jobs converte a entidade em domínio fora de uma requisição HTTP, onde um proxy
+    // LAZY já não teria sessão do Hibernate para se resolver.
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "sessao_id", nullable = false)
+    private SessaoAnonimaEntity sessao;
 
     @OneToOne(mappedBy = "lembrete", fetch = FetchType.EAGER,
               cascade = CascadeType.ALL, orphanRemoval = true)

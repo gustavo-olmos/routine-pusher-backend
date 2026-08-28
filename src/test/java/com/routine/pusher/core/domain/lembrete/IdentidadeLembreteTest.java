@@ -7,13 +7,18 @@ import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.core.domain.notificacao.dto.NotificacaoInputDTO;
 import com.routine.pusher.core.domain.recorrencia.dto.RecorrenciaInputDTO;
+import com.routine.pusher.core.domain.sessao.SessaoAnonimaEntity;
+import com.routine.pusher.core.domain.sessao.SessaoAnonimaRepository;
+import com.routine.pusher.core.domain.sessao.port.SessaoAtualPort;
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.quartz.Scheduler;
 import org.quartz.TriggerKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +26,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 /**
  * Trava o contrato de identidade do lembrete: a tabela tem chave sequencial própria, mas <b>nada na
@@ -33,11 +39,28 @@ class IdentidadeLembreteTest
     @Autowired
     private CategoriaRepository categoriaRepository;
     @Autowired
+    private SessaoAnonimaRepository sessaoRepository;
+    @Autowired
     private LembreteService lembreteService;
     @Autowired
     private LembreteRepository lembreteRepository;
     @Autowired
     private Scheduler scheduler;
+
+    /** Fora de uma requisição HTTP não há cookie: a porta é mockada, mas a sessão é real no banco. */
+    @MockBean
+    private SessaoAtualPort sessaoAtual;
+
+    @BeforeEach
+    void abrirSessaoAnonima( )
+    {
+        SessaoAnonimaEntity sessao = new SessaoAnonimaEntity( );
+        sessao.setUuid( UUID.randomUUID( ) );
+        sessao.setDataCriacao( LocalDateTime.now( ) );
+        sessao.setUltimoAcesso( LocalDateTime.now( ) );
+
+        when( sessaoAtual.uuid( ) ).thenReturn( sessaoRepository.save( sessao ).getUuid( ) );
+    }
 
     private Long categoriaId( String cor, int fatorOrdem )
     {

@@ -3,6 +3,7 @@ package com.routine.pusher.infrastructure.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
@@ -26,6 +27,9 @@ public class DevSecurityConfig
     public SecurityFilterChain devFilterChain( HttpSecurity http ) throws Exception
     {
         http.authorizeHttpRequests( authManager -> authManager.anyRequest( ).permitAll( ) )
+            // Mesmo CORS do perfil padrão: o Angular em ng serve (localhost:4200) é outra origem, e
+            // o desenvolvimento do front precisa do mesmo comportamento que verá em produção.
+            .cors( Customizer.withDefaults( ) )
             .csrf( AbstractHttpConfigurer::disable );
 
         return http.build( );

@@ -11,8 +11,11 @@ import com.routine.pusher.core.domain.lembrete.LembreteMapper;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
+import com.routine.pusher.core.domain.sessao.SessaoAnonima;
+import com.routine.pusher.core.domain.sessao.port.SessaoAtualPort;
 import com.routine.pusher.infrastructure.common.shared.SortInfo;
 import com.routine.pusher.core.domain.recorrencia.Recorrencia;
+import com.routine.pusher.infrastructure.exceptions.LimiteDeUsoException;
 import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import com.routine.pusher.infrastructure.exceptions.StrategyException;
 import jakarta.persistence.EntityNotFoundException;
@@ -36,6 +39,7 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     private final CategoriaQueryPort categoriaQueryPort;
     private final AgendadorJob agendadorJob;
     private final FeriadoPort feriadoPort;
+    private final SessaoAtualPort sessaoAtual;
 
 
     @Override
@@ -43,7 +47,10 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     {
         LOGGER.debug("Adicionando lembrete");
 
+        validarLimiteDaSessao( );
+
         Lembrete lembrete = mapper.toDomain( inputDto );
+        lembrete.setSessaoUuid( sessaoAtual.uuid( ) );
         lembrete.setCategoria( categoriaQueryPort.buscarPorId( inputDto.categoriaId( ) ) );
 
         validarPoliticaDeCalendario( lembrete );
@@ -69,7 +76,7 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
 
         // Passa pelo domínio antes de serializar: a projeção das próximas execuções é comportamento
         // do lembrete, e a entidade sozinha não sabe respondê-la.
-        return repository.findAll( ).stream( )
+        return repository.findBySessao_Uuid( sessaoAtual.uuid( ) ).stream( )
                 .map( mapper::toDomain )
                 .map( mapper::toOutputDto )
                 .sorted( new SortInfo<>( campoOrdenador, ordemReversa ) )
@@ -145,12 +152,25 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     }
 
     /**
-     * Único ponto de entrada para localizar um lembrete. A chave da tabela é Long, mas nada procura
-     * por ela: quem chega de fora traz UUID, e é por UUID que se procura.
+     * O teto por sessão é a trava de custo do demo: o visitante que resolve estressar o motor de
+     * agendamento esbarra aqui antes de virar carga. Vale só para criação — atualizar e concluir não
+     * aumentam o acervo.
+     */
+    private void validarLimiteDaSessao( )
+    {
+        if( repository.countBySessao_Uuid( sessaoAtual.uuid( ) ) >= SessaoAnonima.LIMITE_LEMBRETES )
+            throw new LimiteDeUsoException( "Limite de " + SessaoAnonima.LIMITE_LEMBRETES
+                    + " lembretes por sessão atingido: exclua ou conclua um lembrete para criar outro" );
+    }
+
+    /**
+     * Único ponto de entrada para localizar um lembrete, e sempre no escopo da sessão da requisição:
+     * o UUID de outro visitante responde 404, sem revelar que existe. A chave da tabela é Long, mas
+     * nada procura por ela — quem chega de fora traz UUID.
      */
     private LembreteEntity buscarPorUuid( UUID uuid )
     {
-        return repository.findByUuid( uuid )
+        return repository.findByUuidAndSessao_Uuid( uuid, sessaoAtual.uuid( ) )
                 .orElseThrow( () -> new EntityNotFoundException( "Lembrete não encontrado para o uuid " + uuid ) );
     }
 }

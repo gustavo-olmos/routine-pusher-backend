@@ -5,6 +5,7 @@ import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.core.domain.notificacao.NotificacaoEntity;
 import com.routine.pusher.core.domain.recorrencia.RecorrenciaEntity;
+import com.routine.pusher.core.domain.sessao.SessaoAnonimaRepository;
 import jakarta.inject.Inject;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -26,9 +27,14 @@ public abstract class LembreteMapper
     @Inject
     protected FeriadoPort feriadoPort;
 
+    /** Resolve o UUID de sessão do domínio na FK interna da entidade — ver {@link #resolverSessao}. */
+    @Inject
+    protected SessaoAnonimaRepository sessaoRepository;
+
     @Mapping(target = "categoria.id", source = "categoriaId")
     public abstract Lembrete toDomain( LembreteInputDTO inputDto );
 
+    @Mapping(target = "sessaoUuid", source = "sessao.uuid")
     public abstract Lembrete toDomain( LembreteEntity entity );
 
     /**
@@ -46,9 +52,26 @@ public abstract class LembreteMapper
     @Mapping(target = "proximasExecucoes", ignore = true)
     public abstract LembreteOutputDTO toOutputDto( LembreteEntity entity );
 
+    @Mapping(target = "sessao", ignore = true)
     public abstract LembreteEntity toEntity( Lembrete lembrete );
 
     public abstract LembreteEntity updateEntity( LembreteInputDTO inputDTO, @MappingTarget LembreteEntity entity );
+
+    /**
+     * A resolução sessão-UUID → FK mora aqui, e não nos chamadores, porque são seis os pontos que
+     * salvam entidade reconstruída do domínio — qualquer um que esquecesse de setar a sessão zeraria
+     * a posse silenciosamente. Com a resolução no mapeamento, esquecer deixa de ser possível.
+     *
+     * <p>Declarar {@code Lembrete} como origem restringe o gancho ao {@link #toEntity(Lembrete)}:
+     * no {@code updateEntity} a sessão da entidade carregada já está certa e não deve ser tocada.</p>
+     */
+    @AfterMapping
+    protected void resolverSessao( Lembrete lembrete, @MappingTarget LembreteEntity entity )
+    {
+        if( sessaoRepository == null || lembrete.getSessaoUuid( ) == null ) return;
+
+        sessaoRepository.findByUuid( lembrete.getSessaoUuid( ) ).ifPresent( entity::setSessao );
+    }
 
     /**
      * Garante a back-reference do lado dono da FK: sem isto, ao salvar o LembreteEntity por cascata,

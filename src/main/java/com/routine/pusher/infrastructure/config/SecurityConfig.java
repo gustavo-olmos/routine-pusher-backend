@@ -20,17 +20,17 @@ import org.springframework.security.web.SecurityFilterChain;
 import java.util.List;
 
 /**
- * Segurança padrão da aplicação. Duas formas de autenticar convivem na mesma cadeia:
+ * Segurança padrão da aplicação, com três públicos distintos:
  *
  * <ul>
- *   <li><b>Sessão</b> ({@code oauth2Login}): o navegador faz o redirect para o Google e recebe o
- *       cookie {@code JSESSIONID}. É o que sustenta a tela inicial e o Swagger UI.</li>
- *   <li><b>Bearer</b> ({@code oauth2ResourceServer}): qualquer cliente HTTP — Postman, curl, um app
- *       mobile no futuro — manda o {@code id_token} do Google no header {@code Authorization}.</li>
+ *   <li><b>API ({@code /api/**})</b>: aberta no nível do Spring Security — o visitante do demo não
+ *       tem login. Quem escopa o que cada um enxerga é a sessão anônima do cookie
+ *       ({@code SessaoAnonimaFilter}), e quem contém abuso são as travas de uso por sessão.</li>
+ *   <li><b>Sessão Google</b> ({@code oauth2Login}): o redirect para o Google segue protegendo o que
+ *       não é API — Swagger UI em particular.</li>
+ *   <li><b>Bearer</b> ({@code oauth2ResourceServer}): cliente HTTP com {@code id_token} do Google no
+ *       header {@code Authorization}, habilitado na cadeia inteira.</li>
  * </ul>
- *
- * O Bearer é habilitado <b>na cadeia inteira</b>, não endpoint a endpoint: nenhum controller precisa
- * declarar nada para passar a aceitar o header.
  */
 @Configuration
 @EnableWebSecurity
@@ -57,12 +57,18 @@ public class SecurityConfig
     {
         http.authorizeHttpRequests( authManager ->
              authManager.requestMatchers( ROTAS_PUBLICAS ).permitAll( )
+                        // Sem login na API: a identidade do visitante é a sessão anônima, resolvida
+                        // pelo filtro de cookie fora desta cadeia.
+                        .requestMatchers( MATCHER_API ).permitAll( )
                         .anyRequest( ).authenticated( ) )
+            // Aplica o CorsConfigurationSource (ver CorsConfig) antes das regras de autorização:
+            // sem isto o preflight OPTIONS de outra origem morreria na cadeia.
+            .cors( Customizer.withDefaults( ) )
             .oauth2Login( oauth -> oauth.defaultSuccessUrl( "/", true ) )
             .oauth2ResourceServer( oauth -> oauth.jwt( Customizer.withDefaults( ) ) )
-            // CSRF existe para proteger formulário submetido por navegador com cookie. Chamada de
-            // máquina em /api/** se identifica pelo header Authorization, então o token de CSRF só
-            // atrapalharia (é a origem do 403 em POST/PUT/DELETE via Postman e via Swagger).
+            // CSRF fora de /api/**: a proteção lá é o SameSite=Lax do cookie de sessão — site de
+            // terceiro não consegue anexá-lo num POST cross-site, e os GETs são somente leitura.
+            // O token de CSRF só atrapalharia Postman e Swagger (403 em POST/PUT/DELETE).
             .csrf( csrf -> csrf.ignoringRequestMatchers( MATCHER_API ) );
 
         return http.build( );

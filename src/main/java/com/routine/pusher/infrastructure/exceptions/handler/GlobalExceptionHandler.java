@@ -2,6 +2,7 @@ package com.routine.pusher.infrastructure.exceptions.handler;
 
 import com.routine.pusher.infrastructure.exceptions.ConversaoException;
 import com.routine.pusher.infrastructure.exceptions.ExclusaoException;
+import com.routine.pusher.infrastructure.exceptions.LimiteDeUsoException;
 import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import com.routine.pusher.infrastructure.exceptions.SortingException;
 import com.routine.pusher.infrastructure.exceptions.StrategyException;
@@ -78,6 +79,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler
     public ResponseEntity<ErroResposta> tratarRegraDeNegocio( Exception ex, HttpServletRequest req )
     {
         return construir( HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage( ), req.getRequestURI( ) );
+    }
+
+    /**
+     * 429, e não 422: o payload não tem nada errado a corrigir — o que falta é espaço na cota da
+     * sessão. O status distinto deixa o front tratar o caso do próprio jeito (avisar e oferecer a
+     * limpeza), sem inspecionar texto de mensagem.
+     */
+    @ExceptionHandler(LimiteDeUsoException.class)
+    public ResponseEntity<ErroResposta> tratarLimiteDeUso( LimiteDeUsoException ex, HttpServletRequest req )
+    {
+        return construir( HttpStatus.TOO_MANY_REQUESTS, ex.getMessage( ), req.getRequestURI( ) );
     }
 
     @ExceptionHandler(Exception.class)

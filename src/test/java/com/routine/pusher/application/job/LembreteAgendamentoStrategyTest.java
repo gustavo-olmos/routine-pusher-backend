@@ -10,22 +10,29 @@ import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.core.domain.notificacao.dto.NotificacaoInputDTO;
 import com.routine.pusher.core.domain.recorrencia.dto.RecorrenciaInputDTO;
 import com.routine.pusher.core.domain.feriado.port.FeriadoPort;
+import com.routine.pusher.core.domain.sessao.SessaoAnonimaEntity;
+import com.routine.pusher.core.domain.sessao.SessaoAnonimaRepository;
+import com.routine.pusher.core.domain.sessao.port.SessaoAtualPort;
 import com.routine.pusher.core.enums.EnumDiasDaSemana;
 import com.routine.pusher.core.enums.EnumPoliticaDiaUtil;
 import com.routine.pusher.infrastructure.exceptions.StrategyException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 /**
  * Cobre as combinações de recorrência do motor que até aqui não tinham teste nenhum: o único teste de
@@ -42,11 +49,28 @@ class LembreteAgendamentoStrategyTest
     @Autowired
     private CategoriaRepository categoriaRepository;
     @Autowired
+    private SessaoAnonimaRepository sessaoRepository;
+    @Autowired
     private LembreteService lembreteService;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     private FeriadoPort feriadoPort;
+
+    /** Fora de uma requisição HTTP não há cookie: a porta é mockada, mas a sessão é real no banco. */
+    @MockBean
+    private SessaoAtualPort sessaoAtual;
+
+    @BeforeEach
+    void abrirSessaoAnonima( )
+    {
+        SessaoAnonimaEntity sessao = new SessaoAnonimaEntity( );
+        sessao.setUuid( UUID.randomUUID( ) );
+        sessao.setDataCriacao( LocalDateTime.now( ) );
+        sessao.setUltimoAcesso( LocalDateTime.now( ) );
+
+        when( sessaoAtual.uuid( ) ).thenReturn( sessaoRepository.save( sessao ).getUuid( ) );
+    }
 
     private Long categoriaId( String cor, int fatorOrdem )
     {

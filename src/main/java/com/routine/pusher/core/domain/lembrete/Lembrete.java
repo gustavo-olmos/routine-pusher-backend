@@ -34,6 +34,13 @@ public class Lembrete
      */
     private UUID uuid;
 
+    /**
+     * Sessão anônima dona do lembrete. O domínio guarda só o UUID — quem resolve a FK interna é o
+     * mapeamento para a persistência. É também por este valor que a notificação encontra o fluxo
+     * SSE do visitante certo.
+     */
+    private UUID sessaoUuid;
+
     private LocalDateTime dataCriacao;
 
     private String titulo;
