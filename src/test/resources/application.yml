@@ -29,8 +29,9 @@ spring:
             client-id: test-id
             client-secret: test-secret
 
-openai:
+anthropic:
   api-key: test
+  model: claude-haiku-4-5
 
 app:
   cors:

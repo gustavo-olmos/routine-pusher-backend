@@ -7,6 +7,8 @@ import com.routine.pusher.core.domain.categoria.port.CategoriaQueryPort;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @AllArgsConstructor
 public class CategoriaQueryAdapter implements CategoriaQueryPort
@@ -18,5 +20,13 @@ public class CategoriaQueryAdapter implements CategoriaQueryPort
     public Categoria buscarPorId( Long id )
     {
         return mapper.toDomain( repository.findById( id ).orElse( null ) );
+    }
+
+    @Override
+    public List<Categoria> listar( )
+    {
+        return repository.findAll( ).stream( )
+                .map( mapper::toDomain )
+                .toList( );
     }
 }

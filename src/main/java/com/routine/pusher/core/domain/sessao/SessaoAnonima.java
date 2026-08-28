@@ -28,6 +28,13 @@ public class SessaoAnonima
      */
     public static final int LIMITE_LEMBRETES = 10;
 
+    /**
+     * Teto de chamadas de IA por sessão. Diferente do limite de lembretes (que protege memória e
+     * agendador), este protege o bolso: cada chamada ao modelo tem custo em dinheiro, e com o teto
+     * o pior caso vira aritmética — sessões x cota x custo por chamada.
+     */
+    public static final int LIMITE_CHAMADAS_IA = 10;
+
     /** Chave interna do banco — mesmo papel (e mesmas razões) do id do lembrete. */
     private Long id;
 

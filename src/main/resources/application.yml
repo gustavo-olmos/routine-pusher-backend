@@ -96,8 +96,10 @@ spring:
       ddl-auto: ${JPA_DDL_AUTO:validate}
     show-sql: ${JPA_SHOW_SQL:false}
 
-openai:
-  api-key: ${OPENAI_API_KEY:}
+anthropic:
+  api-key: ${ANTHROPIC_API_KEY:}
+  # Trocar de modelo (ex.: subir para claude-sonnet-5) e uma variavel de ambiente, nao um deploy.
+  model: ${ANTHROPIC_MODEL:claude-haiku-4-5}
 app:
   cors:
     # Origens de navegador autorizadas a chamar a API com o cookie de sessão. Sem curinga: CORS com

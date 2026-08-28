@@ -30,4 +30,9 @@ public class SessaoAnonimaEntity
 
     @Column(name = "ultimo_acesso", nullable = false)
     private LocalDateTime ultimoAcesso;
+
+    // Quantas chamadas de IA esta sessão já consumiu. O consumo não passa por aqui: é um UPDATE
+    // atômico condicional no repositório, para duas requisições paralelas não furarem a cota.
+    @Column(name = "chamadas_ia", nullable = false)
+    private int chamadasIa;
 }

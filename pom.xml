@@ -120,11 +120,25 @@
 			<version>42.7.3</version>
 		</dependency>
 
-		<!--open-ai-service-->
+		<!-- SDK oficial da Anthropic: o chat de lembrete usa structured outputs para derivar o
+		     contrato JSON direto do LembreteInputDTO -->
 		<dependency>
-			<groupId>com.openai</groupId>
-			<artifactId>openai-java</artifactId>
-			<version>0.31.0</version>
+			<groupId>com.anthropic</groupId>
+			<artifactId>anthropic-java</artifactId>
+			<version>2.34.0</version>
+		</dependency>
+
+		<!-- Gera o JSON Schema do LembreteInputDTO em tempo de execucao: o contrato que a IA recebe
+		     deriva da classe, entao nao apodrece quando o DTO evolui -->
+		<dependency>
+			<groupId>com.github.victools</groupId>
+			<artifactId>jsonschema-generator</artifactId>
+			<version>4.37.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.victools</groupId>
+			<artifactId>jsonschema-module-jackson</artifactId>
+			<version>4.37.0</version>
 		</dependency>
 
 		<!--testes-->

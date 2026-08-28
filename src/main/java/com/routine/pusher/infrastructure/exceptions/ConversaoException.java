@@ -1,9 +1,14 @@
 package com.routine.pusher.infrastructure.exceptions;
 
-public class ConversaoException extends Exception
+/**
+ * Runtime, como as demais exceções de regra tratadas pelo handler: obrigar {@code throws} em cada
+ * camada só espalharia assinatura sem mudar o tratamento, que é centralizado no
+ * {@code GlobalExceptionHandler} (422).
+ */
+public class ConversaoException extends RuntimeException
 {
     public ConversaoException( String message )
     {
-        super("Falha ao converter json. \n Detalhes: {}" + message);
+        super( "Falha ao converter json. Detalhes: " + message );
     }
 }
