@@ -31,7 +31,7 @@ public class TriggerDatasEspecificasStrategy implements TriggerCaseStrategy<Lemb
         Date dataExecucao = Date.from( proximaNotificacao.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
 
         return TriggerBuilder.newTrigger( )
-                .withIdentity( lembrete.getId( ).toString( ) )
+                .withIdentity( lembrete.getUuid( ).toString( ) )
                 .startAt( dataExecucao )
                 .build( );
     }

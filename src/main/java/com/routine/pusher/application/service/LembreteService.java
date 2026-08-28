@@ -23,10 +23,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOutputDTO>, ConcluirUseCase
+public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOutputDTO, UUID>, ConcluirUseCase<UUID>
 {
     private final Logger LOGGER = LoggerFactory.getLogger( LembreteService.class );
 
@@ -54,7 +55,7 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
             agendadorJob.agendar( lembrete );
         }
         catch ( Exception e ) {
-            repository.deleteById( lembrete.getId( ) );
+            repository.delete( mapper.toEntity( lembrete ) );
             throw new ProcessoException( e.getLocalizedMessage( ), e.getMessage( ) );
         }
 
@@ -76,12 +77,11 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     }
 
     @Override
-    public LembreteOutputDTO atualizar( Long id, LembreteInputDTO inputDTO )
+    public LembreteOutputDTO atualizar( UUID uuid, LembreteInputDTO inputDTO )
     {
-        LOGGER.debug("Alterando lembrete de id {}", id);
+        LOGGER.debug("Alterando lembrete de uuid {}", uuid);
 
-        LembreteEntity entidade = repository.findById( id )
-                .orElseThrow( () -> new EntityNotFoundException("Lembrete não encontrado para o id" + id) );
+        LembreteEntity entidade = buscarPorUuid( uuid );
 
         mapper.updateEntity( inputDTO, entidade );
 
@@ -124,28 +124,33 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     }
 
     @Override
-    public void concluir( Long id )
+    public void concluir( UUID uuid )
     {
-        LOGGER.debug("Concluindo lembrete de id {}", id);
+        LOGGER.debug("Concluindo lembrete de uuid {}", uuid);
 
-        Lembrete lembrete = repository.findById( id )
-                .map( mapper::toDomain )
-                .orElseThrow( () -> new EntityNotFoundException("Lembrete não encontrado para o id" + id) );
+        Lembrete lembrete = mapper.toDomain( buscarPorUuid( uuid ) );
 
         lembrete.concluirLembrete( );
         repository.save( mapper.toEntity( lembrete ) );
 
-        agendadorJob.cancelar( id );
+        agendadorJob.cancelar( uuid );
     }
 
     @Override
-    public void excluir( Long id )
+    public void excluir( UUID uuid )
     {
         LOGGER.debug("Excluindo lembrete");
 
-        if ( !repository.existsById( id ) )
-            throw new EntityNotFoundException("Lembrete não encontrado para o id" + id);
+        repository.delete( buscarPorUuid( uuid ) );
+    }
 
-        repository.deleteById( id );
+    /**
+     * Único ponto de entrada para localizar um lembrete. A chave da tabela é Long, mas nada procura
+     * por ela: quem chega de fora traz UUID, e é por UUID que se procura.
+     */
+    private LembreteEntity buscarPorUuid( UUID uuid )
+    {
+        return repository.findByUuid( uuid )
+                .orElseThrow( () -> new EntityNotFoundException( "Lembrete não encontrado para o uuid " + uuid ) );
     }
 }

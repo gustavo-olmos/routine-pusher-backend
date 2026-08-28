@@ -10,9 +10,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public record LembreteOutputDTO(
-        Long id,
+        @Schema(description = "Identidade pública do lembrete, e a única pela qual ele é consultado. "
+                + "O id sequencial da tabela não é exposto", example = "3f1a…")
+        UUID uuid,
 
         String titulo,
         String descricao,

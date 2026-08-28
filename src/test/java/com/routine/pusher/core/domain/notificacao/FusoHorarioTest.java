@@ -58,7 +58,6 @@ class FusoHorarioTest
         notificacao.setDatasEspecificadas( List.of( data ) );
 
         Lembrete lembrete = new Lembrete( );
-        lembrete.setId( 1L );
         lembrete.setNotificacao( notificacao );
         return lembrete;
     }
@@ -103,7 +102,6 @@ class FusoHorarioTest
         notificacao.setHorario( LocalTime.of( 9, 0 ) );
 
         Lembrete lembrete = new Lembrete( );
-        lembrete.setId( 1L );
         lembrete.setRecorrencia( recorrencia );
         lembrete.setNotificacao( notificacao );
 

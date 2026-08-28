@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class AgendadorJob
 {
@@ -30,7 +32,7 @@ public class AgendadorJob
 
     public void agendar( Lembrete lembrete )
     {
-        JobDetail jobDetail = quartz.criarJob( lembrete.getId( ).toString( ) );
+        JobDetail jobDetail = quartz.criarJob( lembrete.getUuid( ).toString( ) );
         Trigger trigger = quartz.criarTrigger( lembrete, feriados );
 
         try {
@@ -42,10 +44,10 @@ public class AgendadorJob
         }
     }
 
-    public void cancelar( Long id )
+    public void cancelar( UUID uuid )
     {
         try {
-            scheduler.deleteJob( new JobKey( id.toString( ) ) );
+            scheduler.deleteJob( new JobKey( uuid.toString( ) ) );
         }
         catch ( SchedulerException e ) {
             LOGGER.error( e.getMessage( ), e );
@@ -55,7 +57,7 @@ public class AgendadorJob
 
     public void reagendar( Lembrete lembrete )
     {
-        cancelar( lembrete.getId( ) );
+        cancelar( lembrete.getUuid( ) );
         agendar( lembrete );
     }
 }

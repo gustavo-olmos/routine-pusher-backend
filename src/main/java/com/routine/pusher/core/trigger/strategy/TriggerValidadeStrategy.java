@@ -33,7 +33,7 @@ public class TriggerValidadeStrategy implements TriggerCaseStrategy<Lembrete>
         if( !Objects.equals( cronExpression, "" ) && !recorrencia.exigeDiaUtil( ) ) {
             Date dataFim = Date.from( validade.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )
-                    .withIdentity( lembrete.getId( ).toString( ) )
+                    .withIdentity( lembrete.getUuid( ).toString( ) )
                     .withSchedule( CronScheduleBuilder.cronSchedule( cronExpression ) )
                     .endAt( dataFim )
                     .build( );
@@ -43,7 +43,7 @@ public class TriggerValidadeStrategy implements TriggerCaseStrategy<Lembrete>
         if( Objects.nonNull( momento ) && momento.isBefore( validade ) ) {
             Date dataInicio = Date.from( momento.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )
-                    .withIdentity( lembrete.getId( ).toString( ) )
+                    .withIdentity( lembrete.getUuid( ).toString( ) )
                     .startAt( dataInicio )
                     .build( );
         }

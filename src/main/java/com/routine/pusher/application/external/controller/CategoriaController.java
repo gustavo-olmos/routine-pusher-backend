@@ -18,7 +18,7 @@ import java.util.List;
 @Tag(name = "Categoria", description = "Operações CRUD relacionadas à categoria de lembrete")
 public class CategoriaController
 {
-    private final CRUDUseCase<CategoriaInputDTO, CategoriaOutputDTO> useCase;
+    private final CRUDUseCase<CategoriaInputDTO, CategoriaOutputDTO, Long> useCase;
 
 
     @PostMapping

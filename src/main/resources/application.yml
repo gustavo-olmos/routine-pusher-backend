@@ -6,12 +6,19 @@ spring:
     import: optional:file:.env[.properties]
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/routine-pusher
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/routine-pusher}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 30
+      # 30 era um numero solto. Provedor gerenciado cobra conexao: no free tier do Supabase o
+      # orcamento e pequeno e 30 de uma instancia so ja briga com o proprio pooler. Ver DB_POOL_SIZE
+      # no .env.example.
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+
+  flyway:
+    enabled: ${FLYWAY_ENABLED:true}
+    locations: classpath:db/migration
 
   quartz:
     job-store-type: memory
@@ -38,8 +45,11 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      # validate, nunca create-drop nem update: quem cria e altera schema e o Flyway. O Hibernate
+      # so confere no boot se o mapeamento bate com o banco — e falha alto se divergir, em vez de
+      # descobrir em producao no primeiro INSERT.
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    show-sql: ${JPA_SHOW_SQL:false}
 
 openai:
   api-key: ${OPENAI_API_KEY:}

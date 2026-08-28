@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -19,8 +20,8 @@ import java.util.List;
 @Tag(name = "Lembrete", description = "Operações CRUD relacionadas à lembretes")
 public class LembreteController
 {
-    private final CRUDUseCase<LembreteInputDTO, LembreteOutputDTO> crudUseCase;
-    private final ConcluirUseCase concluirUseCase;
+    private final CRUDUseCase<LembreteInputDTO, LembreteOutputDTO, UUID> crudUseCase;
+    private final ConcluirUseCase<UUID> concluirUseCase;
 
 
     @PostMapping
@@ -38,28 +39,28 @@ public class LembreteController
         return ResponseEntity.ok( ).body( crudUseCase.listar( atributo, ordemReversa ) );
     }
 
-    @PutMapping(path = "/{id}")
+    @PutMapping(path = "/{uuid}")
     @Operation(summary = "Atualiza lembrete")
-    public ResponseEntity<LembreteOutputDTO> atualizar( @PathVariable(value = "id") Long id,
+    public ResponseEntity<LembreteOutputDTO> atualizar( @PathVariable(value = "uuid") UUID uuid,
                                                         @Valid @RequestBody LembreteInputDTO dto )
     {
-        return ResponseEntity.ok( ).body( crudUseCase.atualizar( id, dto ) );
+        return ResponseEntity.ok( ).body( crudUseCase.atualizar( uuid, dto ) );
     }
 
 
-    @PatchMapping(path = "/{id}")
+    @PatchMapping(path = "/{uuid}")
     @Operation(summary = "Conclui lembrete")
-    public ResponseEntity<Void> concluir( @PathVariable(value = "id") Long id )
+    public ResponseEntity<Void> concluir( @PathVariable(value = "uuid") UUID uuid )
     {
-        concluirUseCase.concluir( id );
+        concluirUseCase.concluir( uuid );
         return ResponseEntity.ok( ).build( );
     }
 
-    @DeleteMapping(path = "/{id}")
+    @DeleteMapping(path = "/{uuid}")
     @Operation(summary = "Exclui lembrete")
-    public ResponseEntity<String> excluir( @PathVariable(value = "id") Long id )
+    public ResponseEntity<String> excluir( @PathVariable(value = "uuid") UUID uuid )
     {
-        crudUseCase.excluir( id );
+        crudUseCase.excluir( uuid );
         return ResponseEntity.ok( "Lembrete excluído com sucesso!" );
     }
 }

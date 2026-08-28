@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @AllArgsConstructor
 public class OpenAIChatService implements ChatUseCase<LembreteOutputDTO>
@@ -20,7 +22,7 @@ public class OpenAIChatService implements ChatUseCase<LembreteOutputDTO>
     private final Logger LOGGER = LoggerFactory.getLogger( OpenAIChatService.class );
 
     private final ChatClient<LembreteInputDTO> client;
-    private final CRUDUseCase<LembreteInputDTO, LembreteOutputDTO> useCase;
+    private final CRUDUseCase<LembreteInputDTO, LembreteOutputDTO, UUID> useCase;
 
     @Override
     public LembreteOutputDTO criarLembreteViaChat( String frase )

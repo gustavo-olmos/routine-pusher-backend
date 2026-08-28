@@ -81,7 +81,7 @@ derivada da recorrência. Não é estado persistido — é recalculada a cada le
 
 ```json
 {
-    "id": 1,
+    "id": "9b1f0c2e-5a7d-4f31-8c60-2a1e9d4b7f03",
     "titulo": "Pomodoro",
     "descricao": "de 25 em 25 minutos",
     "status": "PENDENTE",
@@ -118,6 +118,85 @@ GET /api/v1/lembretes
 ```http
 DELETE /api/v1/lembretes/{id}
 ```
+
+## Banco e migrações
+
+O schema é **versionado com Flyway** e o Hibernate roda em `validate`. Ele não cria nem altera nada:
+só confere no boot se o mapeamento bate com o banco, e **falha alto** se divergir — em vez de
+descobrir a divergência no primeiro INSERT em produção.
+
+```
+src/main/resources/db/migration/
+  V1__schema_inicial.sql
+```
+
+Foi uma troca deliberada de `ddl-auto: create-drop`, que apagava tudo a cada boot. Ela cabia
+enquanto nada precisava sobreviver; não cabe mais.
+
+Migrar depois custaria um `baseline`; migrar agora custa uma migração, porque ainda não existe base
+de produção para preservar.
+
+### Configuração
+
+Tudo por variável de ambiente, com default de desenvolvimento (ver `.env.example`):
+
+| Variável | Default | Observação |
+|---|---|---|
+| `DB_URL` | Postgres local | em provedor gerenciado, use o endpoint do pooler |
+| `DB_POOL_SIZE` | `10` | free tier do Supabase: use `5` |
+| `JPA_DDL_AUTO` | `validate` | não troque para `update` com dado real |
+| `JPA_SHOW_SQL` | `false` | ligue só na máquina de desenvolvimento |
+| `FLYWAY_ENABLED` | `true` | desligado apenas nos testes |
+
+Qualquer Postgres serve — Supabase, Neon, Railway. **Se for Supabase**: use o endpoint do pooler
+(Supavisor, porta 6543), porque a conexão direta é IPv6 em projetos novos e vários hosts não têm
+saída IPv6; e acrescente `?prepareThreshold=0` na URL, senão o pooler em transaction mode quebra o
+prepared statement do driver JDBC.
+
+### Testes
+
+Os testes rodam em H2 com `create-drop` e **Flyway desligado** — as migrações são SQL de Postgres.
+Quem garante que a migração continua batendo com as entidades é o `validate` do perfil real: se o
+mapeamento e o SQL divergirem, a aplicação não sobe.
+
+## Identidade do lembrete
+
+O lembrete tem **duas chaves, com papéis separados**:
+
+| Chave | Tipo | Papel |
+|---|---|---|
+| `id` | `BIGINT` sequencial | chave da tabela. Nunca sai da camada de persistência |
+| `uuid` | `UUID` | identidade pública. É por ela que a aplicação procura o lembrete |
+
+A tabela mantém o id sequencial porque ele é a chave certa para o banco: preserva localidade no
+índice B-tree e deixa as FKs em 8 bytes, coisas que um UUID aleatório como chave primária custa.
+O que muda é que **nada na aplicação consulta por ele** — todo caminho de busca entra por `uuid`.
+
+```
+PUT    /api/v1/lembrete/{uuid}
+PATCH  /api/v1/lembrete/{uuid}
+DELETE /api/v1/lembrete/{uuid}
+
+DELETE /api/v1/lembrete/9b1f0c2e-…-2a1e9d4b7f03   ->  404 se não existir
+DELETE /api/v1/lembrete/1                         ->  400, não é UUID
+```
+
+Na saída da API só aparece `uuid`; o id sequencial não é exposto, justamente para nada externo
+passar a depender dele.
+
+Três consequências que motivaram a mudança:
+
+- **A identidade pública nasce no domínio**, no construtor de `Lembrete`, não no `INSERT`. O
+  lembrete já sabe quem é antes de existir no banco.
+- **A chave do job no Quartz é o `uuid`.** Não há tabela de-para, e a chave não muda se a base for
+  recarregada — o que passa a importar quando o job store deixar de ser memória.
+- **Nada externo depende de um número de sequência**, que vaza volume de dados e amarra a API à
+  estratégia de persistência.
+
+No repositório, só `findByUuid` é usado; os métodos herdados que recebem `Long` (`findById`,
+`deleteById`) ficam restritos à camada de persistência. Categoria continua só com id sequencial: é
+dado de apoio, não trafega como identidade pública. O `CRUDUseCase` foi parametrizado pelo tipo do
+identificador (`CRUDUseCase<I, O, ID>`) para os dois conviverem.
 
 ## Recorrência por dias da semana
 

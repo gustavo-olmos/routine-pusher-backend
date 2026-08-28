@@ -14,6 +14,7 @@ import com.routine.pusher.core.enums.EnumDiasDaSemana;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.UUID;
 
 public abstract class LembreteExample {
 
@@ -49,7 +50,7 @@ public abstract class LembreteExample {
                 LocalDateTime.of( 2025, 9, 4, 12, 15 ),
                 LocalDateTime.of( 2025, 9, 16, 12, 15 ), List.of( ) );
 
-        return new LembreteOutputDTO( 1L, "Lembrete teste", "Descrição teste",
+        return new LembreteOutputDTO( UUID.randomUUID( ), "Lembrete teste", "Descrição teste",
                 "PENDENTE", categoria, recorrencia, notificacao,
                 List.of( LocalDateTime.of( 2025, 9, 5, 16, 20 ),
                          LocalDateTime.of( 2025, 9, 8, 16, 20 ) ) );
@@ -59,6 +60,7 @@ public abstract class LembreteExample {
     {
         LembreteEntity entity = new LembreteEntity( );
         entity.setId( 1L );
+        entity.setUuid( UUID.randomUUID( ) );
         entity.setTitulo( "Lembrete Teste" );
         entity.setDescricao( "Descrição teste" );
         entity.setStatus( "PENDENTE" );

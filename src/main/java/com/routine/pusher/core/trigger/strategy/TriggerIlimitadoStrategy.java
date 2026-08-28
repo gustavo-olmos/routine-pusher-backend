@@ -29,7 +29,7 @@ public class TriggerIlimitadoStrategy implements TriggerCaseStrategy<Lembrete>
         // lugar só, o domínio, e não duplicada dentro do agendador.
         if( !Objects.equals( cronExpression, "" ) && !recorrencia.exigeDiaUtil( ) ) {
             return TriggerBuilder.newTrigger( )
-                    .withIdentity( lembrete.getId( ).toString( ) )
+                    .withIdentity( lembrete.getUuid( ).toString( ) )
                     .withSchedule( CronScheduleBuilder.cronSchedule( cronExpression ) )
                     .build( );
         }
@@ -39,7 +39,7 @@ public class TriggerIlimitadoStrategy implements TriggerCaseStrategy<Lembrete>
         if( Objects.nonNull( momento ) ) {
             Date dataInicio = Date.from( momento.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )
-                    .withIdentity( lembrete.getId( ).toString( ) )
+                    .withIdentity( lembrete.getUuid( ).toString( ) )
                     .startAt( dataInicio )
                     .build( );
         }

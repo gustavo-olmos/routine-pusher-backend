@@ -34,7 +34,6 @@ class DiasUteisTest
         notificacao.setHorario( horario );
 
         Lembrete lembrete = new Lembrete( );
-        lembrete.setId( 1L );
         lembrete.setRecorrencia( recorrencia );
         lembrete.setNotificacao( notificacao );
         return lembrete;

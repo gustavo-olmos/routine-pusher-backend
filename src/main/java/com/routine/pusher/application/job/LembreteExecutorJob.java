@@ -15,6 +15,8 @@ import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
+
 public class LembreteExecutorJob implements Job
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( LembreteExecutorJob.class );
@@ -35,7 +37,9 @@ public class LembreteExecutorJob implements Job
     {
         String jobId = executionContext.getJobDetail( ).getKey( ).getName( );
 
-        Lembrete lembrete = repository.findById( Long.valueOf( jobId ) )
+        // A chave do job é o UUID do lembrete, não o id da tabela: estável mesmo que a base seja
+        // recarregada — o que passa a importar quando o job store deixar de ser memória.
+        Lembrete lembrete = repository.findByUuid( UUID.fromString( jobId ) )
                                       .map( mapper::toDomain )
                                       .orElse( null );
         if( lembrete == null ) {

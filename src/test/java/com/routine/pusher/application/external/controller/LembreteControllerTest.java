@@ -16,6 +16,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.UUID;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -30,10 +32,10 @@ class LembreteControllerTest
     private MockMvc mockMvc;
 
     @MockBean
-    private CRUDUseCase<LembreteInputDTO, LembreteOutputDTO> useCase;
+    private CRUDUseCase<LembreteInputDTO, LembreteOutputDTO, UUID> useCase;
 
     @MockBean
-    private ConcluirUseCase concluirUseCase;
+    private ConcluirUseCase<UUID> concluirUseCase;
 
 
     public static String asJsonString( final Object obj )

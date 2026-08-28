@@ -1,6 +1,6 @@
 package com.routine.pusher.application.usecase;
 
-public interface ConcluirUseCase
+public interface ConcluirUseCase<ID>
 {
-    void concluir( Long id );
+    void concluir( ID id );
 }

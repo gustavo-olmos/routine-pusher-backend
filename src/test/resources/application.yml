@@ -6,6 +6,12 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
+  # Flyway desligado nos testes de proposito: as migracoes sao SQL de Postgres e o teste roda em
+  # H2. Quem garante que a migracao bate com as entidades e o ddl-auto: validate do perfil real,
+  # que falha o boot se divergir.
+  flyway:
+    enabled: false
+
   jpa:
     hibernate:
       ddl-auto: create-drop

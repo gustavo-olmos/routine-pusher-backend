@@ -43,7 +43,6 @@ class PoliticaDiaUtilTest
         notificacao.setHorario( NOVE );
 
         Lembrete lembrete = new Lembrete( );
-        lembrete.setId( 1L );
         lembrete.setRecorrencia( recorrencia );
         lembrete.setNotificacao( notificacao );
         return lembrete;

@@ -96,6 +96,17 @@
 		</dependency>
 
 		<!--postgreSQL-->
+		<!--flyway: schema versionado. O core nao traz mais o suporte a Postgres desde o 10, dai o
+		    artefato separado. Ambas as versoes vem gerenciadas pelo parent do Spring Boot.-->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>

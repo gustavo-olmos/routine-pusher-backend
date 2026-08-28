@@ -31,7 +31,7 @@ public class TriggerQuantidadeStrategy implements TriggerCaseStrategy<Lembrete>
         Date dataInicio = Date.from( momento.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
 
         return TriggerBuilder.newTrigger( )
-                .withIdentity( lembrete.getId( ).toString( ) )
+                .withIdentity( lembrete.getUuid( ).toString( ) )
                 .startAt( dataInicio )
                 .build( );
     }

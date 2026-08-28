@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class Lembrete
@@ -18,7 +19,21 @@ public class Lembrete
      */
     public static final int LIMITE_PROXIMAS_EXECUCOES = 5;
 
+    /**
+     * Chave interna do banco. Existe porque uma PK sequencial mantém localidade no índice e deixa as
+     * FKs em 8 bytes — UUID aleatório como PK fragmenta página de B-tree. Ela é carregada aqui só
+     * para o mapeamento saber se é INSERT ou UPDATE: <b>nada consulta o lembrete por ela</b>, e ela
+     * não aparece na saída da API.
+     */
     private Long id;
+
+    /**
+     * Identidade pública, e a única pela qual o lembrete é procurado. Nasce aqui, no domínio, antes
+     * de qualquer INSERT — então o lembrete já sabe quem é sem depender do banco, e a chave do job
+     * no Quartz deixa de ser um número de sequência que uma recarga de base mudaria de lugar.
+     */
+    private UUID uuid;
+
     private LocalDateTime dataCriacao;
 
     private String titulo;
@@ -30,6 +45,7 @@ public class Lembrete
 
     public Lembrete( )
     {
+        this.uuid = UUID.randomUUID( );
         this.dataCriacao = LocalDateTime.now( );
         this.status = EnumStatusConclusao.PENDENTE.name( );
     }

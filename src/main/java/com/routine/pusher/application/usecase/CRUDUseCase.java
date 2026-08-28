@@ -2,17 +2,21 @@ package com.routine.pusher.application.usecase;
 
 import java.util.List;
 
-public interface CRUDUseCase<I, O>
+/**
+ * {@code ID} existe porque nem todo agregado se identifica do mesmo jeito: categoria ainda usa o id
+ * sequencial, lembrete usa UUID. Sem o parâmetro, o contrato obrigaria os dois ao mesmo tipo.
+ */
+public interface CRUDUseCase<I, O, ID>
 {
     O adicionar( I inputDTO );
 
     List<O> listar( String atributo, boolean ordemReversa );
 
-    default O buscarPeloId( Long id ) {
+    default O buscarPeloId( ID id ) {
         return null;
     };
 
-    O atualizar( Long id, I inputDTO );
+    O atualizar( ID id, I inputDTO );
 
-    void excluir( Long id );
+    void excluir( ID id );
 }

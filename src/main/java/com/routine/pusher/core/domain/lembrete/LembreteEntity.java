@@ -9,17 +9,22 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
+import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "lembrete")
 public class LembreteEntity
 {
+    // Chave interna: sequencial, estreita, nunca sai daqui.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    // Chave de negócio: é por ela que a aplicação procura o lembrete. updatable=false porque
+    // identidade pública que muda não é identidade.
+    @Column(name = "uuid", nullable = false, unique = true, updatable = false)
+    private UUID uuid;
 
     @Column(name = "dataCriacao", nullable = false)
     private LocalDateTime dataCriacao = LocalDateTime.now( );

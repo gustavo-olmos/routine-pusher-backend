@@ -33,7 +33,7 @@ public class CategoriaControllerTest
     private MockMvc mockMvc;
 
     @MockBean
-    private CRUDUseCase<CategoriaInputDTO, CategoriaOutputDTO> useCase;
+    private CRUDUseCase<CategoriaInputDTO, CategoriaOutputDTO, Long> useCase;
 
     public static String asJsonString( final Object obj )
     {

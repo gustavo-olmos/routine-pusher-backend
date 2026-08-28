@@ -18,7 +18,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class CategoriaService implements CRUDUseCase<CategoriaInputDTO, CategoriaOutputDTO>
+public class CategoriaService implements CRUDUseCase<CategoriaInputDTO, CategoriaOutputDTO, Long>
 {
     private final Logger LOGGER = LoggerFactory.getLogger( CategoriaService.class );
 
