@@ -1,6 +1,7 @@
 package com.routine.pusher.core.domain.lembrete;
 
 import com.routine.pusher.core.domain.categoria.Categoria;
+import com.routine.pusher.core.domain.feriado.port.FeriadoPort;
 import com.routine.pusher.core.domain.notificacao.Notificacao;
 import com.routine.pusher.core.domain.recorrencia.Recorrencia;
 import com.routine.pusher.core.enums.EnumStatusConclusao;
@@ -34,17 +35,27 @@ public class Lembrete
     }
 
 
-    public void setExecucao( )
+    public void setExecucao( FeriadoPort feriados )
     {
-        if( notificacao.aindaTemNotificacao( this ) )
-            notificacao.setProximaExecucao( notificacao.calcularProximaNotificacao( this ) );
+        if( notificacao.aindaTemNotificacao( this, feriados ) )
+            notificacao.setProximaExecucao( notificacao.calcularProximaNotificacao( this, feriados ) );
     }
 
     public List<LocalDateTime> calcularProximasExecucoes( int limite )
     {
+        return this.calcularProximasExecucoes( limite, null );
+    }
+
+    /**
+     * {@code feriados} nulo significa "sem restrição de calendário", e é o comportamento desejado
+     * quando não há fonte de feriados disponível: a série segue como a recorrência calculou. Falhar
+     * aberto é deliberado — notificação a mais incomoda, notificação a menos quebra o produto.
+     */
+    public List<LocalDateTime> calcularProximasExecucoes( int limite, FeriadoPort feriados )
+    {
         if( notificacao == null ) return List.of( );
 
-        return notificacao.calcularProximasNotificacoes( this, limite );
+        return notificacao.calcularProximasNotificacoes( this, limite, feriados );
     }
 
     public void concluirLembrete( )

@@ -3,6 +3,7 @@ package com.routine.pusher.core.domain.recorrencia;
 import com.routine.pusher.core.domain.notificacao.Notificacao;
 import com.routine.pusher.core.domain.recorrencia.cron.CronExpressionBuilder;
 import com.routine.pusher.core.enums.EnumDiasDaSemana;
+import com.routine.pusher.core.enums.EnumPoliticaDiaUtil;
 import com.routine.pusher.infrastructure.exceptions.StrategyException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,6 +32,9 @@ public class Recorrencia
     private List<Integer> diasFixosNoMes;
     private List<EnumDiasDaSemana> diasDaSemana;
 
+    /*Calendario*/
+    private EnumPoliticaDiaUtil politicaDiaUtil;
+
     public Duration montarIntevalo( )
     {
         long dias = intervaloDias != null ? intervaloDias : 0;
@@ -54,6 +58,35 @@ public class Recorrencia
     {
         if( quantidade != null && quantidade > 0 )
             quantidade = quantidade - 1;
+    }
+
+    public boolean temComponenteDeCalendario( )
+    {
+        return ( diasDaSemana != null && !diasDaSemana.isEmpty( ) )
+                || ( diasFixosNoMes != null && !diasFixosNoMes.isEmpty( ) )
+                || ( posicaoDaSemanaNoMes != null && posicaoDaSemanaNoMes > 0 );
+    }
+
+    public boolean exigeDiaUtil( )
+    {
+        return politicaDiaUtil != null && politicaDiaUtil != EnumPoliticaDiaUtil.IGNORAR;
+    }
+
+    /**
+     * Política de dia útil só é aceita em recorrência de granularidade diária ou maior.
+     * <p>
+     * O motivo é custo, e ele é assimétrico: um lembrete de 1 em 1 minuto tem 1440 ocorrências por
+     * dia, e um feriado emendado em fim de semana produz mais de 4 mil ocorrências consecutivas a
+     * descartar — por projeção, e a projeção roda a cada serialização. Como o intervalo é entrada do
+     * usuário, aceitar a combinação seria deixá-lo escolher quanto a aplicação gasta. Recusar na
+     * porta é mais barato e mais honesto do que mitigar depois.
+     */
+    public boolean politicaDiaUtilEhCompativel( )
+    {
+        if( !exigeDiaUtil( ) || temComponenteDeCalendario( ) )
+            return true;
+
+        return montarIntevalo( ).compareTo( Duration.ofDays( 1 ) ) >= 0;
     }
 
     public String montarCronExpression( Notificacao notificacao )

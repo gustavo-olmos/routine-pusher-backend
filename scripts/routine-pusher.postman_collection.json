@@ -458,6 +458,115 @@
           ]
         },
         {
+          "name": "Criar — dias úteis (seg a sex)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete"
+              ]
+            },
+            "description": "Dias uteis nao e um campo proprio: e a lista dos cinco dias. Gera a cron '0 0 9 ? * MON,TUE,WED,THU,FRI'. O horario e sempre interpretado no fuso do servidor.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Daily\",\n  \"descricao\": \"De segunda a sexta as 09:00\",\n  \"categoriaId\": {{categoriaId}},\n  \"recorrencia\": {\n    \"diasDaSemana\": [\n      \"SEGUNDA\",\n      \"TERCA\",\n      \"QUARTA\",\n      \"QUINTA\",\n      \"SEXTA\"\n    ]\n  },\n  \"notificacao\": {\n    \"metodo\": [\n      \"e-mail\"\n    ],\n    \"horario\": \"09:00\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const l = pm.response.json();",
+                  "pm.test('guardou os cinco dias', () =>",
+                  "    pm.expect(l.recorrencia.diasDaSemana).to.have.lengthOf(5));",
+                  "pm.test('projeta uma semana util, sem sabado nem domingo', () => {",
+                  "    pm.expect(l.proximasExecucoes).to.have.lengthOf(5);",
+                  "    l.proximasExecucoes.forEach(d => {",
+                  "        const dia = new Date(d).getDay();",
+                  "        pm.expect(dia, 'dia ' + d).to.be.within(1, 5);",
+                  "        pm.expect(d.slice(11, 16)).to.eql('09:00');",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar — dias úteis pulando feriado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete"
+              ]
+            },
+            "description": "politicaDiaUtil aceita IGNORAR, PULAR, ADIAR e ANTECIPAR. Exige recorrencia de calendario ou intervalo de ao menos um dia.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Daily sem feriado\",\n  \"descricao\": \"Seg a sex as 09:00, pulando feriado nacional\",\n  \"categoriaId\": {{categoriaId}},\n  \"recorrencia\": {\n    \"diasDaSemana\": [\n      \"SEGUNDA\",\n      \"TERCA\",\n      \"QUARTA\",\n      \"QUINTA\",\n      \"SEXTA\"\n    ],\n    \"politicaDiaUtil\": \"PULAR\"\n  },\n  \"notificacao\": {\n    \"metodo\": [\n      \"e-mail\"\n    ],\n    \"horario\": \"09:00\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const l = pm.response.json();",
+                  "pm.test('guardou a politica', () =>",
+                  "    pm.expect(l.recorrencia.politicaDiaUtil).to.eql('PULAR'));",
+                  "pm.test('projecao sem fim de semana', () =>",
+                  "    l.proximasExecucoes.forEach(d =>",
+                  "        pm.expect(new Date(d).getDay(), 'dia ' + d).to.be.within(1, 5)));",
+                  "pm.test('previa concorda com o disparo agendado', () =>",
+                  "    pm.expect(l.proximasExecucoes[0]).to.eql(l.notificacao.proximaExecucao));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Criar — cron por dias fixos do mês",
           "request": {
             "method": "POST",
@@ -982,6 +1091,100 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "422 — politica de dia util com intervalo curto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete"
+              ]
+            },
+            "description": "Intervalo abaixo de um dia com politica de dia util e recusado: cada projecao teria milhares de ocorrencias a descartar, com o tamanho do laco escolhido pelo usuario.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Engracadinho\",\n  \"categoriaId\": {{categoriaId}},\n  \"recorrencia\": {\n    \"intervaloMinutos\": 1,\n    \"politicaDiaUtil\": \"PULAR\"\n  },\n  \"notificacao\": {\n    \"metodo\": [\n      \"pop-up\"\n    ],\n    \"dataInicio\": \"{{agora}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', () => pm.response.to.have.status(422));",
+                  "pm.test('explica o motivo', () =>",
+                  "    pm.expect(pm.response.json().mensagem).to.include('ao menos um dia'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "422 — politica de dia util com datas especificas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lembrete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "lembrete"
+              ]
+            },
+            "description": "Em datas especificas o usuario ja apontou o dia a dedo; o calendario nao sobrescreve escolha explicita.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Consulta\",\n  \"categoriaId\": {{categoriaId}},\n  \"recorrencia\": {\n    \"intervaloDias\": 1,\n    \"politicaDiaUtil\": \"ADIAR\"\n  },\n  \"notificacao\": {\n    \"metodo\": [\n      \"pop-up\"\n    ],\n    \"dataInicio\": \"{{agora}}\",\n    \"datasEspecificadas\": [\n      \"{{daquiA10min}}\"\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', () => pm.response.to.have.status(422));",
+                  "pm.test('explica o motivo', () =>",
+                  "    pm.expect(pm.response.json().mensagem).to.include('datas'));"
                 ]
               }
             }

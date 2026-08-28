@@ -1,6 +1,7 @@
 package com.routine.pusher.infrastructure.common.scheduler;
 
 import com.routine.pusher.application.job.LembreteExecutorJob;
+import com.routine.pusher.core.domain.feriado.port.FeriadoPort;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.trigger.TriggerCaseStrategy;
 import com.routine.pusher.core.trigger.factory.TriggerStrategyFactory;
@@ -20,9 +21,9 @@ public final class QuartzScheduler<T>
                          .build( );
     }
 
-    public Trigger criarTrigger( T t )
+    public Trigger criarTrigger( T t, FeriadoPort feriados )
     {
         TriggerCaseStrategy<Lembrete> caseStrategy = TriggerStrategyFactory.getStrategy( (Lembrete) t );
-        return caseStrategy.criarTrigger( (Lembrete) t );
+        return caseStrategy.criarTrigger( (Lembrete) t, feriados );
     }
 }

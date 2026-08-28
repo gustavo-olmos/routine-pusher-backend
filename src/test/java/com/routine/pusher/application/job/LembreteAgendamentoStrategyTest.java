@@ -9,18 +9,23 @@ import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.core.domain.notificacao.dto.NotificacaoInputDTO;
 import com.routine.pusher.core.domain.recorrencia.dto.RecorrenciaInputDTO;
+import com.routine.pusher.core.domain.feriado.port.FeriadoPort;
 import com.routine.pusher.core.enums.EnumDiasDaSemana;
+import com.routine.pusher.core.enums.EnumPoliticaDiaUtil;
+import com.routine.pusher.infrastructure.exceptions.StrategyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Cobre as combinações de recorrência do motor que até aqui não tinham teste nenhum: o único teste de
@@ -40,6 +45,8 @@ class LembreteAgendamentoStrategyTest
     private LembreteService lembreteService;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private FeriadoPort feriadoPort;
 
     private Long categoriaId( String cor, int fatorOrdem )
     {
@@ -57,7 +64,7 @@ class LembreteAgendamentoStrategyTest
     {
         LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
                 "Beber água", "de 2 em 2 minutos", categoriaId( "#E53935", 101 ),
-                new RecorrenciaInputDTO( null, null, null, 2, null, null, null ),
+                new RecorrenciaInputDTO( null, null, null, 2, null, null, null , null ),
                 new NotificacaoInputDTO( List.of( "pop-up" ), null, LocalDateTime.now( ), null, null ) ) );
 
         assertThat( criado.notificacao( ).proximaExecucao( ) )
@@ -71,7 +78,7 @@ class LembreteAgendamentoStrategyTest
     {
         LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
                 "Alongar", "3 em 3 minutos, 2 disparos", categoriaId( "#FB8C00", 102 ),
-                new RecorrenciaInputDTO( 2, null, null, 3, null, null, null ),
+                new RecorrenciaInputDTO( 2, null, null, 3, null, null, null , null ),
                 new NotificacaoInputDTO( List.of( "pop-up" ), null, LocalDateTime.now( ), null, null ) ) );
 
         assertThat( criado.recorrencia( ).quantidade( ) ).isEqualTo( 2 );
@@ -86,7 +93,7 @@ class LembreteAgendamentoStrategyTest
 
         LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
                 "Pausa para o café", "1 em 1 minuto, expira em 10", categoriaId( "#1E88E5", 103 ),
-                new RecorrenciaInputDTO( null, null, null, 1, null, null, null ),
+                new RecorrenciaInputDTO( null, null, null, 1, null, null, null , null ),
                 new NotificacaoInputDTO( List.of( "som" ), null, agora, agora.plusMinutes( 10 ), null ) ) );
 
         assertThat( criado.notificacao( ).proximaExecucao( ) )
@@ -101,7 +108,7 @@ class LembreteAgendamentoStrategyTest
         LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
                 "Reunião de alinhamento", "segunda e quarta às 09:00", categoriaId( "#43A047", 104 ),
                 new RecorrenciaInputDTO( null, null, null, null, null, null,
-                        List.of( EnumDiasDaSemana.SEGUNDA, EnumDiasDaSemana.QUARTA ) ),
+                        List.of( EnumDiasDaSemana.SEGUNDA, EnumDiasDaSemana.QUARTA ) , null ),
                 new NotificacaoInputDTO( List.of( "e-mail" ), LocalTime.of( 9, 0 ),
                         LocalDateTime.now( ), null, null ) ) );
 
@@ -116,7 +123,7 @@ class LembreteAgendamentoStrategyTest
 
         LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
                 "Pomodoro", "de 25 em 25 minutos", categoriaId( "#00897B", 106 ),
-                new RecorrenciaInputDTO( null, null, null, 25, null, null, null ),
+                new RecorrenciaInputDTO( null, null, null, 25, null, null, null , null ),
                 new NotificacaoInputDTO( List.of( "pop-up" ), null, agora, null, null ) ) );
 
         assertThat( criado.proximasExecucoes( ) )
@@ -138,10 +145,101 @@ class LembreteAgendamentoStrategyTest
     {
         LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
                 "Tomar remédio", "de hora em hora, 2 vezes", categoriaId( "#6D4C41", 107 ),
-                new RecorrenciaInputDTO( 2, null, 1, null, null, null, null ),
+                new RecorrenciaInputDTO( 2, null, 1, null, null, null, null , null ),
                 new NotificacaoInputDTO( List.of( "som" ), null, LocalDateTime.now( ), null, null ) ) );
 
         assertThat( criado.proximasExecucoes( ) ).hasSize( 2 );
+    }
+
+    @Test
+    @DisplayName("dias úteis: os cinco dias da semana cadastram e agendam de fato")
+    void cronPorDiasUteis_deveAgendar( )
+    {
+        LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
+                "Daily", "de segunda a sexta às 09:00", categoriaId( "#3949AB", 108 ),
+                new RecorrenciaInputDTO( null, null, null, null, null, null,
+                        List.of( EnumDiasDaSemana.SEGUNDA, EnumDiasDaSemana.TERCA,
+                                 EnumDiasDaSemana.QUARTA, EnumDiasDaSemana.QUINTA,
+                                 EnumDiasDaSemana.SEXTA ) , null ),
+                new NotificacaoInputDTO( List.of( "e-mail" ), LocalTime.of( 9, 0 ),
+                        LocalDateTime.now( ), null, null ) ) );
+
+        assertThat( criado.recorrencia( ).diasDaSemana( ) ).hasSize( 5 );
+        assertThat( criado.notificacao( ).proximaExecucao( ) ).isAfter( LocalDateTime.now( ) );
+        assertThat( criado.proximasExecucoes( ) )
+                .hasSize( 5 )
+                .allMatch( data -> data.toLocalTime( ).equals( LocalTime.of( 9, 0 ) ) )
+                .noneMatch( data -> data.getDayOfWeek( ) == DayOfWeek.SATURDAY
+                                 || data.getDayOfWeek( ) == DayOfWeek.SUNDAY );
+    }
+
+    @Test
+    @DisplayName("dias úteis com PULAR agenda e nunca projeta feriado nacional")
+    void diasUteisComPolitica_deveAgendarSemFeriado( )
+    {
+        LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
+                "Daily sem feriado", "seg a sex às 09:00, pulando feriado", categoriaId( "#00695C", 109 ),
+                new RecorrenciaInputDTO( null, null, null, null, null, null,
+                        List.of( EnumDiasDaSemana.SEGUNDA, EnumDiasDaSemana.TERCA,
+                                 EnumDiasDaSemana.QUARTA, EnumDiasDaSemana.QUINTA,
+                                 EnumDiasDaSemana.SEXTA ), EnumPoliticaDiaUtil.PULAR ),
+                new NotificacaoInputDTO( List.of( "e-mail" ), LocalTime.of( 9, 0 ),
+                        LocalDateTime.now( ), null, null ) ) );
+
+        assertThat( criado.recorrencia( ).politicaDiaUtil( ) ).isEqualTo( EnumPoliticaDiaUtil.PULAR );
+        assertThat( criado.proximasExecucoes( ) )
+                .hasSize( 5 )
+                .noneMatch( data -> feriadoPort.ehFeriado( data.toLocalDate( ) ) );
+
+        // O disparo que foi realmente agendado precisa ser o mesmo que a prévia anuncia.
+        assertThat( criado.notificacao( ).proximaExecucao( ) )
+                .isEqualTo( criado.proximasExecucoes( ).get( 0 ) );
+    }
+
+    @Test
+    @DisplayName("intervalo diário aceita política de dia útil")
+    void intervaloDiarioComPolitica_deveAgendar( )
+    {
+        LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
+                "Relatório", "a cada 1 dia, só em dia útil", categoriaId( "#5D4037", 110 ),
+                new RecorrenciaInputDTO( null, 1, null, null, null, null, null,
+                        EnumPoliticaDiaUtil.PULAR ),
+                new NotificacaoInputDTO( List.of( "pop-up" ), null, LocalDateTime.now( ), null, null ) ) );
+
+        assertThat( criado.proximasExecucoes( ) )
+                .isNotEmpty( )
+                .noneMatch( data -> feriadoPort.ehFeriado( data.toLocalDate( ) ) );
+    }
+
+    @Test
+    @DisplayName("intervalo abaixo de um dia com política é recusado na porta, não mitigado depois")
+    void intervaloCurtoComPolitica_deveRecusar( )
+    {
+        LembreteInputDTO abusivo = new LembreteInputDTO(
+                "Engraçadinho", "1 em 1 minuto pulando feriado", categoriaId( "#C62828", 111 ),
+                new RecorrenciaInputDTO( null, null, null, 1, null, null, null,
+                        EnumPoliticaDiaUtil.PULAR ),
+                new NotificacaoInputDTO( List.of( "pop-up" ), null, LocalDateTime.now( ), null, null ) );
+
+        assertThatThrownBy( () -> lembreteService.adicionar( abusivo ) )
+                .isInstanceOf( StrategyException.class )
+                .hasMessageContaining( "ao menos um dia" );
+    }
+
+    @Test
+    @DisplayName("política de dia útil não sobrescreve datas escolhidas a dedo")
+    void datasEspecificasComPolitica_deveRecusar( )
+    {
+        LembreteInputDTO conflitante = new LembreteInputDTO(
+                "Consulta", "datas fixas com política", categoriaId( "#AD1457", 112 ),
+                new RecorrenciaInputDTO( null, 1, null, null, null, null, null,
+                        EnumPoliticaDiaUtil.ADIAR ),
+                new NotificacaoInputDTO( List.of( "pop-up" ), null, LocalDateTime.now( ), null,
+                        List.of( LocalDateTime.now( ).plusDays( 3 ) ) ) );
+
+        assertThatThrownBy( () -> lembreteService.adicionar( conflitante ) )
+                .isInstanceOf( StrategyException.class )
+                .hasMessageContaining( "datas específicas" );
     }
 
     @Test

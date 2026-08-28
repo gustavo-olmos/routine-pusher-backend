@@ -1,5 +1,6 @@
 package com.routine.pusher.application.job;
 
+import com.routine.pusher.core.domain.feriado.port.FeriadoPort;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.infrastructure.common.scheduler.QuartzScheduler;
 import com.routine.pusher.infrastructure.exceptions.ProcessoException;
@@ -18,17 +19,19 @@ public class AgendadorJob
     private static final Logger LOGGER = LoggerFactory.getLogger( AgendadorJob.class );
 
     private final Scheduler scheduler;
+    private final FeriadoPort feriados;
     private final QuartzScheduler<Lembrete> quartz = new QuartzScheduler<>( );
 
-    public AgendadorJob( Scheduler scheduler )
+    public AgendadorJob( Scheduler scheduler, FeriadoPort feriados )
     {
         this.scheduler = scheduler;
+        this.feriados = feriados;
     }
 
     public void agendar( Lembrete lembrete )
     {
         JobDetail jobDetail = quartz.criarJob( lembrete.getId( ).toString( ) );
-        Trigger trigger = quartz.criarTrigger( lembrete );
+        Trigger trigger = quartz.criarTrigger( lembrete, feriados );
 
         try {
             scheduler.scheduleJob( jobDetail, trigger );

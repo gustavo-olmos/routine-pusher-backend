@@ -1,5 +1,6 @@
 package com.routine.pusher.core.trigger.strategy;
 
+import com.routine.pusher.core.domain.feriado.port.FeriadoPort;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.notificacao.Notificacao;
 import com.routine.pusher.core.domain.recorrencia.Recorrencia;
@@ -17,14 +18,19 @@ import java.util.Objects;
 public class TriggerValidadeStrategy implements TriggerCaseStrategy<Lembrete>
 {
     @Override
-    public Trigger criarTrigger( Lembrete lembrete )
+    public Trigger criarTrigger( Lembrete lembrete, FeriadoPort feriados )
     {
         Notificacao notificacao = lembrete.getNotificacao( );
         LocalDateTime validade = notificacao.getDataFim( );
 
         Recorrencia recorrencia = lembrete.getRecorrencia( );
         String cronExpression = recorrencia.montarCronExpression( lembrete.getNotificacao( ) );
-        if( !Objects.equals( cronExpression, "" ) ) {
+
+        // Com política de dia útil o trigger não pode ser um cron permanente: o Quartz dispararia no
+        // feriado, porque a expressão só conhece dia da semana. Cai no caminho de disparo único mais
+        // reagendamento — o mesmo que o intervalo já usa — para que a regra de calendário fique num
+        // lugar só, o domínio, e não duplicada dentro do agendador.
+        if( !Objects.equals( cronExpression, "" ) && !recorrencia.exigeDiaUtil( ) ) {
             Date dataFim = Date.from( validade.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )
                     .withIdentity( lembrete.getId( ).toString( ) )
@@ -33,7 +39,7 @@ public class TriggerValidadeStrategy implements TriggerCaseStrategy<Lembrete>
                     .build( );
         }
 
-        LocalDateTime momento = notificacao.calcularProximaNotificacao( lembrete );
+        LocalDateTime momento = notificacao.calcularProximaNotificacao( lembrete, feriados );
         if( Objects.nonNull( momento ) && momento.isBefore( validade ) ) {
             Date dataInicio = Date.from( momento.atZone( ZoneId.systemDefault( ) ).toInstant( ) );
             return TriggerBuilder.newTrigger( )

@@ -23,7 +23,7 @@ public abstract class LembreteExample {
     {
         RecorrenciaInputDTO recorrencia = new RecorrenciaInputDTO( 0, 0,
                 9, 30, 0, List.of( ),
-                List.of( EnumDiasDaSemana.SEGUNDA, EnumDiasDaSemana.QUARTA, EnumDiasDaSemana.SEXTA ) );
+                List.of( EnumDiasDaSemana.SEGUNDA, EnumDiasDaSemana.QUARTA, EnumDiasDaSemana.SEXTA ) , null );
 
         NotificacaoInputDTO notificacao = new NotificacaoInputDTO(
                 List.of( "VIBRAÇÃO" ), LocalTime.of( 12, 15 ),
@@ -40,7 +40,7 @@ public abstract class LembreteExample {
 
         RecorrenciaOutputDTO recorrencia = new RecorrenciaOutputDTO( 0, 0,
                 9, 30, 0, List.of( ),
-                List.of( EnumDiasDaSemana.SEGUNDA, EnumDiasDaSemana.QUARTA, EnumDiasDaSemana.SEXTA ) );
+                List.of( EnumDiasDaSemana.SEGUNDA, EnumDiasDaSemana.QUARTA, EnumDiasDaSemana.SEXTA ) , null );
 
         NotificacaoOutputDTO notificacao = new NotificacaoOutputDTO(
                 1L, List.of( "VIBRAÇÃO" ), LocalTime.of( 16, 20 ),

@@ -22,11 +22,7 @@ public class NotificacaoStrategyFactory
 
         Recorrencia recorrencia = lembrete.getRecorrencia( );
         if( recorrencia != null ) {
-            boolean temCronExpression = ( recorrencia.getDiasDaSemana( ) != null && !recorrencia.getDiasDaSemana( ).isEmpty( ) ) ||
-                    ( recorrencia.getDiasFixosNoMes( ) != null && !recorrencia.getDiasFixosNoMes( ).isEmpty( ) ) ||
-                    ( recorrencia.getPosicaoDaSemanaNoMes( ) != null && recorrencia.getPosicaoDaSemanaNoMes( ) > 0 );
-
-            if( temCronExpression )
+            if( recorrencia.temComponenteDeCalendario( ) )
                 return new CronStrategy( );
 
             Duration intervalo = lembrete.getRecorrencia( ).montarIntevalo( );

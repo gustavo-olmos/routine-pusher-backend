@@ -119,6 +119,86 @@ GET /api/v1/lembretes
 DELETE /api/v1/lembretes/{id}
 ```
 
+## Recorrência por dias da semana
+
+Não existe um campo "dias úteis": é a lista dos cinco dias em `recorrencia.diasDaSemana`. Os valores
+aceitos são `SEGUNDA`, `TERCA`, `QUARTA`, `QUINTA`, `SEXTA`, `SABADO` e `DOMINGO`.
+
+```json
+{
+    "titulo": "Daily",
+    "categoriaId": 1,
+    "recorrencia": { "diasDaSemana": ["SEGUNDA", "TERCA", "QUARTA", "QUINTA", "SEXTA"] },
+    "notificacao": { "metodo": ["e-mail"], "horario": "09:00" }
+}
+```
+
+Isso vira a expressão `0 0 9 ? * MON,TUE,WED,THU,FRI`. Recorrência de calendário **exige**
+`notificacao.horario` — sem ele a requisição volta 422.
+
+## Feriados e dias úteis
+
+`MON,TUE,WED,THU,FRI` sabe o que é dia da semana, não o que é feriado. Para isso existe
+`recorrencia.politicaDiaUtil`:
+
+| Valor | O que faz | Quando usar |
+|---|---|---|
+| `IGNORAR` (padrão) | o calendário não interfere | tomar remédio — feriado não suspende |
+| `PULAR` | a ocorrência em dia não útil não acontece | daily de equipe |
+| `ADIAR` | anda para o próximo dia útil, mesmo horário | tarefa que pode esperar |
+| `ANTECIPAR` | volta para o dia útil anterior | boleto, que não pode atrasar |
+
+```json
+{
+    "recorrencia": {
+        "diasDaSemana": ["SEGUNDA", "TERCA", "QUARTA", "QUINTA", "SEXTA"],
+        "politicaDiaUtil": "PULAR"
+    },
+    "notificacao": { "metodo": ["e-mail"], "horario": "09:00" }
+}
+```
+
+**Uma regra, dois leitores.** A política vale igual na projeção (`proximasExecucoes`) e no disparo
+real. É por isso que um lembrete com política não usa mais o cron permanente do Quartz: aquele
+trigger só entende dia da semana e dispararia no feriado, fazendo a prévia mentir. Com política, o
+lembrete cai no caminho de disparo único mais reagendamento — o mesmo que o intervalo já usava.
+
+**Origem dos feriados.** `FeriadoNacionalBrasilAdapter` **calcula** o calendário nacional: datas
+fixas mais as móveis derivadas da Páscoa (Carnaval, Sexta-feira Santa, Corpus Christi). Escolher uma
+fonte calculável em vez de uma API elimina de uma vez rede no caminho quente, indisponibilidade de
+terceiro, cache negativo e dado velho — o cache vira memoização por ano, com teto de anos guardados.
+Feriado estadual e municipal não são calculáveis: aí sim é preciso uma fonte externa, e o ponto de
+troca é implementar `FeriadoPort`, sem tocar no domínio.
+
+**Limites de entrada.** A política é recusada com 422 em dois casos:
+
+- **intervalo abaixo de um dia** — 1 em 1 minuto são 1440 ocorrências por dia, e um feriado emendado
+  em fim de semana produz mais de 4 mil ocorrências consecutivas a descartar, por projeção. Como o
+  intervalo é entrada do usuário, aceitar seria deixá-lo escolher quanto a aplicação gasta.
+- **junto de `datasEspecificadas`** — ali o usuário apontou o dia a dedo, e o calendário não
+  sobrescreve escolha explícita.
+
+## Fuso horário
+
+Toda data trafega e é persistida como hora de parede, sem offset (`LocalDateTime`, serializado como
+`2026-08-27T09:00:00`). O back **não converte nada**: ele grava o que o front mandou.
+
+O detalhe que importa no deploy é o outro lado dessa moeda: na hora de agendar, o Quartz interpreta
+essa hora de parede **no fuso do servidor** (`ZoneId.systemDefault()`), e o filtro de datas futuras
+compara com o `LocalDateTime.now()` do servidor. Enquanto servidor e usuário estiverem no mesmo fuso
+— desenvolvimento local — nada aparece. Num host em UTC, com usuário em São Paulo:
+
+| O que o front manda | O que o servidor em UTC faz |
+|---|---|
+| `"horario": "09:00"` | dispara às 09:00 UTC, ou seja **06:00** para o usuário |
+| `"dataInicio"` daqui a 1h | vê como **vencida** (o `now()` dele está 3h à frente) e descarta |
+
+Ou seja, o back é neutro no transporte, mas não no agendamento. Rodar o servidor no mesmo fuso dos
+usuários (`TZ=America/Sao_Paulo`, ou `-Duser.timezone`) resolve enquanto houver um fuso só; um app
+com usuários em fusos diferentes precisa trafegar offset (`OffsetDateTime`) e guardar o fuso
+desejado do lembrete. `FusoHorarioTest` fixa esse comportamento para que a mudança seja uma decisão
+explícita.
+
 ## Segurança
 
 Todos os endpoints exigem autenticação. Existem duas formas, habilitadas de forma global na

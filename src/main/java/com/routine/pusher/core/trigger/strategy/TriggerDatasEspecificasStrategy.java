@@ -1,5 +1,6 @@
 package com.routine.pusher.core.trigger.strategy;
 
+import com.routine.pusher.core.domain.feriado.port.FeriadoPort;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.notificacao.Notificacao;
 import com.routine.pusher.core.trigger.TriggerCaseStrategy;
@@ -15,7 +16,7 @@ import java.util.Date;
 public class TriggerDatasEspecificasStrategy implements TriggerCaseStrategy<Lembrete>
 {
     @Override
-    public Trigger criarTrigger( Lembrete lembrete )
+    public Trigger criarTrigger( Lembrete lembrete, FeriadoPort feriados )
     {
         Notificacao notificacao = lembrete.getNotificacao( );
 

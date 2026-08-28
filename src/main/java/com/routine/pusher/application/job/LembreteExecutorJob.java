@@ -1,6 +1,7 @@
 package com.routine.pusher.application.job;
 
 import com.routine.pusher.application.usecase.NotificacaoUseCase;
+import com.routine.pusher.core.domain.feriado.port.FeriadoPort;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.lembrete.LembreteMapper;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
@@ -26,6 +27,8 @@ public class LembreteExecutorJob implements Job
     private LembreteRepository repository;
     @Inject
     private LembreteMapper mapper;
+    @Inject
+    private FeriadoPort feriados;
 
     @Override
     public void execute( JobExecutionContext executionContext )
@@ -55,12 +58,12 @@ public class LembreteExecutorJob implements Job
     private void reagendarOuRemover( JobExecutionContext context, String jobId, Lembrete lembrete )
     {
         try {
-            boolean temProximaNotificacao = lembrete.getNotificacao( ).aindaTemNotificacao( lembrete );
+            boolean temProximaNotificacao = lembrete.getNotificacao( ).aindaTemNotificacao( lembrete, feriados );
             boolean dentroDaCota = lembrete.getRecorrencia( ) == null
                     || lembrete.getRecorrencia( ).temQuantidadeRestante( );
 
             if( temProximaNotificacao && dentroDaCota ) {
-                Trigger novoTrigger = quartz.criarTrigger( lembrete );
+                Trigger novoTrigger = quartz.criarTrigger( lembrete, feriados );
                 context.getScheduler( ).rescheduleJob( new TriggerKey( jobId ), novoTrigger );
                 LOGGER.info( "Reagendando job de id {}", jobId );
             }

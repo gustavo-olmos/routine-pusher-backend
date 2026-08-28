@@ -2,6 +2,7 @@ package com.routine.pusher.core.domain.recorrencia;
 
 import com.routine.pusher.core.domain.lembrete.LembreteEntity;
 import com.routine.pusher.core.enums.EnumDiasDaSemana;
+import com.routine.pusher.core.enums.EnumPoliticaDiaUtil;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -52,4 +53,8 @@ public class RecorrenciaEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "dia_semana")
     private List<EnumDiasDaSemana> diasDaSemana;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "politica_dia_util")
+    private EnumPoliticaDiaUtil politicaDiaUtil;
 }
