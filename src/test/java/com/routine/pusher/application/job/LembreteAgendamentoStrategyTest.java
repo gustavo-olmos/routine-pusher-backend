@@ -1,5 +1,7 @@
 package com.routine.pusher.application.job;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.routine.pusher.application.service.LembreteService;
 import com.routine.pusher.core.domain.categoria.CategoriaEntity;
 import com.routine.pusher.core.domain.categoria.CategoriaRepository;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +38,8 @@ class LembreteAgendamentoStrategyTest
     private CategoriaRepository categoriaRepository;
     @Autowired
     private LembreteService lembreteService;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private Long categoriaId( String cor, int fatorOrdem )
     {
@@ -101,6 +106,42 @@ class LembreteAgendamentoStrategyTest
                         LocalDateTime.now( ), null, null ) ) );
 
         assertThat( criado.notificacao( ).proximaExecucao( ) ).isAfter( LocalDateTime.now( ) );
+    }
+
+    @Test
+    @DisplayName("a saída antecipa as próximas 5 execuções e as serializa como lista ISO")
+    void proximasExecucoes_saemNaRespostaEmFormatoISO( ) throws JsonProcessingException
+    {
+        LocalDateTime agora = LocalDateTime.now( );
+
+        LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
+                "Pomodoro", "de 25 em 25 minutos", categoriaId( "#00897B", 106 ),
+                new RecorrenciaInputDTO( null, null, null, 25, null, null, null ),
+                new NotificacaoInputDTO( List.of( "pop-up" ), null, agora, null, null ) ) );
+
+        assertThat( criado.proximasExecucoes( ) )
+                .hasSize( 5 )
+                .isSorted( )
+                .allMatch( data -> data.isAfter( agora ) );
+
+        // O consumidor da API lê a lista já formatada; sem serializer, Jackson quebraria o
+        // LocalDateTime em array de inteiros e o front teria de remontar a data.
+        String primeira = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format( criado.proximasExecucoes( ).get( 0 ) );
+
+        assertThat( objectMapper.writeValueAsString( criado ) )
+                .contains( "\"proximasExecucoes\":[\"" + primeira + "\"" );
+    }
+
+    @Test
+    @DisplayName("cota restante limita a prévia: 2 disparos, 2 execuções previstas")
+    void proximasExecucoes_respeitamACota( )
+    {
+        LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
+                "Tomar remédio", "de hora em hora, 2 vezes", categoriaId( "#6D4C41", 107 ),
+                new RecorrenciaInputDTO( 2, null, 1, null, null, null, null ),
+                new NotificacaoInputDTO( List.of( "som" ), null, LocalDateTime.now( ), null, null ) ) );
+
+        assertThat( criado.proximasExecucoes( ) ).hasSize( 2 );
     }
 
     @Test

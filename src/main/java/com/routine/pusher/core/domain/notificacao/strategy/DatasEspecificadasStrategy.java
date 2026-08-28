@@ -4,7 +4,6 @@ import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.notificacao.Notificacao;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 public class DatasEspecificadasStrategy implements NotificacaoCaseStrategy<Lembrete>
@@ -13,14 +12,29 @@ public class DatasEspecificadasStrategy implements NotificacaoCaseStrategy<Lembr
     public LocalDateTime calcularProximaNotificacao(Lembrete lembrete )
     {
         Notificacao notificacao = lembrete.getNotificacao( );
-        List<LocalDateTime> datasFuturas = notificacao.getDatasEspecificadas( ).stream( )
-                .filter( d -> d.isAfter( LocalDateTime.now( ) ) )
-                .sorted( )
-                .toList( );
+        List<LocalDateTime> datasFuturas = datasFuturas( notificacao );
 
         if( datasFuturas.isEmpty( ) ) return null;
 
-        notificacao.setDataFim( Collections.max( datasFuturas ) );
+        notificacao.setDataFim( datasFuturas.get( datasFuturas.size( ) - 1 ) );
         return datasFuturas.get( 0 );
+    }
+
+    @Override
+    public List<LocalDateTime> calcularProximasNotificacoes( Lembrete lembrete, int limite )
+    {
+        return datasFuturas( lembrete.getNotificacao( ) ).stream( )
+                .limit( limite )
+                .toList( );
+    }
+
+    private List<LocalDateTime> datasFuturas( Notificacao notificacao )
+    {
+        if( notificacao == null || notificacao.getDatasEspecificadas( ) == null ) return List.of( );
+
+        return notificacao.getDatasEspecificadas( ).stream( )
+                .filter( data -> data.isAfter( LocalDateTime.now( ) ) )
+                .sorted( )
+                .toList( );
     }
 }

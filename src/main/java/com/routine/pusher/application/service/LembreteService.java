@@ -59,7 +59,10 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
     {
         LOGGER.debug("Listando lembretes por: {}", campoOrdenador);
 
+        // Passa pelo domínio antes de serializar: a projeção das próximas execuções é comportamento
+        // do lembrete, e a entidade sozinha não sabe respondê-la.
         return repository.findAll( ).stream( )
+                .map( mapper::toDomain )
                 .map( mapper::toOutputDto )
                 .sorted( new SortInfo<>( campoOrdenador, ordemReversa ) )
                 .toList( );

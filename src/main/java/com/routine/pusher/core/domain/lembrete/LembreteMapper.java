@@ -16,7 +16,19 @@ public interface LembreteMapper
     Lembrete toDomain( LembreteInputDTO inputDto );
     Lembrete toDomain( LembreteEntity entity );
 
+    /**
+     * A projeção das próximas execuções sai daqui porque só o domínio sabe calculá-la — depende da
+     * recorrência e da cota, não de um campo do lembrete.
+     */
+    @Mapping(target = "proximasExecucoes",
+             expression = "java( lembrete.calcularProximasExecucoes( Lembrete.LIMITE_PROXIMAS_EXECUCOES ) )")
     LembreteOutputDTO toOutputDto( Lembrete lembrete );
+
+    /**
+     * A entidade é estado puro, sem comportamento de recorrência: converta para domínio antes de
+     * serializar se a projeção importar.
+     */
+    @Mapping(target = "proximasExecucoes", ignore = true)
     LembreteOutputDTO toOutputDto( LembreteEntity entity );
 
     LembreteEntity toEntity( Lembrete lembrete );

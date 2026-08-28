@@ -7,10 +7,16 @@ import com.routine.pusher.core.enums.EnumStatusConclusao;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class Lembrete
 {
+    /**
+     * Quantas execuções futuras a saída da API antecipa por lembrete.
+     */
+    public static final int LIMITE_PROXIMAS_EXECUCOES = 5;
+
     private Long id;
     private LocalDateTime dataCriacao;
 
@@ -32,6 +38,13 @@ public class Lembrete
     {
         if( notificacao.aindaTemNotificacao( this ) )
             notificacao.setProximaExecucao( notificacao.calcularProximaNotificacao( this ) );
+    }
+
+    public List<LocalDateTime> calcularProximasExecucoes( int limite )
+    {
+        if( notificacao == null ) return List.of( );
+
+        return notificacao.calcularProximasNotificacoes( this, limite );
     }
 
     public void concluirLembrete( )

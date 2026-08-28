@@ -50,7 +50,9 @@ public abstract class LembreteExample {
                 LocalDateTime.of( 2025, 9, 16, 12, 15 ), List.of( ) );
 
         return new LembreteOutputDTO( 1L, "Lembrete teste", "Descrição teste",
-                "PENDENTE", categoria, recorrencia, notificacao );
+                "PENDENTE", categoria, recorrencia, notificacao,
+                List.of( LocalDateTime.of( 2025, 9, 5, 16, 20 ),
+                         LocalDateTime.of( 2025, 9, 8, 16, 20 ) ) );
     }
 
     public static LembreteEntity entity( )

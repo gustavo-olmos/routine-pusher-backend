@@ -73,6 +73,40 @@ POST /api/v1/lembretes
 }
 ```
 
+#### Resposta
+
+Além do estado salvo, a resposta traz `proximasExecucoes`: uma prévia das próximas 5 execuções
+derivada da recorrência. Não é estado persistido — é recalculada a cada leitura, respeita a validade
+(`dataFim`) e a cota restante (`quantidade`), e por isso encurta ou some conforme o lembrete avança.
+
+```json
+{
+    "id": 1,
+    "titulo": "Pomodoro",
+    "descricao": "de 25 em 25 minutos",
+    "status": "PENDENTE",
+    "categoria": { "id": 1, "nome": "Foco", "cor": "#00897B", "fatorOrdem": 1 },
+    "recorrencia": { "quantidade": null, "intervaloMinutos": 25 },
+    "notificacao": {
+        "id": 1,
+        "metodo": ["pop-up"],
+        "proximaExecucao": "2026-08-27T20:38:26",
+        "dataInicio": "2026-08-27T20:13:26"
+    },
+    "proximasExecucoes": [
+        "2026-08-27T20:38:26",
+        "2026-08-27T21:03:26",
+        "2026-08-27T21:28:26",
+        "2026-08-27T21:53:26",
+        "2026-08-27T22:18:26"
+    ]
+}
+```
+
+`proximaExecucao` continua sendo o disparo realmente agendado no Quartz; `proximasExecucoes[0]`
+coincide com ele. O restante da lista é projeção: o agendamento segue acontecendo um disparo de cada
+vez, e concluir ou alterar o lembrete refaz a série.
+
 ### Listar lembretes
 
 ```http

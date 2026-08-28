@@ -295,7 +295,15 @@
                   "const l = pm.response.json();",
                   "pm.collectionVariables.set('lembreteId', l.id);",
                   "pm.test('agendou no futuro', () =>",
-                  "    pm.expect(new Date(l.notificacao.proximaExecucao)).to.be.greaterThan(new Date()));"
+                  "    pm.expect(new Date(l.notificacao.proximaExecucao)).to.be.greaterThan(new Date()));",
+                  "pm.test('projeta as proximas 5 execucoes, em ordem e no futuro', () => {",
+                  "    pm.expect(l.proximasExecucoes).to.have.lengthOf(5);",
+                  "    const datas = l.proximasExecucoes.map(d => new Date(d).getTime());",
+                  "    pm.expect(datas[0]).to.be.greaterThan(Date.now());",
+                  "    datas.forEach((data, i) => { if (i) pm.expect(data).to.be.greaterThan(datas[i - 1]); });",
+                  "});",
+                  "pm.test('primeira execucao projetada e a que foi agendada', () =>",
+                  "    pm.expect(l.proximasExecucoes[0]).to.eql(l.notificacao.proximaExecucao));"
                 ]
               }
             }
@@ -342,7 +350,9 @@
                 "exec": [
                   "pm.test('status 200', () => pm.response.to.have.status(200));",
                   "pm.test('cota preservada', () =>",
-                  "    pm.expect(pm.response.json().recorrencia.quantidade).to.eql(3));"
+                  "    pm.expect(pm.response.json().recorrencia.quantidade).to.eql(3));",
+                  "pm.test('cota de 3 limita a previa a 3 execucoes', () =>",
+                  "    pm.expect(pm.response.json().proximasExecucoes).to.have.lengthOf(3));"
                 ]
               }
             }
@@ -391,7 +401,12 @@
                   "const l = pm.response.json();",
                   "pm.test('proxima execucao dentro da validade', () =>",
                   "    pm.expect(new Date(l.notificacao.proximaExecucao))",
-                  "      .to.be.lessThan(new Date(pm.collectionVariables.get('daquiA10min'))));"
+                  "      .to.be.lessThan(new Date(pm.collectionVariables.get('daquiA10min'))));",
+                  "pm.test('projecao nao ultrapassa a validade', () => {",
+                  "    const limite = new Date(pm.collectionVariables.get('daquiA10min')).getTime();",
+                  "    pm.expect(l.proximasExecucoes).to.not.be.empty;",
+                  "    l.proximasExecucoes.forEach(d => pm.expect(new Date(d).getTime()).to.be.at.most(limite));",
+                  "});"
                 ]
               }
             }
@@ -571,7 +586,9 @@
                 "exec": [
                   "pm.test('status 200', () => pm.response.to.have.status(200));",
                   "pm.test('criou os 6', () =>",
-                  "    pm.expect(pm.response.json().length).to.be.at.least(6));"
+                  "    pm.expect(pm.response.json().length).to.be.at.least(6));",
+                  "pm.test('a listagem tambem traz a projecao', () =>",
+                  "    pm.expect(pm.response.json().every(x => Array.isArray(x.proximasExecucoes))).to.be.true);"
                 ]
               }
             }
