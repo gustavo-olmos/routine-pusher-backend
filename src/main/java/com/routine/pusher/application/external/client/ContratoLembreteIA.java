@@ -8,6 +8,8 @@ import com.github.victools.jsonschema.generator.SchemaGenerator;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
 import com.github.victools.jsonschema.generator.SchemaVersion;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
+import com.github.victools.jsonschema.module.jakarta.validation.JakartaValidationModule;
+import com.github.victools.jsonschema.module.jakarta.validation.JakartaValidationOption;
 import com.routine.pusher.core.domain.categoria.Categoria;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import org.springframework.stereotype.Component;
@@ -46,11 +48,19 @@ public class ContratoLembreteIA
             - categoriaId é o id de uma das categorias listadas: escolha a que melhor combina \
             com a frase.
             - Repetição por intervalo ("a cada N minutos/horas/dias"): preencha intervaloMinutos/\
-            intervaloHoras/intervaloDias e notificacao.dataInicio com o momento do primeiro disparo.
+            intervaloHoras/intervaloDias e ponha em notificacao.dataInicio o momento atual \
+            informado no contexto — é dali que a contagem começa. O primeiro disparo acontece um \
+            intervalo depois, calculado pelo sistema: NÃO some o intervalo você mesmo, ou o \
+            lembrete atrasa o dobro. Só use outra data se o usuário disser quando começar \
+            ("a partir de amanhã").
             - Repetição por calendário ("toda segunda", "todo dia 5", "na primeira sexta do mês"): \
             preencha diasDaSemana, diasFixosNoMes ou posicaoDaSemanaNoMes, e notificacao.horario.
-            - Momentos apontados a dedo ("dia 5 e dia 12 às 15h"): use notificacao.\
-            datasEspecificadas e não use recorrencia.
+            - Disparo único ou momentos apontados a dedo — inclusive relativos ("amanhã às 9h", \
+            "daqui a 10 minutos", "dia 5 e dia 12 às 15h"): use notificacao.datasEspecificadas com \
+            os momentos já calculados, e não use recorrencia.
+            - Todo lembrete precisa de uma destas três coisas, ou não há como agendá-lo: \
+            recorrencia por intervalo, recorrencia por calendário, ou datasEspecificadas. \
+            notificacao.dataInicio sozinha não agenda nada.
             - "me avise N vezes" limita o total de disparos: preencha recorrencia.quantidade.
             - politicaDiaUtil só quando o usuário falar de dias úteis ou feriados — e ela exige \
             recorrência de calendário ou intervalo de ao menos um dia.
@@ -101,8 +111,12 @@ public class ContratoLembreteIA
     }
 
     /**
-     * Duas decisões que existem para caber em mais de um provedor:
+     * Decisões que existem para o schema caber em mais de um provedor e não mentir sobre o contrato:
      * <ul>
+     *   <li><b>Bean Validation vira schema</b>: o mesmo {@code @NotNull} que recusa o pedido de um
+     *       humano passa a dizer ao modelo que o campo é obrigatório, e o {@code @Size} vira
+     *       {@code maxLength}. Sem isto o schema não tinha {@code required} nenhum — o modelo podia
+     *       omitir qualquer campo, e omitia.</li>
      *   <li><b>Inline</b>: sem {@code $defs}/{@code $ref}. O subset de schema do Gemini é OpenAPI e
      *       não resolve referência; inline funciona nos dois dialetos e custa alguns tokens.</li>
      *   <li><b>Datas como {@code string} simples</b>: geradores emitem {@code pattern} para
@@ -115,6 +129,10 @@ public class ContratoLembreteIA
         SchemaGeneratorConfigBuilder config = new SchemaGeneratorConfigBuilder(
                 SchemaVersion.DRAFT_2020_12, OptionPreset.PLAIN_JSON )
                 .with( new JacksonModule( ) )
+                // Sem INCLUDE_PATTERN_EXPRESSIONS: é o `pattern` que o structured outputs da
+                // Anthropic recusa, e nenhum campo daqui usa @Pattern de todo modo.
+                .with( new JakartaValidationModule(
+                        JakartaValidationOption.NOT_NULLABLE_FIELD_IS_REQUIRED ) )
                 .with( Option.INLINE_ALL_SCHEMAS )
                 .with( Option.FORBIDDEN_ADDITIONAL_PROPERTIES_BY_DEFAULT );
 

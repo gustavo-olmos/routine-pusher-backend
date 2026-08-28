@@ -57,7 +57,16 @@ public class LembreteChatService implements ChatUseCase<LembreteOutputDTO>
 
         validar( lembrete );
 
-        return useCase.adicionar( lembrete );
+        try {
+            return useCase.adicionar( lembrete );
+        }
+        catch ( RuntimeException e ) {
+            // Sem isto, uma frase que o modelo interpreta mal vira só a mensagem de erro do
+            // domínio, e não há como saber o que ele montou — no demo eu não estarei olhando.
+            LOGGER.warn( "Lembrete montado pela IA recusado pelo domínio ({}): {}",
+                    e.getMessage( ), lembrete );
+            throw e;
+        }
     }
 
     /**

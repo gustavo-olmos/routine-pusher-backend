@@ -55,6 +55,7 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
 
         validarPoliticaDeCalendario( lembrete );
         lembrete.setExecucao( feriadoPort );
+        validarAgendamento( lembrete );
 
         lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
 
@@ -96,6 +97,7 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
 
         validarPoliticaDeCalendario( lembrete );
         lembrete.setExecucao( feriadoPort );
+        validarAgendamento( lembrete );
         lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
 
         agendadorJob.reagendar( lembrete );
@@ -149,6 +151,24 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
         LOGGER.debug("Excluindo lembrete");
 
         repository.delete( buscarPorUuid( uuid ) );
+    }
+
+    /**
+     * Recusa o lembrete que nunca dispararia — porque não trouxe nenhuma regra de quando notificar,
+     * ou porque a série que trouxe já se esgotou (datas todas no passado, validade vencida).
+     * <p>
+     * Antes disto, o primeiro caso estourava NullPointerException lá no domínio e virava 500. Vale
+     * para qualquer origem: quem descobriu foi o chat de IA com uma frase sem sentido, mas um POST
+     * humano sem recorrência e sem data cai exatamente no mesmo lugar.
+     */
+    private void validarAgendamento( Lembrete lembrete )
+    {
+        if( lembrete.getNotificacao( ) != null
+                && lembrete.getNotificacao( ).getProximaExecucao( ) != null ) return;
+
+        throw new StrategyException( "Não foi possível determinar quando notificar: informe uma "
+                + "recorrência (intervalo, dias da semana ou dias do mês) ou datas específicas "
+                + "no futuro" );
     }
 
     /**

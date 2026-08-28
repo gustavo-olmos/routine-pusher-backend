@@ -10,6 +10,8 @@ import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.Part;
 import com.google.genai.types.Schema;
+import com.google.genai.types.ThinkingConfig;
+import com.google.genai.types.ThinkingLevel;
 import com.routine.pusher.core.domain.categoria.Categoria;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.infrastructure.exceptions.ConversaoException;
@@ -40,7 +42,20 @@ public class GeminiChatClient implements ChatClient<LembreteInputDTO>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( GeminiChatClient.class );
 
-    private static final int MAXIMO_TOKENS_RESPOSTA = 2048;
+    /**
+     * Nos modelos Gemini 3.x o raciocínio consome desta mesma conta, então o teto precisa caber
+     * raciocínio + resposta. O JSON de um lembrete tem algumas centenas de tokens; a folga aqui é
+     * para o raciocínio não empurrar a resposta para fora e devolver JSON cortado no meio.
+     */
+    private static final int MAXIMO_TOKENS_RESPOSTA = 4096;
+
+    /**
+     * Zero parece a escolha óbvia para extração estruturada — e é justamente o que trava o modelo em
+     * laço de repetição: decodificação gulosa reescolhe o mesmo token para sempre. Um valor baixo,
+     * porém não nulo, mantém a resposta estável sem o laço. (Custou um título de 8.749 caracteres
+     * para descobrir.)
+     */
+    private static final float TEMPERATURA = 0.2f;
 
     private static final String TIPO_JSON = "application/json";
 
@@ -51,7 +66,7 @@ public class GeminiChatClient implements ChatClient<LembreteInputDTO>
     private final GenerateContentConfig config;
 
     public GeminiChatClient( @Value("${gemini.api-key:}") String apiKey,
-                             @Value("${gemini.model:gemini-2.5-flash-lite}") String modelo,
+                             @Value("${gemini.model:gemini-3.5-flash-lite}") String modelo,
                              ObjectMapper objectMapper,
                              ContratoLembreteIA contrato )
     {
@@ -125,9 +140,13 @@ public class GeminiChatClient implements ChatClient<LembreteInputDTO>
                 .responseMimeType( TIPO_JSON )
                 .responseSchema( schemaDoProvedor( ) )
                 .maxOutputTokens( MAXIMO_TOKENS_RESPOSTA )
-                // Extração estruturada não quer criatividade: a mesma frase deve render o mesmo
-                // lembrete, e variação aqui só produziria interpretação instável.
-                .temperature( 0f )
+                .temperature( TEMPERATURA )
+                // Traduzir uma frase em campos não é problema de raciocínio longo, e no free tier o
+                // raciocínio disputa o mesmo teto de tokens da resposta: gastar ali é gastar duas
+                // vezes, em cota e em espaço para o JSON.
+                .thinkingConfig( ThinkingConfig.builder( )
+                        .thinkingLevel( new ThinkingLevel( ThinkingLevel.Known.LOW ) )
+                        .build( ) )
                 .build( );
     }
 

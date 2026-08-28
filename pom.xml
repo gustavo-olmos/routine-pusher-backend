@@ -140,6 +140,13 @@
 			<artifactId>jsonschema-module-jackson</artifactId>
 			<version>4.37.0</version>
 		</dependency>
+		<!-- Traduz as anotacoes de Bean Validation do DTO para o schema: o mesmo @NotNull que recusa
+		     o pedido de um humano passa a dizer ao modelo que o campo e obrigatorio -->
+		<dependency>
+			<groupId>com.github.victools</groupId>
+			<artifactId>jsonschema-module-jakarta-validation</artifactId>
+			<version>4.37.0</version>
+		</dependency>
 
 		<!-- SDK do Gemini: provedor de IA do demo enquanto nao ha credito de API. A escolha do
 		     provedor e uma variavel de ambiente (ia.provedor), nao um deploy -->

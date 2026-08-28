@@ -22,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -78,7 +79,10 @@ class LembreteEscopoSessaoTest
         when( sessaoAtual.uuid( ) ).thenReturn( SESSAO );
         when( repository.countBySessao_Uuid( SESSAO ) ).thenReturn( 0L );
         when( mapper.toDomain( input ) ).thenReturn( lembrete );
-        when( notificacao.aindaTemNotificacao( lembrete, feriadoPort ) ).thenReturn( false );
+        // Lembrete agendável: sem próxima execução o serviço recusa a criação, e com razão —
+        // ver LembreteService#validarAgendamento.
+        when( notificacao.aindaTemNotificacao( lembrete, feriadoPort ) ).thenReturn( true );
+        when( notificacao.getProximaExecucao( ) ).thenReturn( LocalDateTime.now( ).plusHours( 1 ) );
         when( mapper.toEntity( lembrete ) ).thenReturn( new LembreteEntity( ) );
         when( repository.save( any( LembreteEntity.class ) ) ).thenAnswer( inv -> inv.getArgument( 0 ) );
         when( mapper.toDomain( any( LembreteEntity.class ) ) ).thenReturn( lembrete );

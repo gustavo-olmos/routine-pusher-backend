@@ -24,7 +24,7 @@ class DialetoDosProvedoresTest
     void gemini_schemaSemAdditionalProperties( )
     {
         GeminiChatClient client = new GeminiChatClient(
-                "chave-de-teste", "gemini-2.5-flash-lite", objectMapper, contrato );
+                "chave-de-teste", "gemini-3.5-flash-lite", objectMapper, contrato );
 
         assertThat( client ).isNotNull( );
         // O canônico traz additionalProperties (a Anthropic usa para fechar o objeto); a poda
@@ -46,7 +46,7 @@ class DialetoDosProvedoresTest
     @DisplayName("chave ausente não derruba o arranque: o endpoint é que responde indisponível")
     void semChave_naoQuebraNoArranque( )
     {
-        assertThat( new GeminiChatClient( "", "gemini-2.5-flash-lite", objectMapper, contrato ) ).isNotNull( );
-        assertThat( new GeminiChatClient( null, "gemini-2.5-flash-lite", objectMapper, contrato ) ).isNotNull( );
+        assertThat( new GeminiChatClient( "", "gemini-3.5-flash-lite", objectMapper, contrato ) ).isNotNull( );
+        assertThat( new GeminiChatClient( null, "gemini-3.5-flash-lite", objectMapper, contrato ) ).isNotNull( );
     }
 }

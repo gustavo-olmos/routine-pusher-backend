@@ -61,10 +61,16 @@ public class Notificacao
                    .orElse( null );
     }
 
+    /**
+     * Sem strategy não há quando: o lembrete não trouxe recorrência, datas específicas nem intervalo
+     * válido. Devolver nulo é o mesmo contrato de "não há próxima execução" que a projeção já usava
+     * — antes deste guard, a factory devolvia nulo e o agendamento estourava NullPointerException.
+     */
     public LocalDateTime calcularProximaNotificacao( Lembrete lembrete )
     {
         NotificacaoCaseStrategy<Lembrete> caseStrategy = NotificacaoStrategyFactory.getStrategy( lembrete );
-        return caseStrategy.calcularProximaNotificacao( lembrete );
+
+        return caseStrategy == null ? null : caseStrategy.calcularProximaNotificacao( lembrete );
     }
 
     /**
