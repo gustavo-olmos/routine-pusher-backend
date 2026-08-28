@@ -96,6 +96,15 @@ spring:
       ddl-auto: ${JPA_DDL_AUTO:validate}
     show-sql: ${JPA_SHOW_SQL:false}
 
+ia:
+  # Qual adapter de IA sobe: gemini (free tier, sem cartao) ou anthropic (exige credito de API).
+  # So o escolhido vira bean — ver @ConditionalOnProperty nos clients.
+  provedor: ${IA_PROVEDOR:gemini}
+
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+  model: ${GEMINI_MODEL:gemini-2.5-flash-lite}
+
 anthropic:
   api-key: ${ANTHROPIC_API_KEY:}
   # Trocar de modelo (ex.: subir para claude-sonnet-5) e uma variavel de ambiente, nao um deploy.

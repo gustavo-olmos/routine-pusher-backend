@@ -141,6 +141,14 @@
 			<version>4.37.0</version>
 		</dependency>
 
+		<!-- SDK do Gemini: provedor de IA do demo enquanto nao ha credito de API. A escolha do
+		     provedor e uma variavel de ambiente (ia.provedor), nao um deploy -->
+		<dependency>
+			<groupId>com.google.genai</groupId>
+			<artifactId>google-genai</artifactId>
+			<version>1.68.0</version>
+		</dependency>
+
 		<!--testes-->
 		<dependency>
 			<groupId>com.h2database</groupId>
