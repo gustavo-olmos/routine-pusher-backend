@@ -35,3 +35,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Gerado pelo deploy: carrega segredos vindos do .env
+deploy/lightsail/containers.json
+.env.production

@@ -36,6 +36,16 @@ EXPOSE 8080
 # ociosa. O container é a unidade de memória, então o heap acompanha o limite dele.
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+UseSerialGC"
 
+# O agendamento trabalha com LocalDateTime, ou seja, hora sem fuso: "9h" é 9h no relógio de quem
+# roda. Isso só funciona enquanto o relógio do servidor for o mesmo do público — e container roda em
+# UTC por padrão, o que faria todo lembrete das 9h disparar às 6h para um visitante no Brasil.
+# Fixar o fuso aqui torna verdadeira a premissa que o código já assume.
+#
+# É a solução do demo, não a definitiva: o correto seria cada lembrete guardar o fuso de quem o
+# criou, e aí esta linha deixa de importar. Enquanto não for assim, trocar o público de país
+# significa trocar esta variável.
+ENV TZ=America/Sao_Paulo
+
 # Forma shell de propósito, para $JAVA_OPTS e $PORT serem expandidos.
 # O Spring lê PORT via server.port; a plataforma injeta essa variável.
 ENTRYPOINT exec java $JAVA_OPTS -jar app.jar

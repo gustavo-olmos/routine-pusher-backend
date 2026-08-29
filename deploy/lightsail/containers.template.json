@@ -1,0 +1,21 @@
+{
+  "api": {
+    "image": ":routine-pusher.api.__VERSAO_IMAGEM__",
+    "environment": {
+      "PORT": "8080",
+
+      "DB_URL": "${DB_URL}",
+      "DB_USERNAME": "${DB_USERNAME}",
+      "DB_PASSWORD": "${DB_PASSWORD}",
+      "DB_POOL_SIZE": "${DB_POOL_SIZE}",
+
+      "IA_PROVEDOR": "${IA_PROVEDOR}",
+      "GEMINI_API_KEY": "${GEMINI_API_KEY}",
+
+      "CORS_ALLOWED_ORIGINS": "${CORS_ALLOWED_ORIGINS}"
+    },
+    "ports": {
+      "8080": "HTTP"
+    }
+  }
+}

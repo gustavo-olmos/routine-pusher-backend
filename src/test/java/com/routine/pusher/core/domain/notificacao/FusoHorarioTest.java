@@ -28,6 +28,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * <p>Estes testes fixam esse comportamento para que uma eventual mudança de contrato seja uma
  * decisão explícita, e não uma surpresa em produção.</p>
+ *
+ * <p><b>O risco se concretizou.</b> Ao rodar a imagem em 2026-08-28, o container subiu em UTC e os
+ * horários saíram três horas adiantados — exatamente o que os dois casos marcados como RISCO DE
+ * DEPLOY descrevem. A mitigação foi alinhar o relógio do servidor ao do público
+ * ({@code ENV TZ=America/Sao_Paulo} no Dockerfile), o que torna verdadeira a premissa que este
+ * contrato já assumia. Continua sendo mitigação, não correção: a correção é cada lembrete guardar
+ * o fuso de quem o criou.</p>
  */
 class FusoHorarioTest
 {
