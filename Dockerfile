@@ -34,7 +34,14 @@ EXPOSE 8080
 
 # MaxRAMPercentage porque o default da JVM em container pequeno reserva pouco heap e sobra memória
 # ociosa. O container é a unidade de memória, então o heap acompanha o limite dele.
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+UseSerialGC"
+#
+# TieredStopAtLevel=1 desliga o compilador C2 e deixa só o C1. Perde-se otimização de pico, que aqui
+# não paga: o gargalo é o boot, não a vazão. O plano nano tem 0,25 vCPU e a aplicação levou 158s
+# para subir — o Lightsail encerrou o deployment 16 segundos depois de ela ficar saudável. Compilar
+# menos no caminho crítico compra essa margem.
+#
+# Se um dia o tráfego justificar vazão em vez de partida, esta é a primeira flag a sair.
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+UseSerialGC -XX:TieredStopAtLevel=1"
 
 # O agendamento trabalha com LocalDateTime, ou seja, hora sem fuso: "9h" é 9h no relógio de quem
 # roda. Isso só funciona enquanto o relógio do servidor for o mesmo do público — e container roda em

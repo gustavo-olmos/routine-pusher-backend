@@ -39,3 +39,7 @@ build/
 # Gerado pelo deploy: carrega segredos vindos do .env
 deploy/lightsail/containers.json
 .env.production
+
+# Bytecode do Python gerado ao rodar gerar_deployment.py
+__pycache__/
+*.pyc
