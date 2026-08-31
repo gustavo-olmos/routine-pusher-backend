@@ -31,10 +31,22 @@ trap 'rm -f "$GERADO"' EXIT
   exit 1
 }
 
+# --- 0. interpretador -----------------------------------------------------------------------
+# Ubuntu traz só `python3`; o Git Bash do Windows traz só `python`. Testar execução de verdade, e
+# não apenas a existência do comando, porque no Windows `python3` pode ser um atalho da Store que
+# não roda nada.
+PY=""
+for candidato in python3 python; do
+  if command -v "$candidato" >/dev/null 2>&1 && "$candidato" -c "pass" >/dev/null 2>&1; then
+    PY="$candidato"; break
+  fi
+done
+[ -n "$PY" ] || { echo "ERRO: nenhum Python utilizável (procurei python3 e python)"; exit 1; }
+
 # --- 1. configuração ------------------------------------------------------------------------
 # Antes do build de propósito: falta de variável é erro de segundos, build é erro de minutos.
 echo "==> conferindo o .env e montando o deployment"
-python "$AQUI/gerar_deployment.py" "$ENV_FILE" "$TEMPLATE" "$GERADO"
+"$PY" "$AQUI/gerar_deployment.py" "$ENV_FILE" "$TEMPLATE" "$GERADO"
 
 # --- 2. imagem ------------------------------------------------------------------------------
 # Docker pode estar só dentro da WSL (caso desta máquina); a chamada se adapta.
@@ -78,7 +90,7 @@ VERSAO=$(echo "$SAIDA" | grep -oE ":$SERVICO\.$ROTULO\.[0-9]+" | tail -1)
 [ -n "$VERSAO" ] || { echo "ERRO: não consegui ler a versão da imagem na saída do push"; exit 1; }
 
 echo "==> apontando o deployment para $VERSAO"
-python "$AQUI/gerar_deployment.py" "$ENV_FILE" "$TEMPLATE" "$GERADO" "$VERSAO"
+"$PY" "$AQUI/gerar_deployment.py" "$ENV_FILE" "$TEMPLATE" "$GERADO" "$VERSAO"
 
 # --- 4. publicação --------------------------------------------------------------------------
 echo "==> publicando"

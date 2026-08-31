@@ -21,13 +21,6 @@ spring:
     properties:
       org.quartz.threadPool:
         threadCount: 5
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: test-id
-            client-secret: test-secret
 
 ia:
   provedor: gemini
@@ -43,3 +36,9 @@ anthropic:
 app:
   cors:
     allowed-origins: http://localhost:4200
+
+  # Mesmo namespace do application.yml principal. Com credencial os testes exercitam a cadeia COM
+  # oauth2Login; o cenario sem credencial e coberto por SegurancaSemGoogleTest.
+  google:
+    client-id: test-id
+    client-secret: test-secret

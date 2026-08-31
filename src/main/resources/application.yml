@@ -71,27 +71,6 @@ spring:
         # Atraso a partir do qual o Quartz considera que o disparo "perdeu a hora".
         misfireThreshold: 60000
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            # Default vazio de proposito: o demo nao tem login, e sem estes dois o Spring
-            # simplesmente nao registra o oauth2Login (rotas protegidas respondem 401 em vez
-            # de redirecionar). Sem o ":" a aplicacao declara a variavel como obrigatoria e
-            # so nao quebra o boot por acidente de ordem de avaliacao.
-            client-id: ${GOOGLE_CLIENT_ID:}
-            client-secret: ${GOOGLE_CLIENT_SECRET:}
-            scope:
-              - openid
-              - profile
-              - email
-        provider:
-          google:
-            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
-            token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-
   jpa:
     hibernate:
       # validate, nunca create-drop nem update: quem cria e altera schema e o Flyway. O Hibernate
@@ -119,3 +98,15 @@ app:
     # credencial exige origem explícita. O default cobre o Angular em desenvolvimento (ng serve);
     # em produção, o domínio do front entra por CORS_ALLOWED_ORIGINS (aceita lista separada por vírgula).
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
+  # Login do Google e OPCIONAL: sem estas duas variaveis a aplicacao sobe e a API do demo funciona
+  # inteira, so sem sessao autenticada (Swagger e escrita de categoria ficam em 401).
+  #
+  # Ficam em namespace proprio, e nao em spring.security.oauth2.client.registration, de proposito.
+  # Aquele bloco e validado pelo Spring Boot: ele percorre as registracoes DECLARADAS e exige
+  # client-id nao-vazio em cada uma. Como a chave do YAML existe independentemente do valor, um
+  # default vazio ali nao significa "nao registra" — significa "registracao invalida", e o contexto
+  # nao sobe. Aqui a registracao so passa a existir quando ha credencial (ver GoogleOAuthConfig).
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+    client-secret: ${GOOGLE_CLIENT_SECRET:}

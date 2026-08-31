@@ -11,8 +11,13 @@ import json
 import re
 import sys
 
-# Sem estas três a aplicação sobe e falha: banco inacessível ou chat de IA morto.
-OBRIGATORIAS = ("DB_URL", "DB_PASSWORD", "GEMINI_API_KEY")
+# Sem estas a aplicação sobe e falha: banco inacessível ou chat de IA morto.
+#
+# DB_USERNAME entra na lista porque vazio é pior que ausente: o template emitiria "" e a variável
+# de ambiente vence o default `${DB_USERNAME:postgres}` do application.yml. No pooler do Supabase o
+# usuário é `postgres.<ref>`, e o sintoma de errar isso é um enganoso
+# `password authentication failed for user "postgres"` — que aponta para a senha, não para o usuário.
+OBRIGATORIAS = ("DB_URL", "DB_USERNAME", "DB_PASSWORD", "GEMINI_API_KEY")
 
 # O que o .env de desenvolvimento não precisa declarar, mas o deploy precisa ter.
 PADROES = {

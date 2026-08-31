@@ -7,6 +7,6 @@
     "intervalSeconds": 30,
     "timeoutSeconds": 5,
     "healthyThreshold": 2,
-    "unhealthyThreshold": 3
+    "unhealthyThreshold": 10
   }
 }

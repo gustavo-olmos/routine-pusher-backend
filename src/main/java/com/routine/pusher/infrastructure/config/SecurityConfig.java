@@ -8,6 +8,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -61,7 +63,9 @@ public class SecurityConfig
 
     @Bean
     @Profile("!dev")
-    public SecurityFilterChain filterChain( HttpSecurity http ) throws Exception
+    public SecurityFilterChain filterChain(
+            HttpSecurity http, ObjectProvider<ClientRegistrationRepository> registrosDeCliente )
+            throws Exception
     {
         http.authorizeHttpRequests( authManager ->
              authManager.requestMatchers( ROTAS_PUBLICAS ).permitAll( )
@@ -78,12 +82,20 @@ public class SecurityConfig
             // Aplica o CorsConfigurationSource (ver CorsConfig) antes das regras de autorização:
             // sem isto o preflight OPTIONS de outra origem morreria na cadeia.
             .cors( Customizer.withDefaults( ) )
-            .oauth2Login( oauth -> oauth.defaultSuccessUrl( "/", true ) )
             .oauth2ResourceServer( oauth -> oauth.jwt( Customizer.withDefaults( ) ) )
             // CSRF fora de /api/**: a proteção lá é o SameSite=Lax do cookie de sessão — site de
             // terceiro não consegue anexá-lo num POST cross-site, e os GETs são somente leitura.
             // O token de CSRF só atrapalharia Postman e Swagger (403 em POST/PUT/DELETE).
             .csrf( csrf -> csrf.ignoringRequestMatchers( MATCHER_API ) );
+
+        // Só há login para configurar quando existe credencial do Google: sem repositório de
+        // registração, oauth2Login lança NoSuchBeanDefinitionException ao montar a cadeia.
+        // Sem ele, rota protegida responde 401 em vez de redirecionar — que é o comportamento
+        // certo para uma API, e o que o demo sempre quis.
+        if ( registrosDeCliente.getIfAvailable( ) != null )
+        {
+            http.oauth2Login( oauth -> oauth.defaultSuccessUrl( "/", true ) );
+        }
 
         return http.build( );
     }
@@ -97,7 +109,7 @@ public class SecurityConfig
      */
     @Bean
     public JwtDecoder jwtDecoder(
-            @Value("${spring.security.oauth2.client.registration.google.client-id:}") String clientId )
+            @Value("${app.google.client-id:}") String clientId )
     {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri( JWK_SET_URI ).build( );
         decoder.setJwtValidator( validadorDeToken( clientId ) );
