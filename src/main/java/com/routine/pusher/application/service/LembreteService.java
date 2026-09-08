@@ -80,7 +80,7 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
         return repository.findBySessao_Uuid( sessaoAtual.uuid( ) ).stream( )
                 .map( mapper::toDomain )
                 .map( mapper::toOutputDto )
-                .sorted( new SortInfo<>( campoOrdenador, ordemReversa ) )
+                .sorted( new SortInfo<>( LembreteOutputDTO.class, campoOrdenador, ordemReversa ) )
                 .toList( );
     }
 
@@ -94,6 +94,12 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
         mapper.updateEntity( inputDTO, entidade );
 
         Lembrete lembrete = mapper.toDomain( entidade );
+
+        // A categoria é resolvida aqui, e não no updateEntity, pela mesma razão que em adicionar():
+        // o DTO traz um id e a entidade quer a associação. O MapStruct não faz essa ponte sozinho e
+        // — por unmappedSourcePolicy = IGNORE — descartava categoriaId sem nem um warning de build,
+        // devolvendo 200 com a categoria antiga. Ver o javadoc de updateEntity no LembreteMapper.
+        lembrete.setCategoria( categoriaQueryPort.buscarPorId( inputDTO.categoriaId( ) ) );
 
         validarPoliticaDeCalendario( lembrete );
         lembrete.setExecucao( feriadoPort );
@@ -145,12 +151,27 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
         agendadorJob.cancelar( uuid );
     }
 
+    /**
+     * Cancela o agendamento antes de apagar a linha, e não depois: se o cancelamento falhar, o
+     * lembrete continua existindo e a operação é repetível. Na ordem inversa a falha deixaria um
+     * trigger órfão — agendado para uma linha que já não existe.
+     * <p>
+     * O cancelamento faltava por completo aqui, embora {@link #concluir} e a faxina de sessão já o
+     * fizessem. Cada exclusão vazava um trigger em WAITING; o rastro estava no banco de produção
+     * (um trigger para zero lembretes) e no local (doze).
+     * <p>
+     * A busca vem primeiro de propósito: é ela que confina a operação à sessão do visitante. Cancelar
+     * antes de validar a posse deixaria qualquer um desagendar o lembrete de outro pelo UUID.
+     */
     @Override
     public void excluir( UUID uuid )
     {
         LOGGER.debug("Excluindo lembrete");
 
-        repository.delete( buscarPorUuid( uuid ) );
+        LembreteEntity entidade = buscarPorUuid( uuid );
+
+        agendadorJob.cancelar( uuid );
+        repository.delete( entidade );
     }
 
     /**

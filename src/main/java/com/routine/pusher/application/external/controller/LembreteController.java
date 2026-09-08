@@ -56,11 +56,16 @@ public class LembreteController
         return ResponseEntity.ok( ).build( );
     }
 
+    /**
+     * 204 sem corpo, como o encerramento de sessão já fazia: a mensagem de sucesso em texto puro
+     * quebrava cliente que desserializa toda resposta como JSON — e era o único ponto da API a
+     * responder {@code text/plain}.
+     */
     @DeleteMapping(path = "/{uuid}")
     @Operation(summary = "Exclui lembrete")
-    public ResponseEntity<String> excluir( @PathVariable(value = "uuid") UUID uuid )
+    public ResponseEntity<Void> excluir( @PathVariable(value = "uuid") UUID uuid )
     {
         crudUseCase.excluir( uuid );
-        return ResponseEntity.ok( "Lembrete excluído com sucesso!" );
+        return ResponseEntity.noContent( ).build( );
     }
 }

@@ -42,7 +42,7 @@ public class CategoriaService implements CRUDUseCase<CategoriaInputDTO, Categori
 
         return repository.findAll( ).stream( )
                          .map( mapper::toOutputDto )
-                         .sorted( new SortInfo<>( campoOrdenador, ordemReversa ) )
+                         .sorted( new SortInfo<>( CategoriaOutputDTO.class, campoOrdenador, ordemReversa ) )
                          .toList();
     }
 

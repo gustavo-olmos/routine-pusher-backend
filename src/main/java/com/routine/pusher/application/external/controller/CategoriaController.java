@@ -51,11 +51,12 @@ public class CategoriaController
         return ResponseEntity.ok( ).body( useCase.atualizar( id, dto ) );
     }
 
+    /** 204 sem corpo — ver a nota em {@code LembreteController.excluir}. */
     @DeleteMapping("/{id}")
     @Operation(summary = "Exclui categoria")
-    public ResponseEntity<String> excluir( @PathVariable(value = "id") Long id )
+    public ResponseEntity<Void> excluir( @PathVariable(value = "id") Long id )
     {
         useCase.excluir( id );
-        return ResponseEntity.ok( "Categoria excluída com sucesso!" );
+        return ResponseEntity.noContent( ).build( );
     }
 }

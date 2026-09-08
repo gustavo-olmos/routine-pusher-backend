@@ -55,6 +55,15 @@ public abstract class LembreteMapper
     @Mapping(target = "sessao", ignore = true)
     public abstract LembreteEntity toEntity( Lembrete lembrete );
 
+    /**
+     * Não resolve a categoria de propósito: o DTO traz {@code categoriaId} e a entidade quer a
+     * associação, ponte que exige ir ao repositório — trabalho do serviço, como em
+     * {@code LembreteService.adicionar}. O {@code ignore} é explícito porque a omissão silenciosa
+     * já custou um bug: sem ele, o MapStruct simplesmente descartava {@code categoriaId} (a política
+     * padrão para origem não mapeada é {@code IGNORE}, sem nem um warning), e o PUT respondia 200
+     * mantendo a categoria antiga.
+     */
+    @Mapping(target = "categoria", ignore = true)
     public abstract LembreteEntity updateEntity( LembreteInputDTO inputDTO, @MappingTarget LembreteEntity entity );
 
     /**
