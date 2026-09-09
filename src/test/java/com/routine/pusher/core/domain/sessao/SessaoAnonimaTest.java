@@ -36,7 +36,7 @@ class SessaoAnonimaTest
     void dentroDaJanela_naoExpira( )
     {
         SessaoAnonima sessao = new SessaoAnonima( );
-        sessao.setUltimoAcesso( LocalDateTime.now( ).minusMinutes( 29 ) );
+        sessao.setUltimoAcesso( LocalDateTime.now( ).minus( SessaoAnonima.JANELA_INATIVIDADE ).plusMinutes( 1 ) );
 
         assertThat( sessao.expirada( LocalDateTime.now( ) ) ).isFalse( );
     }
@@ -46,7 +46,7 @@ class SessaoAnonimaTest
     void foraDaJanela_expira( )
     {
         SessaoAnonima sessao = new SessaoAnonima( );
-        sessao.setUltimoAcesso( LocalDateTime.now( ).minusMinutes( 31 ) );
+        sessao.setUltimoAcesso( LocalDateTime.now( ).minus( SessaoAnonima.JANELA_INATIVIDADE ).minusMinutes( 1 ) );
 
         assertThat( sessao.expirada( LocalDateTime.now( ) ) ).isTrue( );
     }

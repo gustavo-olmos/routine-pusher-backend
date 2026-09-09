@@ -15,11 +15,22 @@ import java.util.UUID;
 public class SessaoAnonima
 {
     /**
-     * Inatividade a partir da qual a sessão vira candidata à faxina. O valor é curto de propósito:
-     * a sessão é também a trava de custo — lembretes de visitante que foi embora não podem ocupar
-     * banco e agendador para sempre.
+     * Inatividade a partir da qual a sessão vira candidata à faxina — e, com ela, todos os lembretes
+     * que o visitante criou.
+     * <p>
+     * Era de 30 minutos, valor herdado de quando o demo só precisava sobreviver a "criar um lembrete
+     * e vê-lo disparar na hora". Isso quebrava o produto no caso normal: quem pedia um lembrete para
+     * a semana seguinte, fechava a aba e voltava depois não encontrava nada — a faxina já havia
+     * apagado a sessão e o agendamento junto, e o lembrete nunca disparava.
+     * <p>
+     * Quarenta e oito horas é o meio-termo escolhido: cobre "amanhã de manhã" e o visitante que volta
+     * no dia seguinte, sem manter agendador e banco ocupados por semanas com quem passou uma vez.
+     * <p>
+     * A contrapartida é conhecida e aceita: lembrete marcado para daqui a duas semanas não sobrevive
+     * se o visitante não voltar dentro de 48h. Num demo, esse caso importa menos que o custo de
+     * retenção longa — e quem quiser retenção de verdade precisa de conta, não de sessão anônima.
      */
-    public static final Duration JANELA_INATIVIDADE = Duration.ofMinutes( 30 );
+    public static final Duration JANELA_INATIVIDADE = Duration.ofHours( 48 );
 
     /**
      * Teto de lembretes simultâneos por sessão. É a defesa contra o visitante que resolve testar os

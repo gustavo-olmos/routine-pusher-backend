@@ -1,5 +1,6 @@
 package com.routine.pusher.infrastructure.web;
 
+import com.routine.pusher.core.domain.sessao.SessaoAnonima;
 import com.routine.pusher.core.domain.sessao.SessaoAnonimaEntity;
 import com.routine.pusher.core.domain.sessao.SessaoAnonimaRepository;
 import com.routine.pusher.core.domain.sessao.port.SessaoAtualPort;
@@ -90,11 +91,12 @@ class SessaoAnonimaFilterTest
     }
 
     @Test
-    @DisplayName("sessão parada há minutos: renova o último acesso, que é o relógio da expiração")
+    @DisplayName("sessão parada além do intervalo de renovação: renova o último acesso, que é o relógio da expiração")
     void sessaoParada_renovaUltimoAcesso( ) throws Exception
     {
         UUID uuid = UUID.randomUUID( );
-        SessaoAnonimaEntity sessao = sessaoCom( uuid, LocalDateTime.now( ).minusMinutes( 10 ) );
+        // Passado o intervalo de renovação e ainda dentro da janela: é exatamente quando renovar.
+        SessaoAnonimaEntity sessao = sessaoCom( uuid, LocalDateTime.now( ).minus( SessaoAnonimaFilter.INTERVALO_RENOVACAO ).minusMinutes( 1 ) );
         when( repository.findByUuid( uuid ) ).thenReturn( Optional.of( sessao ) );
 
         MockHttpServletRequest request = new MockHttpServletRequest( );
@@ -113,7 +115,8 @@ class SessaoAnonimaFilterTest
     {
         UUID antiga = UUID.randomUUID( );
         when( repository.findByUuid( antiga ) )
-                .thenReturn( Optional.of( sessaoCom( antiga, LocalDateTime.now( ).minusHours( 2 ) ) ) );
+                .thenReturn( Optional.of( sessaoCom( antiga,
+                        LocalDateTime.now( ).minus( SessaoAnonima.JANELA_INATIVIDADE ).minusDays( 1 ) ) ) );
         when( repository.save( any( SessaoAnonimaEntity.class ) ) ).thenAnswer( inv -> inv.getArgument( 0 ) );
 
         MockHttpServletRequest request = new MockHttpServletRequest( );

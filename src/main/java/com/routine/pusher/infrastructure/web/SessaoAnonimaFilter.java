@@ -38,15 +38,19 @@ public class SessaoAnonimaFilter extends OncePerRequestFilter
     /**
      * O cookie dura mais que a janela de inatividade de propósito: quem manda é o servidor. Cookie
      * vivo com sessão já expirada só significa que a próxima visita troca por uma sessão nova.
+     * <p>
+     * O inverso é que seria ruim, e era o caso antes: com cookie de 1 dia, o visitante que voltasse
+     * no segundo dia perderia a identidade enquanto a sessão ainda existia no banco — os lembretes
+     * dele continuariam lá, invisíveis, até a faxina levá-los.
      */
-    private static final Duration VALIDADE_COOKIE = Duration.ofDays( 1 );
+    private static final Duration VALIDADE_COOKIE = Duration.ofDays( 7 );
 
     /**
-     * Renovar {@code ultimo_acesso} em toda requisição viraria um UPDATE por clique. A janela de
-     * inatividade é de minutos, então renovação com granularidade de um minuto não muda o
-     * comportamento — e corta a escrita repetida.
+     * Renovar {@code ultimo_acesso} em toda requisição viraria um UPDATE por clique. Com janela de
+     * inatividade medida em dias, adiar a renovação por uma hora não chega perto de expirar alguém
+     * cedo — e derruba a escrita repetida, que num Postgres de free tier é o recurso escasso.
      */
-    private static final Duration INTERVALO_RENOVACAO = Duration.ofMinutes( 1 );
+    static final Duration INTERVALO_RENOVACAO = Duration.ofHours( 1 );
 
     private final SessaoAnonimaRepository repository;
 

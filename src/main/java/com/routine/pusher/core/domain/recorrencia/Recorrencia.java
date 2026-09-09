@@ -18,6 +18,20 @@ import java.util.List;
 @AllArgsConstructor
 public class Recorrencia
 {
+    /**
+     * Menor intervalo aceito numa recorrência por tempo.
+     * <p>
+     * O intervalo é entrada do usuário, e sem piso ele escolhe quanto a aplicação gasta: um lembrete
+     * de 1 em 1 minuto sem {@code quantidade} dispara 1.440 vezes por dia, e cada disparo recarrega
+     * o lembrete do banco, consome cota, persiste, empurra no SSE e reagenda o trigger. Multiplicado
+     * pelo teto de lembretes por sessão e pela janela de inatividade, o pior caso deixa de ser
+     * ruído.
+     * <p>
+     * Cinco minutos fecha a exposição em ordem de grandeza sem bloquear nada que uma pessoa peça de
+     * boa-fé — o próprio exemplo do chat é "a cada 2 horas".
+     */
+    public static final Duration INTERVALO_MINIMO = Duration.ofMinutes( 5 );
+
     private Long id;
 
     private Integer quantidade;
@@ -58,6 +72,19 @@ public class Recorrencia
     {
         if( quantidade != null && quantidade > 0 )
             quantidade = quantidade - 1;
+    }
+
+    /**
+     * Intervalo zero não é intervalo curto: é a ausência de recorrência por tempo, e significa que o
+     * lembrete dispara por calendário ou por datas específicas — ambos com granularidade mínima
+     * natural. Por isso ele passa, e quem barra a falta completa de regra é
+     * {@code LembreteService.validarAgendamento}.
+     */
+    public boolean intervaloEhAceitavel( )
+    {
+        Duration intervalo = montarIntevalo( );
+
+        return intervalo.isZero( ) || intervalo.compareTo( INTERVALO_MINIMO ) >= 0;
     }
 
     public boolean temComponenteDeCalendario( )

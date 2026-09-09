@@ -26,8 +26,12 @@ public class SessaoConfig
     private static final String GRUPO_MANUTENCAO = "manutencao";
     private static final String JOB_FAXINA = "faxina-sessao-expirada";
 
-    /** A cada 5 minutos: com janela de inatividade de 30, o atraso máximo da coleta é ruído. */
-    private static final String CRON_FAXINA = "0 */5 * * * ?";
+    /**
+     * De hora em hora. Com janela de inatividade de 48 horas, varrer a cada 5 minutos era gastar 288
+     * consultas por dia para encontrar algo que muda na escala de dias — e um atraso de até uma hora
+     * na coleta é 2% da janela, ou seja, ruído.
+     */
+    private static final String CRON_FAXINA = "0 0 * * * ?";
 
     /**
      * Registrado aqui, e não como {@code @Component}, por duas razões: restringir o filtro a

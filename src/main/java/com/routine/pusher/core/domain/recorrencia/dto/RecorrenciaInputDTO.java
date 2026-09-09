@@ -26,7 +26,8 @@ public record RecorrenciaInputDTO(
         Integer intervaloHoras,
 
         @PositiveOrZero(message = "O intervalo de minutos não pode ser negativo")
-        @JsonPropertyDescription("Repetir a cada N minutos")
+        @JsonPropertyDescription("Repetir a cada N minutos; o intervalo total precisa ser de ao "
+                + "menos 5 minutos — para algo mais frequente, use o menor valor aceito")
         Integer intervaloMinutos,
 
         @JsonPropertyDescription("Semana do mês (1 a 5) quando a repetição é do tipo "

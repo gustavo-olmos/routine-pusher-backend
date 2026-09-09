@@ -56,6 +56,7 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
         lembrete.setSessaoUuid( sessaoAtual.uuid( ) );
         lembrete.setCategoria( categoriaQueryPort.buscarPorId( inputDto.categoriaId( ) ) );
 
+        validarIntervaloMinimo( lembrete );
         validarPoliticaDeCalendario( lembrete );
         lembrete.setExecucao( feriadoPort );
         validarAgendamento( lembrete );
@@ -109,6 +110,7 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
         // vazia. Editar um lembrete concluído é pedir ele de volta.
         lembrete.reabrirSeConcluido( );
 
+        validarIntervaloMinimo( lembrete );
         validarPoliticaDeCalendario( lembrete );
         lembrete.setExecucao( feriadoPort );
         validarAgendamento( lembrete );
@@ -145,6 +147,20 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
         lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
 
         return mapper.toOutputDto( lembrete );
+    }
+
+    /**
+     * Recusa recorrência por intervalo abaixo do piso — ver {@code Recorrencia.INTERVALO_MINIMO}.
+     * Vale para criação e atualização, e também para o que a IA monta: o chat passa pelo mesmo
+     * {@code adicionar}, então uma frase como "me lembra de minuto em minuto" para aqui.
+     */
+    private void validarIntervaloMinimo( Lembrete lembrete )
+    {
+        Recorrencia recorrencia = lembrete.getRecorrencia( );
+        if( recorrencia == null || recorrencia.intervaloEhAceitavel( ) ) return;
+
+        throw new StrategyException( "Intervalo de repetição muito curto: o mínimo é "
+                + Recorrencia.INTERVALO_MINIMO.toMinutes( ) + " minutos" );
     }
 
     /**

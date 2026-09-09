@@ -87,12 +87,12 @@ class LembreteAgendamentoStrategyTest
     void intervaloIlimitado_deveAgendar( )
     {
         LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
-                "Beber água", "de 2 em 2 minutos", categoriaId( "#E53935", 101 ),
-                new RecorrenciaInputDTO( null, null, null, 2, null, null, null , null ),
+                "Beber água", "de 5 em 5 minutos", categoriaId( "#E53935", 101 ),
+                new RecorrenciaInputDTO( null, null, null, 5, null, null, null , null ),
                 new NotificacaoInputDTO( List.of( "pop-up" ), null, LocalDateTime.now( ), null, null ) ) );
 
         assertThat( criado.notificacao( ).proximaExecucao( ) )
-                .as( "intervalo de 2 min deve render uma próxima execução no futuro" )
+                .as( "intervalo de 5 min deve render uma próxima execução no futuro" )
                 .isAfter( LocalDateTime.now( ) );
     }
 
@@ -101,8 +101,8 @@ class LembreteAgendamentoStrategyTest
     void intervaloPorQuantidade_deveAgendar( )
     {
         LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
-                "Alongar", "3 em 3 minutos, 2 disparos", categoriaId( "#FB8C00", 102 ),
-                new RecorrenciaInputDTO( 2, null, null, 3, null, null, null , null ),
+                "Alongar", "5 em 5 minutos, 2 disparos", categoriaId( "#FB8C00", 102 ),
+                new RecorrenciaInputDTO( 2, null, null, 5, null, null, null , null ),
                 new NotificacaoInputDTO( List.of( "pop-up" ), null, LocalDateTime.now( ), null, null ) ) );
 
         assertThat( criado.recorrencia( ).quantidade( ) ).isEqualTo( 2 );
@@ -116,8 +116,8 @@ class LembreteAgendamentoStrategyTest
         LocalDateTime agora = LocalDateTime.now( );
 
         LembreteOutputDTO criado = lembreteService.adicionar( new LembreteInputDTO(
-                "Pausa para o café", "1 em 1 minuto, expira em 10", categoriaId( "#1E88E5", 103 ),
-                new RecorrenciaInputDTO( null, null, null, 1, null, null, null , null ),
+                "Pausa para o café", "5 em 5 minutos, expira em 10", categoriaId( "#1E88E5", 103 ),
+                new RecorrenciaInputDTO( null, null, null, 5, null, null, null , null ),
                 new NotificacaoInputDTO( List.of( "som" ), null, agora, agora.plusMinutes( 10 ), null ) ) );
 
         assertThat( criado.notificacao( ).proximaExecucao( ) )
@@ -240,14 +240,28 @@ class LembreteAgendamentoStrategyTest
     void intervaloCurtoComPolitica_deveRecusar( )
     {
         LembreteInputDTO abusivo = new LembreteInputDTO(
-                "Engraçadinho", "1 em 1 minuto pulando feriado", categoriaId( "#C62828", 111 ),
-                new RecorrenciaInputDTO( null, null, null, 1, null, null, null,
+                "Engraçadinho", "10 em 10 minutos pulando feriado", categoriaId( "#C62828", 111 ),
+                new RecorrenciaInputDTO( null, null, null, 10, null, null, null,
                         EnumPoliticaDiaUtil.PULAR ),
                 new NotificacaoInputDTO( List.of( "pop-up" ), null, LocalDateTime.now( ), null, null ) );
 
         assertThatThrownBy( () -> lembreteService.adicionar( abusivo ) )
                 .isInstanceOf( StrategyException.class )
                 .hasMessageContaining( "ao menos um dia" );
+    }
+
+    @Test
+    @DisplayName("intervalo abaixo do piso é recusado: o usuário não escolhe quanto a aplicação gasta")
+    void intervaloAbaixoDoPiso_deveRecusar( )
+    {
+        LembreteInputDTO minutoAMinuto = new LembreteInputDTO(
+                "Sem trégua", "1 em 1 minuto para sempre", categoriaId( "#7B1FA2", 113 ),
+                new RecorrenciaInputDTO( null, null, null, 1, null, null, null, null ),
+                new NotificacaoInputDTO( List.of( "pop-up" ), null, LocalDateTime.now( ), null, null ) );
+
+        assertThatThrownBy( () -> lembreteService.adicionar( minutoAMinuto ) )
+                .isInstanceOf( StrategyException.class )
+                .hasMessageContaining( "muito curto" );
     }
 
     @Test
