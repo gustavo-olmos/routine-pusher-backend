@@ -1,7 +1,9 @@
 package com.routine.pusher.application.external.controller;
 
+import com.routine.pusher.application.usecase.AtualizarDetalhesUseCase;
 import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.application.usecase.ConcluirUseCase;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteDetalhesInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +24,7 @@ public class LembreteController
 {
     private final CRUDUseCase<LembreteInputDTO, LembreteOutputDTO, UUID> crudUseCase;
     private final ConcluirUseCase<UUID> concluirUseCase;
+    private final AtualizarDetalhesUseCase<LembreteDetalhesInputDTO, LembreteOutputDTO, UUID> detalhesUseCase;
 
 
     @PostMapping
@@ -47,6 +50,19 @@ public class LembreteController
         return ResponseEntity.ok( ).body( crudUseCase.atualizar( uuid, dto ) );
     }
 
+
+    /**
+     * Rota separada do {@code PUT} porque o contrato é outro: aqui só entram os campos descritivos,
+     * e o agendamento existente é preservado. Ver {@code LembreteService.atualizarDetalhes}.
+     */
+    @PatchMapping(path = "/{uuid}/detalhes")
+    @Operation(summary = "Edita título, descrição e categoria sem alterar o agendamento")
+    public ResponseEntity<LembreteOutputDTO> atualizarDetalhes(
+            @PathVariable(value = "uuid") UUID uuid,
+            @Valid @RequestBody LembreteDetalhesInputDTO dto )
+    {
+        return ResponseEntity.ok( ).body( detalhesUseCase.atualizarDetalhes( uuid, dto ) );
+    }
 
     @PatchMapping(path = "/{uuid}")
     @Operation(summary = "Conclui lembrete")

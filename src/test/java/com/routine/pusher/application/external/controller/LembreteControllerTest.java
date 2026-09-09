@@ -1,8 +1,10 @@
 package com.routine.pusher.application.external.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.routine.pusher.application.usecase.AtualizarDetalhesUseCase;
 import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.application.usecase.ConcluirUseCase;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteDetalhesInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.example.LembreteExample;
@@ -36,6 +38,9 @@ class LembreteControllerTest
 
     @MockBean
     private ConcluirUseCase<UUID> concluirUseCase;
+
+    @MockBean
+    private AtualizarDetalhesUseCase<LembreteDetalhesInputDTO, LembreteOutputDTO, UUID> detalhesUseCase;
 
 
     public static String asJsonString( final Object obj )

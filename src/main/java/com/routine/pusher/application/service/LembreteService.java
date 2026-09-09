@@ -1,6 +1,7 @@
 package com.routine.pusher.application.service;
 
 import com.routine.pusher.application.job.AgendadorJob;
+import com.routine.pusher.application.usecase.AtualizarDetalhesUseCase;
 import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.application.usecase.ConcluirUseCase;
 import com.routine.pusher.core.domain.categoria.port.CategoriaQueryPort;
@@ -9,6 +10,7 @@ import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.lembrete.LembreteEntity;
 import com.routine.pusher.core.domain.lembrete.LembreteMapper;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
+import com.routine.pusher.core.domain.lembrete.dto.LembreteDetalhesInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.core.domain.sessao.SessaoAnonima;
@@ -30,7 +32,8 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOutputDTO, UUID>, ConcluirUseCase<UUID>
+public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOutputDTO, UUID>, ConcluirUseCase<UUID>,
+        AtualizarDetalhesUseCase<LembreteDetalhesInputDTO, LembreteOutputDTO, UUID>
 {
     private final Logger LOGGER = LoggerFactory.getLogger( LembreteService.class );
 
@@ -101,12 +104,45 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
         // devolvendo 200 com a categoria antiga. Ver o javadoc de updateEntity no LembreteMapper.
         lembrete.setCategoria( categoriaQueryPort.buscarPorId( inputDTO.categoriaId( ) ) );
 
+        // Atualizar rearma o disparo (o reagendar no fim deste método), então o lembrete não pode
+        // continuar marcado como concluído: ficaria notificando com status CONCLUIDO e projeção
+        // vazia. Editar um lembrete concluído é pedir ele de volta.
+        lembrete.reabrirSeConcluido( );
+
         validarPoliticaDeCalendario( lembrete );
         lembrete.setExecucao( feriadoPort );
         validarAgendamento( lembrete );
         lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
 
         agendadorJob.reagendar( lembrete );
+
+        return mapper.toOutputDto( lembrete );
+    }
+
+    /**
+     * Edita título, descrição e categoria sem encostar no agendamento.
+     * <p>
+     * É um caminho próprio, e não um ramo dentro de {@link #atualizar}, de propósito: aquele método
+     * sempre reagenda (cancela e recria o trigger), sempre recalcula {@code proximaExecucao} e
+     * reabre o lembrete concluído. Para uma correção de título isso é efeito colateral puro — e o
+     * risco de introduzir um "se mudou o horário" lá dentro é alto justamente porque agendamento e
+     * projeção precisam continuar concordando.
+     * <p>
+     * Aqui nada disso acontece: o disparo que já existia segue de pé, e o status é preservado.
+     * Editar o título de um lembrete concluído não o traz de volta.
+     */
+    @Override
+    public LembreteOutputDTO atualizarDetalhes( UUID uuid, LembreteDetalhesInputDTO inputDTO )
+    {
+        LOGGER.debug("Alterando detalhes do lembrete de uuid {}", uuid);
+
+        Lembrete lembrete = mapper.toDomain( buscarPorUuid( uuid ) );
+
+        lembrete.setTitulo( inputDTO.titulo( ) );
+        lembrete.setDescricao( inputDTO.descricao( ) );
+        lembrete.setCategoria( categoriaQueryPort.buscarPorId( inputDTO.categoriaId( ) ) );
+
+        lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
 
         return mapper.toOutputDto( lembrete );
     }

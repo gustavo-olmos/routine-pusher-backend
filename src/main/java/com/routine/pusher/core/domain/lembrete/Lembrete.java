@@ -76,13 +76,40 @@ public class Lembrete
      */
     public List<LocalDateTime> calcularProximasExecucoes( int limite, FeriadoPort feriados )
     {
-        if( notificacao == null ) return List.of( );
+        if( notificacao == null || estaConcluido( ) ) return List.of( );
 
         return notificacao.calcularProximasNotificacoes( this, limite, feriados );
     }
 
+    public boolean estaConcluido( )
+    {
+        return EnumStatusConclusao.CONCLUIDO.name( ).equals( status );
+    }
+
+    /**
+     * Concluir desarma o lembrete: quem chama isto também cancela o agendamento, então zerar
+     * {@code proximaExecucao} é o que mantém o campo dizendo a verdade — ele significa "quando
+     * dispara em seguida", e depois daqui não dispara mais.
+     * <p>
+     * Nenhuma strategy depende deste campo para recalcular: elas partem de {@code ultimaExecucao} ou
+     * {@code dataInicio}. Limpá-lo não impede que uma edição posterior rearme o lembrete.
+     */
     public void concluirLembrete( )
     {
         this.setStatus( EnumStatusConclusao.CONCLUIDO.name( ) );
+
+        if( notificacao != null )
+            notificacao.setProximaExecucao( null );
+    }
+
+    /**
+     * Editar um lembrete concluído o traz de volta, porque a atualização reagenda o disparo de
+     * qualquer forma. Sem isto o lembrete voltaria a notificar continuando marcado como CONCLUIDO —
+     * e a projeção, que agora respeita o status, esconderia execuções que vão acontecer.
+     */
+    public void reabrirSeConcluido( )
+    {
+        if( estaConcluido( ) )
+            this.setStatus( EnumStatusConclusao.PENDENTE.name( ) );
     }
 }
