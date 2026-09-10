@@ -1,6 +1,7 @@
 package com.routine.pusher.infrastructure.config;
 
 import com.routine.pusher.application.job.SessaoExpiradaJob;
+import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import com.routine.pusher.core.domain.sessao.SessaoAnonimaRepository;
 import com.routine.pusher.infrastructure.web.SessaoAnonimaFilter;
 import org.quartz.CronScheduleBuilder;
@@ -39,10 +40,11 @@ public class SessaoConfig
      * teste {@code @WebMvcTest}, que instanciam qualquer Filter que seja bean de componente.
      */
     @Bean
-    public FilterRegistrationBean<SessaoAnonimaFilter> sessaoAnonimaFilter( SessaoAnonimaRepository repository )
+    public FilterRegistrationBean<SessaoAnonimaFilter> sessaoAnonimaFilter(
+            SessaoAnonimaRepository repository, CategoriaRepository categoriaRepository )
     {
         FilterRegistrationBean<SessaoAnonimaFilter> registro =
-                new FilterRegistrationBean<>( new SessaoAnonimaFilter( repository ) );
+                new FilterRegistrationBean<>( new SessaoAnonimaFilter( repository, categoriaRepository ) );
         registro.addUrlPatterns( "/api/*" );
 
         return registro;

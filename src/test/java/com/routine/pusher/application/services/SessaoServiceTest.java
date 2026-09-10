@@ -3,6 +3,7 @@ package com.routine.pusher.application.services;
 import com.routine.pusher.application.job.AgendadorJob;
 import com.routine.pusher.application.service.SessaoService;
 import com.routine.pusher.application.usecase.NotificacaoUseCase;
+import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.lembrete.LembreteEntity;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
@@ -50,6 +51,9 @@ class SessaoServiceTest
 
     @Mock
     private LembreteRepository lembreteRepository;
+
+    @Mock
+    private CategoriaRepository categoriaRepository;
 
     @Mock
     private SessaoAtualPort sessaoAtual;

@@ -1,5 +1,8 @@
 package com.routine.pusher.infrastructure.web;
 
+import com.routine.pusher.core.domain.categoria.CategoriaEntity;
+import com.routine.pusher.core.domain.categoria.CategoriaPadrao;
+import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import com.routine.pusher.core.domain.sessao.SessaoAnonima;
 import com.routine.pusher.core.domain.sessao.SessaoAnonimaEntity;
 import com.routine.pusher.core.domain.sessao.SessaoAnonimaRepository;
@@ -8,6 +11,7 @@ import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockFilterChain;
@@ -15,6 +19,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,9 +40,12 @@ class SessaoAnonimaFilterTest
     @Mock
     private SessaoAnonimaRepository repository;
 
+    @Mock
+    private CategoriaRepository categoriaRepository;
+
     private SessaoAnonimaFilter filtro( )
     {
-        return new SessaoAnonimaFilter( repository );
+        return new SessaoAnonimaFilter( repository, categoriaRepository );
     }
 
     private SessaoAnonimaEntity sessaoCom( UUID uuid, LocalDateTime ultimoAcesso )
@@ -68,6 +76,42 @@ class SessaoAnonimaFilterTest
                             .contains( "Path=/" );
         assertThat( request.getAttribute( SessaoAtualPort.ATRIBUTO_REQUISICAO ) )
                 .isInstanceOf( UUID.class );
+    }
+
+    @Test
+    @DisplayName("sessão nova nasce com as categorias padrão, senão o visitante não cria o primeiro lembrete")
+    void sessaoNova_semeiaCategoriasPadrao( ) throws Exception
+    {
+        when( repository.save( any( SessaoAnonimaEntity.class ) ) ).thenAnswer( inv -> inv.getArgument( 0 ) );
+
+        filtro( ).doFilter( new MockHttpServletRequest( ), new MockHttpServletResponse( ), new MockFilterChain( ) );
+
+        ArgumentCaptor<List<CategoriaEntity>> captor = ArgumentCaptor.forClass( List.class );
+        verify( categoriaRepository ).saveAll( captor.capture( ) );
+
+        assertThat( captor.getValue( ) )
+                .hasSize( CategoriaPadrao.values( ).length )
+                .extracting( CategoriaEntity::getNome )
+                .containsExactly( "Importante", "Urgente" );
+
+        assertThat( captor.getValue( ) )
+                .allSatisfy( categoria -> assertThat( categoria.getSessao( ) ).isNotNull( ) );
+    }
+
+    @Test
+    @DisplayName("sessão reaproveitada não ganha categorias de novo")
+    void sessaoReaproveitada_naoSemeiaDeNovo( ) throws Exception
+    {
+        UUID uuid = UUID.randomUUID( );
+        when( repository.findByUuid( uuid ) )
+                .thenReturn( Optional.of( sessaoCom( uuid, LocalDateTime.now( ) ) ) );
+
+        MockHttpServletRequest request = new MockHttpServletRequest( );
+        request.setCookies( new Cookie( SessaoAnonimaFilter.COOKIE_SESSAO, uuid.toString( ) ) );
+
+        filtro( ).doFilter( request, new MockHttpServletResponse( ), new MockFilterChain( ) );
+
+        verify( categoriaRepository, never( ) ).saveAll( any( ) );
     }
 
     @Test

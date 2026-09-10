@@ -8,6 +8,6 @@ public interface CategoriaQueryPort
 {
     Categoria buscarPorId( Long id );
 
-    /** Todas as categorias — o chat de IA as apresenta ao modelo para escolher o {@code categoriaId}. */
+    /** As categorias da sessão atual — o chat de IA as apresenta ao modelo para escolher o {@code categoriaId}. */
     List<Categoria> listar( );
 }

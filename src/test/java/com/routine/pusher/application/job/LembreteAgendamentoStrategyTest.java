@@ -61,15 +61,22 @@ class LembreteAgendamentoStrategyTest
     @MockBean
     private SessaoAtualPort sessaoAtual;
 
+    /** A sessão do teste; a categoria criada em cada caso pertence a ela. */
+    private SessaoAnonimaEntity sessao;
+
     @BeforeEach
     void abrirSessaoAnonima( )
     {
-        SessaoAnonimaEntity sessao = new SessaoAnonimaEntity( );
-        sessao.setUuid( UUID.randomUUID( ) );
-        sessao.setDataCriacao( LocalDateTime.now( ) );
-        sessao.setUltimoAcesso( LocalDateTime.now( ) );
+        SessaoAnonimaEntity nova = new SessaoAnonimaEntity( );
+        nova.setUuid( UUID.randomUUID( ) );
+        nova.setDataCriacao( LocalDateTime.now( ) );
+        nova.setUltimoAcesso( LocalDateTime.now( ) );
 
-        when( sessaoAtual.uuid( ) ).thenReturn( sessaoRepository.save( sessao ).getUuid( ) );
+        // Guardada porque a categoria agora precisa de dono (V6): sem sessão, o INSERT viola
+        // sessao_id NOT NULL antes mesmo de o teste chegar ao que quer verificar.
+        this.sessao = sessaoRepository.save( nova );
+
+        when( sessaoAtual.uuid( ) ).thenReturn( sessao.getUuid( ) );
     }
 
     private Long categoriaId( String cor, int fatorOrdem )
@@ -78,6 +85,7 @@ class LembreteAgendamentoStrategyTest
         categoria.setNome( "Categoria " + fatorOrdem );
         categoria.setCor( cor );
         categoria.setFatorOrdem( fatorOrdem );
+        categoria.setSessao( sessao );
 
         return categoriaRepository.save( categoria ).getId( );
     }

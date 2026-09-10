@@ -3,6 +3,7 @@ package com.routine.pusher.application.service;
 import com.routine.pusher.application.job.AgendadorJob;
 import com.routine.pusher.application.usecase.NotificacaoUseCase;
 import com.routine.pusher.application.usecase.SessaoUseCase;
+import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
 import com.routine.pusher.core.domain.lembrete.LembreteEntity;
 import com.routine.pusher.core.domain.lembrete.LembreteRepository;
@@ -28,6 +29,7 @@ public class SessaoService implements SessaoUseCase
 
     private final SessaoAnonimaRepository sessaoRepository;
     private final LembreteRepository lembreteRepository;
+    private final CategoriaRepository categoriaRepository;
     private final SessaoAtualPort sessaoAtual;
     private final AgendadorJob agendadorJob;
     private final NotificacaoUseCase<Lembrete> notificacaoUseCase;
@@ -81,8 +83,9 @@ public class SessaoService implements SessaoUseCase
 
     /**
      * Desmonte na ordem inversa da criação: agendamentos primeiro (para nada disparar contra dado
-     * removido), depois os lembretes (as FKs apontam para a sessão), o fluxo SSE, e a sessão por
-     * último.
+     * removido), depois os lembretes (as FKs apontam para a sessão), então as categorias — que só
+     * podem sair depois dos lembretes, porque é o lembrete que aponta para elas —, o fluxo SSE, e a
+     * sessão por último.
      */
     private void remover( SessaoAnonimaEntity sessao )
     {
@@ -101,6 +104,7 @@ public class SessaoService implements SessaoUseCase
         }
 
         lembreteRepository.deleteAll( lembretes );
+        categoriaRepository.deleteAll( categoriaRepository.findBySessao_Id( sessao.getId( ) ) );
         notificacaoUseCase.encerrarFluxo( sessao.getUuid( ) );
         sessaoRepository.delete( sessao );
     }

@@ -54,18 +54,22 @@ class LembreteNotificacaoEngineTest
     @Test
     void lembreteAgendadoDisparaJobEEmiteNoFluxoSSE( ) throws InterruptedException
     {
-        CategoriaEntity categoria = new CategoriaEntity( );
-        categoria.setNome( "Casa" );
-        categoria.setCor( "azul" );
-        categoria.setFatorOrdem( 1 );
-        Long categoriaId = categoriaRepository.save( categoria ).getId( );
-
+        // A sessão vem primeiro: desde a V6 a categoria pertence a ela e não existe sem dono.
         SessaoAnonimaEntity sessao = new SessaoAnonimaEntity( );
         sessao.setUuid( UUID.randomUUID( ) );
         sessao.setDataCriacao( LocalDateTime.now( ) );
         sessao.setUltimoAcesso( LocalDateTime.now( ) );
-        UUID sessaoUuid = sessaoRepository.save( sessao ).getUuid( );
+        sessao = sessaoRepository.save( sessao );
+
+        UUID sessaoUuid = sessao.getUuid( );
         when( sessaoAtual.uuid( ) ).thenReturn( sessaoUuid );
+
+        CategoriaEntity categoria = new CategoriaEntity( );
+        categoria.setNome( "Casa" );
+        categoria.setCor( "azul" );
+        categoria.setFatorOrdem( 1 );
+        categoria.setSessao( sessao );
+        Long categoriaId = categoriaRepository.save( categoria ).getId( );
 
         CountDownLatch latch = new CountDownLatch( 1 );
         AtomicReference<String> recebido = new AtomicReference<>( );

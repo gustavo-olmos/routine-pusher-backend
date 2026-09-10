@@ -1,5 +1,7 @@
 package com.routine.pusher.infrastructure.web;
 
+import com.routine.pusher.core.domain.categoria.CategoriaPadrao;
+import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import com.routine.pusher.core.domain.sessao.SessaoAnonima;
 import com.routine.pusher.core.domain.sessao.SessaoAnonimaEntity;
 import com.routine.pusher.core.domain.sessao.SessaoAnonimaRepository;
@@ -53,10 +55,12 @@ public class SessaoAnonimaFilter extends OncePerRequestFilter
     static final Duration INTERVALO_RENOVACAO = Duration.ofHours( 1 );
 
     private final SessaoAnonimaRepository repository;
+    private final CategoriaRepository categoriaRepository;
 
-    public SessaoAnonimaFilter( SessaoAnonimaRepository repository )
+    public SessaoAnonimaFilter( SessaoAnonimaRepository repository, CategoriaRepository categoriaRepository )
     {
         this.repository = repository;
+        this.categoriaRepository = categoriaRepository;
     }
 
     @Override
@@ -123,6 +127,8 @@ public class SessaoAnonimaFilter extends OncePerRequestFilter
 
         entidade = repository.save( entidade );
 
+        semearCategoriasPadrao( entidade );
+
         // secure acompanha a conexão em vez de ser fixo: atrás do proxy da plataforma o
         // forward-headers-strategy já faz isSecure() enxergar o HTTPS original; em localhost sem
         // TLS, um cookie Secure simplesmente nunca voltaria.
@@ -137,6 +143,23 @@ public class SessaoAnonimaFilter extends OncePerRequestFilter
         response.addHeader( HttpHeaders.SET_COOKIE, cookie.toString( ) );
 
         return entidade;
+    }
+
+    /**
+     * A lista de categorias nasce junto com a sessão porque ela pertence à sessão: sem isto o
+     * visitante chegaria a uma lista vazia e não conseguiria criar o primeiro lembrete, já que
+     * {@code categoriaId} é obrigatório.
+     * <p>
+     * Semear aqui, e não numa migração, é consequência do modelo — as categorias do demo eram
+     * globais e nasciam na V5; agora dependem de uma sessão que só existe em tempo de execução.
+     * As duas são linhas comuns da lista: podem ser renomeadas, recoloridas ou apagadas.
+     */
+    private void semearCategoriasPadrao( SessaoAnonimaEntity sessao )
+    {
+        categoriaRepository.saveAll(
+                Arrays.stream( CategoriaPadrao.values( ) )
+                      .map( padrao -> padrao.paraSessao( sessao ) )
+                      .toList( ) );
     }
 
     private void renovarAcesso( SessaoAnonimaEntity sessao, LocalDateTime agora )

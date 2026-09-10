@@ -4,6 +4,7 @@ import com.routine.pusher.core.domain.categoria.Categoria;
 import com.routine.pusher.core.domain.categoria.CategoriaMapper;
 import com.routine.pusher.core.domain.categoria.CategoriaRepository;
 import com.routine.pusher.core.domain.categoria.port.CategoriaQueryPort;
+import com.routine.pusher.core.domain.sessao.port.SessaoAtualPort;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ public class CategoriaQueryAdapter implements CategoriaQueryPort
 {
     private final CategoriaMapper mapper;
     private final CategoriaRepository repository;
+    private final SessaoAtualPort sessaoAtual;
 
     /**
      * Falha alto quando o id não existe, em vez de devolver {@code null}. Com o {@code orElse(null)}
@@ -23,11 +25,15 @@ public class CategoriaQueryAdapter implements CategoriaQueryPort
      * constraint {@code categoria_id NOT NULL} lá no INSERT — o que virava um 409 "conflita com
      * dados já existentes", mensagem que aponta para o lugar errado. Quem informou um id inválido
      * merece 404 dizendo exatamente isso.
+     * <p>
+     * O escopo por sessão não é detalhe: sem ele um visitante anexaria a categoria de outro ao
+     * próprio lembrete — bastaria adivinhar um id sequencial. É este método que o
+     * {@code LembreteService} usa ao criar e ao atualizar.
      */
     @Override
     public Categoria buscarPorId( Long id )
     {
-        return repository.findById( id )
+        return repository.findByIdAndSessao_Uuid( id, sessaoAtual.uuid( ) )
                 .map( mapper::toDomain )
                 .orElseThrow( () -> new EntityNotFoundException( "Categoria não encontrada para o id " + id ) );
     }
@@ -35,7 +41,7 @@ public class CategoriaQueryAdapter implements CategoriaQueryPort
     @Override
     public List<Categoria> listar( )
     {
-        return repository.findAll( ).stream( )
+        return repository.findBySessao_Uuid( sessaoAtual.uuid( ) ).stream( )
                 .map( mapper::toDomain )
                 .toList( );
     }
