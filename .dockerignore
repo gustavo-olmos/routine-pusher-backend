@@ -7,4 +7,6 @@ target/
 .env
 .env.production
 scripts/
-README.md
+README*.md
+deploy/
+docker-compose.yml

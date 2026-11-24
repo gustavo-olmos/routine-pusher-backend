@@ -1,451 +1,454 @@
-# API de Lembretes
+# Routine Pusher — API
 
-Esta é a API para gerenciamento de lembretes, desenvolvida com Spring Boot e Maven. A aplicação utiliza RabbitMQ para mensageria e PostgreSQL como banco de dados, ambos rodando via Docker no WSL.
+*[Versão em português](README.pt-BR.md)*
 
-## Tecnologias Utilizadas
+A reminder API where the reminder is **actually scheduled**: not a row waiting for someone to poll
+it, but a Quartz trigger persisted in the database that fires at the appointed time and survives a
+restart. On top of that, the thing this project exists to demonstrate — **turning a sentence in
+plain Portuguese into a validated domain object**, with the contract the model fills in derived
+from the DTO itself.
 
-- **Java** (Spring Boot)
-- **Maven** (Gerenciamento de dependências e build)
-- **RabbitMQ** (Mensageria para envio de lembretes)
-- **PostgreSQL** (Banco de dados relacional)
-- **Docker** (Para facilitar a execução dos serviços auxiliares)
+Live at **`https://api.rotafin.com.br`** — the root and `/actuator/health` answer without
+authentication.
 
-## Requisitos
-
-Antes de rodar a aplicação, certifique-se de ter instalado:
-
-- **Java 17+**
-- **Maven**
-- **Docker e Docker Compose**
-- **WSL2** (Para ambiente Windows)
-
-## Configuração e Execução
-
-### 1. Clonar o repositório
-
-```sh
-git clone https://github.com/seu-usuario/nome-do-repositorio.git
-cd nome-do-repositorio
-```
-
-### 2. Subir os serviços Docker com o wsl já configurado
-
-```sh
-sudo service docker start
-```
-
-Iniciar o PostgreSQL e o RabbitMQ com ```docker run ${seu_container}```.
-
-
-### 4. Rodar a aplicação
-
-```sh
-mvn spring-boot:run
-```
-
-## Endpoints Principais
-
-### Criar um lembrete
-
-```http
-POST /api/v1/lembretes
-```
-
-#### Corpo da requisição (JSON):
-
-```json
-{
-    "id": 1,
-    "titulo": "Tarefa 1",
-    "descricao": "Olá",
-    "status": "CONCLUIDO",
-    "categoriaId": 1,
-    "recorrencia": {
-      "quantidade": 0,
-      "posicaoSemana": 0,
-      "tipoRecorrencia": "DIARIO",
-      "diasDaSemana": ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"],
-      "intervaloCronExp": "0 0 0 */4* ? ?",
-      "validade": "2025-08-03T00:00"
-    },
-    "datasEspecificas": ["2025-08-03T19:12"],
-    "metodoNotificacao": ["som", "pop-up"]
-}
-```
-
-#### Resposta
-
-Além do estado salvo, a resposta traz `proximasExecucoes`: uma prévia das próximas 5 execuções
-derivada da recorrência. Não é estado persistido — é recalculada a cada leitura, respeita a validade
-(`dataFim`) e a cota restante (`quantidade`), e por isso encurta ou some conforme o lembrete avança.
-
-```json
-{
-    "id": "9b1f0c2e-5a7d-4f31-8c60-2a1e9d4b7f03",
-    "titulo": "Pomodoro",
-    "descricao": "de 25 em 25 minutos",
-    "status": "PENDENTE",
-    "categoria": { "id": 1, "nome": "Foco", "cor": "#00897B", "fatorOrdem": 1 },
-    "recorrencia": { "quantidade": null, "intervaloMinutos": 25 },
-    "notificacao": {
-        "id": 1,
-        "metodo": ["pop-up"],
-        "proximaExecucao": "2026-08-27T20:38:26",
-        "dataInicio": "2026-08-27T20:13:26"
-    },
-    "proximasExecucoes": [
-        "2026-08-27T20:38:26",
-        "2026-08-27T21:03:26",
-        "2026-08-27T21:28:26",
-        "2026-08-27T21:53:26",
-        "2026-08-27T22:18:26"
-    ]
-}
-```
-
-`proximaExecucao` continua sendo o disparo realmente agendado no Quartz; `proximasExecucoes[0]`
-coincide com ele. O restante da lista é projeção: o agendamento segue acontecendo um disparo de cada
-vez, e concluir ou alterar o lembrete refaz a série.
-
-### Listar lembretes
-
-```http
-GET /api/v1/lembretes
-```
-
-### Deletar um lembrete
-
-```http
-DELETE /api/v1/lembretes/{id}
-```
-
-## Deploy
-
-A aplicação é um **processo de vida longa com agendador embutido**. Isso, e não preferência, é o que
-elimina algumas opções: precisa de um processo que fique acordado entre requisições, de HTTPS com
-domínio estável (o Google recusa redirect URI que não seja o cadastrado) e de um Postgres.
-
-| Plataforma | Serve? |
-|---|---|
-| **Railway** | sim — processo sempre no ar, domínio estável, Postgres na mesma rede |
-| **Fly.io / AWS App Runner** | sim — mesma ideia, mais peças para montar |
-| **Render (free)** | não — o plano gratuito hiberna por inatividade, e agendador dormindo não lembra |
-| **Vercel** | não — hospeda função serverless, não processo JVM de vida longa |
-
-O `Dockerfile` na raiz é multi-stage e roda em qualquer uma delas sem alteração. Manter o build ali,
-em vez de num arquivo de configuração da plataforma, é o que faz trocar de provedor não virar
-reescrita.
-
-### O que já está preparado
-
-- **`PORT`** — a plataforma injeta a porta; `server.port: ${PORT:8080}`.
-- **`/actuator/health`** liberado sem autenticação. Health check que exige credencial faz a
-  plataforma concluir que a instância está doente e reiniciar o container em laço.
-- **Desligamento gracioso** — `server.shutdown: graceful` e
-  `spring.quartz.wait-for-jobs-to-complete-on-shutdown`. Importa mais aqui do que numa API comum: um
-  SIGTERM no meio de um disparo deixaria o trigger travado em `ACQUIRED` até o `misfireThreshold`.
-- **`forward-headers-strategy: framework`** — atrás do proxy da plataforma o Spring só sabe que a
-  requisição chegou por HTTPS lendo `X-Forwarded-*`. Sem isso ele monta o redirect do OAuth em
-  `http://` e o Google recusa. É o erro clássico de primeiro deploy com OAuth.
-- **Usuário sem privilégio** no container e `MaxRAMPercentage`, porque o default da JVM em container
-  pequeno reserva pouco heap.
-
-### Antes de subir
-
-1. Variáveis de ambiente conforme `.env.example` — com `JPA_SHOW_SQL=false` e `DB_POOL_SIZE` baixo.
-2. **Não** ativar o perfil `dev`: ele libera a aplicação inteira. Sem `SPRING_PROFILES_ACTIVE`, vale
-   a cadeia de segurança normal.
-3. Registrar o redirect URI do domínio no Google Console.
-4. `QUARTZ_CLUSTERED` só junto com a segunda instância — nunca antes, nunca depois.
-
-## Banco e migrações
-
-O schema é **versionado com Flyway** e o Hibernate roda em `validate`. Ele não cria nem altera nada:
-só confere no boot se o mapeamento bate com o banco, e **falha alto** se divergir — em vez de
-descobrir a divergência no primeiro INSERT em produção.
-
-```
-src/main/resources/db/migration/
-  V1__schema_inicial.sql
-```
-
-Foi uma troca deliberada de `ddl-auto: create-drop`, que apagava tudo a cada boot. Ela cabia
-enquanto nada precisava sobreviver; não cabe mais.
-
-Migrar depois custaria um `baseline`; migrar agora custa uma migração, porque ainda não existe base
-de produção para preservar.
-
-### Configuração
-
-Tudo por variável de ambiente, com default de desenvolvimento (ver `.env.example`):
-
-| Variável | Default | Observação |
-|---|---|---|
-| `DB_URL` | Postgres local | em provedor gerenciado, use o endpoint do pooler |
-| `DB_POOL_SIZE` | `10` | free tier do Supabase: use `5` |
-| `JPA_DDL_AUTO` | `validate` | não troque para `update` com dado real |
-| `JPA_SHOW_SQL` | `false` | ligue só na máquina de desenvolvimento |
-| `FLYWAY_ENABLED` | `true` | desligado apenas nos testes |
-
-Qualquer Postgres serve — Supabase, Neon, Railway. **Se for Supabase**: use o endpoint do pooler
-(Supavisor, porta 6543), porque a conexão direta é IPv6 em projetos novos e vários hosts não têm
-saída IPv6; e acrescente `?prepareThreshold=0` na URL, senão o pooler em transaction mode quebra o
-prepared statement do driver JDBC.
-
-### Testes
-
-Os testes rodam em H2 com `create-drop` e **Flyway desligado** — as migrações são SQL de Postgres.
-Quem garante que a migração continua batendo com as entidades é o `validate` do perfil real: se o
-mapeamento e o SQL divergirem, a aplicação não sobe.
-
-## Agendamento (Quartz)
-
-O job store é **JDBC**, não memória. As tabelas do Quartz são criadas pela migração
-`V2__quartz.sql` — o script oficial do Quartz 2.3.2 para Postgres, versionado aqui porque schema tem
-um dono só, o Flyway (`spring.quartz.jdbc.initialize-schema: never`).
-
-Isso corrige uma falha que era invisível: com `RAMJobStore`, **todo restart apagava os triggers**.
-Os lembretes continuavam no banco e nunca mais disparavam, sem erro nenhum no log, porque nada
-reagendava no boot. Enquanto o banco também era `create-drop` a inconsistência não aparecia — os
-lembretes sumiam junto. Persistir o banco é o que tornava esse bug visível.
-
-A chave do job é o `uuid` do lembrete, não o id sequencial: agora que ela é gravada no banco, a
-estabilidade dessa chave passou a importar.
-
-### Disparo vencido (misfire)
-
-Com job store persistente surge um caso que antes não existia: o que fazer com o que venceu enquanto
-a aplicação esteve fora. O Quartz chama isso de *misfire* e, por padrão, dispara tudo de uma vez no
-boot — uma enxurrada de notificações vencidas.
-
-O que **não** dá para fazer é mandar o Quartz descartar o misfire. Os triggers daqui são de disparo
-único e quem reagenda é o próprio `LembreteExecutorJob`: trigger descartado significa lembrete órfão
-para sempre. Então o disparo acontece e o filtro fica no job — ele roda, **não notifica**, e
-reagenda para a próxima ocorrência legítima.
-
-A fronteira é `TOLERANCIA_ATRASO`, hoje 5 minutos: um reinício rápido ainda notifica, uma janela de
-indisponibilidade não. Disparo vencido também **não consome cota** — o lembrete não foi entregue,
-então não faz sentido cobrar dele.
-
-### Uma instância
-
-`isClustered` está `false` porque hoje roda uma instância só. Com duas instâncias e `false`, **as
-duas disparariam o mesmo lembrete** — é o modo cluster que garante que só uma pegue cada trigger.
-A troca é a variável `QUARTZ_CLUSTERED`; o `instanceId: AUTO` já está no lugar.
-
-## Identidade do lembrete
-
-O lembrete tem **duas chaves, com papéis separados**:
-
-| Chave | Tipo | Papel |
-|---|---|---|
-| `id` | `BIGINT` sequencial | chave da tabela. Nunca sai da camada de persistência |
-| `uuid` | `UUID` | identidade pública. É por ela que a aplicação procura o lembrete |
-
-A tabela mantém o id sequencial porque ele é a chave certa para o banco: preserva localidade no
-índice B-tree e deixa as FKs em 8 bytes, coisas que um UUID aleatório como chave primária custa.
-O que muda é que **nada na aplicação consulta por ele** — todo caminho de busca entra por `uuid`.
-
-```
-PUT    /api/v1/lembrete/{uuid}
-PATCH  /api/v1/lembrete/{uuid}
-DELETE /api/v1/lembrete/{uuid}
-
-DELETE /api/v1/lembrete/9b1f0c2e-…-2a1e9d4b7f03   ->  404 se não existir
-DELETE /api/v1/lembrete/1                         ->  400, não é UUID
-```
-
-Na saída da API só aparece `uuid`; o id sequencial não é exposto, justamente para nada externo
-passar a depender dele.
-
-Três consequências que motivaram a mudança:
-
-- **A identidade pública nasce no domínio**, no construtor de `Lembrete`, não no `INSERT`. O
-  lembrete já sabe quem é antes de existir no banco.
-- **A chave do job no Quartz é o `uuid`.** Não há tabela de-para, e a chave não muda se a base for
-  recarregada — o que passa a importar quando o job store deixar de ser memória.
-- **Nada externo depende de um número de sequência**, que vaza volume de dados e amarra a API à
-  estratégia de persistência.
-
-No repositório, só `findByUuid` é usado; os métodos herdados que recebem `Long` (`findById`,
-`deleteById`) ficam restritos à camada de persistência. Categoria continua só com id sequencial: é
-dado de apoio, não trafega como identidade pública. O `CRUDUseCase` foi parametrizado pelo tipo do
-identificador (`CRUDUseCase<I, O, ID>`) para os dois conviverem.
-
-## Recorrência por dias da semana
-
-Não existe um campo "dias úteis": é a lista dos cinco dias em `recorrencia.diasDaSemana`. Os valores
-aceitos são `SEGUNDA`, `TERCA`, `QUARTA`, `QUINTA`, `SEXTA`, `SABADO` e `DOMINGO`.
-
-```json
-{
-    "titulo": "Daily",
-    "categoriaId": 1,
-    "recorrencia": { "diasDaSemana": ["SEGUNDA", "TERCA", "QUARTA", "QUINTA", "SEXTA"] },
-    "notificacao": { "metodo": ["e-mail"], "horario": "09:00" }
-}
-```
-
-Isso vira a expressão `0 0 9 ? * MON,TUE,WED,THU,FRI`. Recorrência de calendário **exige**
-`notificacao.horario` — sem ele a requisição volta 422.
-
-## Feriados e dias úteis
-
-`MON,TUE,WED,THU,FRI` sabe o que é dia da semana, não o que é feriado. Para isso existe
-`recorrencia.politicaDiaUtil`:
-
-| Valor | O que faz | Quando usar |
-|---|---|---|
-| `IGNORAR` (padrão) | o calendário não interfere | tomar remédio — feriado não suspende |
-| `PULAR` | a ocorrência em dia não útil não acontece | daily de equipe |
-| `ADIAR` | anda para o próximo dia útil, mesmo horário | tarefa que pode esperar |
-| `ANTECIPAR` | volta para o dia útil anterior | boleto, que não pode atrasar |
-
-```json
-{
-    "recorrencia": {
-        "diasDaSemana": ["SEGUNDA", "TERCA", "QUARTA", "QUINTA", "SEXTA"],
-        "politicaDiaUtil": "PULAR"
-    },
-    "notificacao": { "metodo": ["e-mail"], "horario": "09:00" }
-}
-```
-
-**Uma regra, dois leitores.** A política vale igual na projeção (`proximasExecucoes`) e no disparo
-real. É por isso que um lembrete com política não usa mais o cron permanente do Quartz: aquele
-trigger só entende dia da semana e dispararia no feriado, fazendo a prévia mentir. Com política, o
-lembrete cai no caminho de disparo único mais reagendamento — o mesmo que o intervalo já usava.
-
-**Origem dos feriados.** `FeriadoNacionalBrasilAdapter` **calcula** o calendário nacional: datas
-fixas mais as móveis derivadas da Páscoa (Carnaval, Sexta-feira Santa, Corpus Christi). Escolher uma
-fonte calculável em vez de uma API elimina de uma vez rede no caminho quente, indisponibilidade de
-terceiro, cache negativo e dado velho — o cache vira memoização por ano, com teto de anos guardados.
-Feriado estadual e municipal não são calculáveis: aí sim é preciso uma fonte externa, e o ponto de
-troca é implementar `FeriadoPort`, sem tocar no domínio.
-
-**Limites de entrada.** A política é recusada com 422 em dois casos:
-
-- **intervalo abaixo de um dia** — 1 em 1 minuto são 1440 ocorrências por dia, e um feriado emendado
-  em fim de semana produz mais de 4 mil ocorrências consecutivas a descartar, por projeção. Como o
-  intervalo é entrada do usuário, aceitar seria deixá-lo escolher quanto a aplicação gasta.
-- **junto de `datasEspecificadas`** — ali o usuário apontou o dia a dedo, e o calendário não
-  sobrescreve escolha explícita.
-
-## Fuso horário
-
-Toda data trafega e é persistida como hora de parede, sem offset (`LocalDateTime`, serializado como
-`2026-08-27T09:00:00`). O back **não converte nada**: ele grava o que o front mandou.
-
-O detalhe que importa no deploy é o outro lado dessa moeda: na hora de agendar, o Quartz interpreta
-essa hora de parede **no fuso do servidor** (`ZoneId.systemDefault()`), e o filtro de datas futuras
-compara com o `LocalDateTime.now()` do servidor. Enquanto servidor e usuário estiverem no mesmo fuso
-— desenvolvimento local — nada aparece. Num host em UTC, com usuário em São Paulo:
-
-| O que o front manda | O que o servidor em UTC faz |
-|---|---|
-| `"horario": "09:00"` | dispara às 09:00 UTC, ou seja **06:00** para o usuário |
-| `"dataInicio"` daqui a 1h | vê como **vencida** (o `now()` dele está 3h à frente) e descarta |
-
-Ou seja, o back é neutro no transporte, mas não no agendamento. Rodar o servidor no mesmo fuso dos
-usuários (`TZ=America/Sao_Paulo`, ou `-Duser.timezone`) resolve enquanto houver um fuso só; um app
-com usuários em fusos diferentes precisa trafegar offset (`OffsetDateTime`) e guardar o fuso
-desejado do lembrete. `FusoHorarioTest` fixa esse comportamento para que a mudança seja uma decisão
-explícita.
-
-## Segurança
-
-Todos os endpoints exigem autenticação. Existem duas formas, habilitadas de forma global na
-`SecurityConfig` — nenhum controller declara nada por endpoint:
-
-| Forma | Como se identifica | Para quem |
-|---|---|---|
-| Sessão | cookie `JSESSIONID`, obtido no redirect do Google | navegador (tela inicial, Swagger UI) |
-| Bearer | header `Authorization: Bearer <id_token>` | Postman, curl, app cliente |
-
-O `id_token` do Google é validado pelo resource server contra o JWKS
-(`https://www.googleapis.com/oauth2/v3/certs`), conferindo assinatura, expiração, emissor e audiência
-(precisa ser o `GOOGLE_CLIENT_ID` desta aplicação — um token emitido para outro app é rejeitado).
-
-O CSRF é ignorado apenas em `/api/**`: chamada de máquina se identifica pelo header, não por cookie de
-formulário. É o que fazia `POST/PUT/DELETE` retornarem `403` no Postman e no Swagger.
-
-### Perfil `dev` — testar fora do navegador
-
-```sh
-./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
-```
-
-O perfil `dev` (ver `DevSecurityConfig`) coloca **a aplicação inteira em whitelist**: nenhuma rota
-exige autenticação e o CSRF fica desligado, para exercitar qualquer endpoint sem fricção.
-
-```sh
-curl "http://localhost:8080/api/v1/categoria?sortInfo=nome&decrescente=false"
-
-curl -X POST http://localhost:8080/api/v1/categoria \
-     -H "Content-Type: application/json" \
-     -d '{"nome":"Saude","cor":"#FF0000","fatorOrdem":1}'
-```
-
-> É deliberadamente permissivo e serve só para teste local — não suba com `dev` em lugar nenhum
-> exposto. O perfil padrão não muda: lá o Swagger continua exigindo login e o navegador segue sendo
-> redirecionado ao Google.
-
-No Swagger UI, o botão **Authorize** oferece `bearerAuth` e `oauth2`, e passa a mandar o header em
-todas as chamadas — necessário no perfil padrão, dispensável no `dev`.
-
-### Testando rápido depois de subir
-
-O schema é `create-drop` e os jobs do Quartz vivem em memória: **nada sobrevive ao restart**, por
-escolha. Por isso o teste manual parte sempre de um banco vazio.
-
-Para não perder tempo com isso, `scripts/routine-pusher.postman_collection.json` é uma coleção
-Postman pronta: 22 requisições em 4 pastas, encadeadas para rodar de ponta a ponta no **Collection
-Runner**. A pasta 1 cria a categoria e guarda o id numa variável de coleção; as pastas seguintes
-dependem dele.
-
-1. Postman > **Import** > arraste o arquivo (ou *Raw text*, colando o conteúdo)
-2. Suba a aplicação no perfil `dev`, que não exige autenticação
-3. Rode a coleção, **desmarcando a pasta 4 (SSE)** — ela mantém a conexão aberta e travaria a execução
-
-Cada requisição traz assertivas (`pm.test`), então o Runner dá pass/fail em vez de só devolver
-resposta. A pasta 3 cobre os erros esperados (400, 404, 405, 409, 422), útil para conferir o
-`GlobalExceptionHandler` sem forçar nada na mão. `cor` e `fatorOrdem` são sorteados a cada execução,
-então dá para rodar várias vezes seguidas sem reiniciar a aplicação.
-
-Alternativa sem arquivo nenhum: **Import > Link > `http://localhost:8080/v3/api-docs`** gera a
-coleção a partir do OpenAPI — mas sem payloads de exemplo, sem encadeamento e sem assertivas.
-
-Para ver os disparos chegando, deixe o SSE aberto em outro terminal:
-
-```sh
-curl -N http://localhost:8080/api/v1/notificar/sse
-```
-
-Duas regras que economizam tentativa e erro ao montar um lembrete novo:
-
-- recorrência por **intervalo** exige `notificacao.dataInicio` (é a base do cálculo)
-- recorrência por **cron** (`diasDaSemana`, `diasFixosNoMes`) exige `notificacao.horario`
-
-### Obtendo um `id_token` no Postman
-
-Em *Authorization → OAuth 2.0*, use `Authorization Code` com:
-
-- Auth URL: `https://accounts.google.com/o/oauth2/v2/auth`
-- Access Token URL: `https://oauth2.googleapis.com/token`
-- Callback URL: `https://oauth.pstmn.io/v1/callback` (precisa estar registrada no Google Console)
-- Scope: `openid profile email`
-
-Na resposta, use o **`id_token`** (não o `access_token`, que é opaco e não é um JWT).
-
-## Contribuição
-
-Se desejar contribuir, siga os passos:
-
-1. Faça um fork do repositório
-2. Crie uma branch (`feature/nova-funcionalidade`)
-3. Envie um pull request
+Java 17 · Spring Boot 3.3 · PostgreSQL + Flyway · Quartz (JDBC job store) · WebFlux (SSE) ·
+Gemini / Anthropic · MapStruct · Docker on AWS Lightsail
 
 ---
 
-Projeto em desenvolvimento 🚀
+## What this project demonstrates
 
+### The AI contract is derived from the DTO, not written by hand
+
+The usual first attempt is to ask a model for free text and then parse it. This does the opposite:
+the model fills in **a contract the domain already defines**.
+
+The JSON Schema handed to the provider is generated at runtime from `LembreteInputDTO` (victools +
+Jackson module), and the field descriptions come from the `@JsonPropertyDescription` annotations on
+that same record. Swagger documentation and model instructions are the same text, written once.
+
+A schema maintained by hand rots silently the moment the domain changes — a new required field, a
+renamed property, a narrowed enum — and nothing fails until a model quietly omits it in production.
+A derived schema cannot drift, because there is no second copy to drift from.
+
+Two dialect details that only show up against real providers, both handled in
+[`ContratoLembreteIA`](src/main/java/com/routine/pusher/application/external/client/ContratoLembreteIA.java):
+schemas are fully inlined (Gemini's subset is OpenAPI and does not resolve `$ref`/`$defs`, which
+victools emits for `LocalDateTime`), and date fields are declared as plain strings, because
+generators emit `pattern` for `java.time` and Anthropic's structured output rejects `pattern`.
+
+### Human input and model output go through the same validation
+
+Structured output guarantees the **shape** of the JSON. Required fields, sizes and value ranges are
+*our* contract, and a contract is checked at the door — whichever side the data came from.
+
+So the model's answer is run through the same Bean Validation constraints the controller applies to
+a hand-written `POST`
+([`LembreteChatService.validar`](src/main/java/com/routine/pusher/application/service/LembreteChatService.java)).
+The same annotations also feed the schema: `JakartaValidationModule` turns every `@NotNull` into a
+`required` entry, so the rule that rejects a human's request is the rule that tells the model what
+it must fill in. One declaration, three jobs.
+
+This is not theoretical. Before the validation module was wired in, the generated schema marked
+nothing as required and the model routinely dropped `categoriaId` and `notificacao`.
+
+### Providers are adapters, chosen by an environment variable
+
+`ChatClient` is the port. `GeminiChatClient` and `AnthropicChatClient` are adapters that only know
+how to speak their provider's protocol — the schema, the system prompt and the context assembly
+live in the neutral `ContratoLembreteIA`. `IA_PROVEDOR=gemini|anthropic` decides which one becomes
+a bean (`@ConditionalOnProperty`); only the chosen one is instantiated.
+
+The route is `/api/v1/chat/lembrete`, deliberately not named after a vendor. It has already changed
+providers once, and the URL did not have to change with it.
+
+### The AI quota is a single atomic UPDATE
+
+Every call to a model costs real money, so each anonymous session gets 10. The interesting part is
+how the budget is spent:
+
+```java
+@Query("update SessaoAnonimaEntity s set s.chamadasIa = s.chamadasIa + 1 "
+     + "where s.uuid = :uuid and s.chamadasIa < :limite")
+int consumirChamadaIa( UUID uuid, int limite );
+```
+
+The increment and the ceiling check happen in the same statement, and the row count says whether
+there was room (`1`) or not (`0` → `429`). Read-check-save in two steps would leave a window where
+two parallel requests both see nine calls used and both spend the tenth.
+
+The quota is also consumed **before** the provider call, not after: it protects the spend, so the
+slot is claimed the moment we decide to spend it.
+
+### The recurrence engine
+
+Three strategies answer *when it fires* — cron (calendar rules), fixed interval, and explicit
+dates. Calendar recurrences are compiled into a cron expression by `CronExpressionBuilder`;
+weekends and Brazilian national holidays are resolved through a `FeriadoPort`, with a policy per
+reminder: `PULAR` (skip), `ADIAR` (move to the next business day) or `ANTECIPAR` (move to the
+previous one).
+
+Two design decisions the code alone does not explain:
+
+- **Business limits do not live in the strategies.** An end date (`dataFim`) and a remaining count
+  (`quantidade`) apply to all three, so they sit in `Notificacao`. Pushing them down would mean
+  writing the same rule three times and maintaining three chances to get it wrong.
+- **Scheduling and projection are separate methods on purpose.** The scheduling path computes one
+  firing at a time and is allowed to mutate state; the read path (`proximasExecucoes`, the preview
+  of the next five) must be pure, because it runs on every serialization. Collapsing them into one
+  method — the obvious refactor — would turn a `GET` into a write.
+
+`proximasExecucoes` is therefore **computed, never persisted**: recalculated on every read, honoring
+the end date and the remaining quota, so it shortens and disappears as the reminder advances.
+
+### Quartz with a JDBC job store, and what that forces you to handle
+
+The job store is JDBC, not memory. With `RAMJobStore`, every restart silently erased the triggers:
+the reminders stayed in the database as rows that would never fire again, with no error anywhere.
+Persisting them fixed that, and introduced two problems that memory had been hiding:
+
+**Overdue firings.** Everything that came due while the application was down comes back at once on
+boot — Quartz calls it a misfire and, by default, fires it immediately. For a reminder app that is
+a flood of stale notifications, and a late notification loses its value fast.
+
+Telling Quartz to discard the misfire is not an option: these triggers fire once and the job itself
+schedules the next one, so a discarded trigger means a reminder orphaned forever. So the job runs,
+and the filter sits inside it — more than **5 minutes** late and it reschedules **without
+notifying**, and without consuming quota, since nothing was delivered. A two-minute delay from a
+quick restart still notifies; a day-old one does not. The boundary is pinned by
+[`DisparoVencidoTest`](src/test/java/com/routine/pusher/application/job/DisparoVencidoTest.java).
+
+**Orphan triggers.** A trigger whose reminder no longer exists used to fix itself on the next
+restart. With a persistent store it fires, finds nothing, logs, and gets rescheduled — forever. It
+now has to be deleted explicitly, which is what `LembreteExecutorJob` does before returning.
+
+The schema for the Quartz tables is versioned as a migration (`V2__quartz.sql`) rather than created
+by Quartz itself, because a schema has exactly one owner: Flyway.
+
+### Deployed on AWS Lightsail Containers
+
+`sa-east-1`, `nano` plan (512 MB, US$ 7/month), Postgres on Supabase, HTTPS and a custom domain.
+The plan was chosen by measurement, not by guess: 273 MB idle, 311 MB under load.
+
+Two deployments failed before one worked, and both are written up in
+[`deploy/lightsail/README.md`](deploy/lightsail/README.md) along with the IAM policy, the Supabase
+pooler traps and the full procedure. The short version of the second one: a 158-second boot missed
+the Lightsail health window by 16 seconds; `-XX:TieredStopAtLevel=1` (C1 only, no C2 compiler)
+brought it down to 103s. On 0.25 vCPU the bottleneck is startup, not throughput — if traffic ever
+inverts that, it is the first flag to remove.
+
+The multi-stage `Dockerfile` carries nothing platform-specific, which is the point: changing
+providers is not a rewrite.
+
+---
+
+## Run locally
+
+### With Docker Compose (everything in one command)
+
+```sh
+cp .env.example .env     # optional: only needed for the AI chat
+docker compose up --build
+```
+
+That builds the image, starts Postgres, waits for it to be genuinely ready, and starts the API
+against it. Flyway applies all six migrations on first boot — there are no tables to create by
+hand.
+
+| | |
+|---|---|
+| API | `http://localhost:8080/api/v1` |
+| Health | `http://localhost:8080/actuator/health` |
+| Postgres | `localhost:5432`, database `routine-pusher` |
+| Swagger UI | `http://localhost:8080/swagger-ui.html` — **only under the `dev` profile**, see below |
+
+The API itself needs no credentials, but anything outside `/api/**` and the health check does, and
+Swagger UI is in that group: on the default profile it answers `401`. Add
+`SPRING_PROFILES_ACTIVE=dev` to the `api` service to browse it.
+
+Compose reads `.env` for interpolation, so a `GEMINI_API_KEY` already sitting there is picked up
+automatically. Without one, the chat endpoint reports itself unavailable and everything else works.
+
+**Port already in use?** Both ports are overridable, which matters if you keep an instance running
+from your IDE or already have a Postgres container:
+
+```sh
+API_PORT=8081 DB_PORT=5433 docker compose up --build
+```
+
+Stop with `docker compose down`, or `docker compose down -v` to drop the database volume as well
+and start from an empty schema.
+
+### Without Docker
+
+Requires Java 17 and a Postgres reachable on `localhost:5432` with a `routine-pusher` database.
+
+```sh
+cp .env.example .env     # DB_PASSWORD is the only variable with no default
+./mvnw spring-boot:run
+```
+
+> **The `dev` profile** (`./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`) puts the whole
+> application in `permitAll` and disables CSRF so that Postman, curl and Swagger UI can exercise
+> any endpoint. It exists for local testing only — **no security check performed against the `dev`
+> profile means anything**, because everything answers 200 there.
+
+A ready-made Postman collection lives in
+[`scripts/`](scripts/routine-pusher.postman_collection.json).
+
+---
+
+## Architecture
+
+Three layers, with dependencies always pointing inward. The rule is not a convention: it is pinned
+by [`ArchitecturalTest`](src/test/java/com/routine/pusher/infrastructure/arch/ArchitecturalTest.java)
+and breaking it fails the build.
+
+```
+core/            pure domain — recurrence rules, strategies, enums, ports
+  domain/        lembrete, notificacao, recorrencia, categoria, sessao, feriado
+  trigger/       when the series ends: end date, count, explicit dates, unlimited
+application/     orchestration — services, use cases, controllers, Quartz jobs
+infrastructure/  the outside world — security, CORS, Quartz, filters, error handling
+```
+
+---
+
+## API
+
+Everything under `/api/v1`. No API route requires a login: the visitor's identity is the anonymous
+session carried in a cookie, and every query is scoped by it.
+
+| Method | Route | Purpose |
+|---|---|---|
+| `POST` | `/lembrete` | create the reminder and schedule its first firing |
+| `GET` | `/lembrete?sortInfo=<field>&decrescente=<bool>` | list this session's reminders (**both parameters are required**) |
+| `PUT` | `/lembrete/{uuid}` | replace the reminder, **rebuilding the schedule** |
+| `PATCH` | `/lembrete/{uuid}/detalhes` | edit title, description and category, **preserving the schedule** |
+| `PATCH` | `/lembrete/{uuid}` | mark as done |
+| `DELETE` | `/lembrete/{uuid}` | delete the reminder and cancel its trigger — `204` |
+| `POST` | `/categoria` | create a category in this session's list |
+| `GET` | `/categoria?sortInfo=<field>&decrescente=<bool>` | list |
+| `GET` · `PUT` · `DELETE` | `/categoria/{id}` | fetch, update, delete |
+| `POST` | `/chat/lembrete` | **create a reminder from a sentence** |
+| `GET` | `/sessao` | inspect the current session (creating one if needed) |
+| `DELETE` | `/sessao` | the "forget me": drops the session, its reminders and their schedules |
+| `GET` | `/notificar/sse` | SSE stream of this session's firings |
+
+Outside `/api/v1`: `GET /` (identification), `/actuator/health`, `/swagger-ui.html`.
+
+Another visitor's id returns **404**, not 403 — including for categories, whose ids are sequential
+and therefore guessable.
+
+### Creating a reminder
+
+```http
+POST /api/v1/lembrete
+```
+
+```json
+{
+  "titulo": "Beber água",
+  "descricao": "Garrafa de 500ml",
+  "categoriaId": 1,
+  "recorrencia": { "intervaloHoras": 2 },
+  "notificacao": {
+    "metodo": ["pop-up"],
+    "dataInicio": "2026-11-23T08:00:00",
+    "dataFim": "2026-11-23T18:00:00"
+  }
+}
+```
+
+Three mutually exclusive ways to recur:
+
+- **Interval** — `intervaloDias` / `intervaloHoras` / `intervaloMinutos`, summing to at least
+  **5 minutes**. `dataInicio` is the **base of the count, not the first firing**: the first firing
+  is `dataInicio + interval`.
+- **Calendar** — `diasDaSemana`, `diasFixosNoMes` or `posicaoDaSemanaNoMes`, with
+  `notificacao.horario` (`HH:mm`). Compiled into a cron expression internally.
+- **Explicit dates** — `notificacao.datasEspecificadas`, with no recurrence.
+
+Optional limits: `recorrencia.quantidade` (total firings), `notificacao.dataFim` (end date) and
+`recorrencia.politicaDiaUtil` (`PULAR`, `ADIAR`, `ANTECIPAR` when an occurrence lands on a weekend
+or a national holiday).
+
+Omitting recurrence **and** explicit dates is rejected with an explanatory `422`: a reminder that
+cannot say when it fires is not a reminder.
+
+### Response
+
+```json
+{
+  "uuid": "9b1f0c2e-5a7d-4f31-8c60-2a1e9d4b7f03",
+  "titulo": "Beber água",
+  "status": "PENDENTE",
+  "categoria": { "id": 1, "nome": "Importante", "cor": "#E53935", "fatorOrdem": 1 },
+  "recorrencia": { "quantidade": null, "intervaloHoras": 2 },
+  "notificacao": {
+    "id": 1,
+    "metodo": ["pop-up"],
+    "proximaExecucao": "2026-11-23T10:00:00",
+    "dataInicio": "2026-11-23T08:00:00",
+    "dataFim": "2026-11-23T18:00:00"
+  },
+  "proximasExecucoes": [
+    "2026-11-23T10:00:00", "2026-11-23T12:00:00", "2026-11-23T14:00:00",
+    "2026-11-23T16:00:00", "2026-11-23T18:00:00"
+  ]
+}
+```
+
+`uuid` is the public identity — the table's sequential id never leaves the persistence layer.
+`proximaExecucao` is the firing actually registered in Quartz and matches `proximasExecucoes[0]`;
+the rest is projection, since scheduling happens one firing at a time.
+
+### Creating a reminder from a sentence
+
+```http
+POST /api/v1/chat/lembrete
+{ "frase": "me lembra de beber água a cada 2 horas até as 18h", "agora": "2026-11-23T08:00:00" }
+```
+
+Returns the same `LembreteOutputDTO` — already created and already scheduled. `agora` is the
+caller's local clock, so that "tomorrow at 9" resolves in the user's timezone rather than the
+server's.
+
+### Errors
+
+A single shape, from a `@RestControllerAdvice` that extends `ResponseEntityExceptionHandler` — a
+catch-all on `Exception` used to turn client mistakes into 500s:
+
+```json
+{
+  "timestamp": "2026-11-23T09:14:02",
+  "status": 400,
+  "erro": "Bad Request",
+  "mensagem": "Campos inválidos",
+  "caminho": "/api/v1/lembrete",
+  "camposInvalidos": { "titulo": "O título do lembrete é obrigatório" }
+}
+```
+
+`camposInvalidos` appears only on validation failures. `422` for domain rules (impossible schedule,
+deleting a category in use), `429` for exhausted session limits, `404` for what is not yours.
+
+---
+
+## Anonymous sessions
+
+Nobody signs up to try a site they found in a post. The identity is created on the first request to
+`/api/**`, travels in the **`RP_SESSAO`** cookie (`HttpOnly`, `SameSite=Lax`, `Secure` whenever the
+connection is HTTPS), and everything the visitor creates belongs to it.
+
+| | |
+|---|---|
+| Inactivity window | **48 h** — any call renews it |
+| Cookie lifetime | 7 days, deliberately longer: the server decides, not the browser |
+| `ultimo_acesso` refresh | at most once per hour, so it does not become one UPDATE per click |
+| Cleanup | hourly Quartz job: expired sessions, their reminders and their schedules |
+| Reminder cap | **10** per session |
+| AI call cap | **10** per session |
+
+Every new session is seeded with two categories — *Importante* and *Urgente* — created at runtime
+rather than by a migration, since they depend on a session that only exists while the application
+runs. They are ordinary rows: renameable, recolorable, deletable.
+
+**`SameSite=Lax` has an infrastructure consequence:** the front end and the API must share a
+registrable domain (`site.com` and `api.site.com`). Across different domains the cookie is not sent
+on XHR, and the failure is silent — creating returns 200, listing returns `[]`, because every
+request arrives as a brand new visitor.
+
+That is also why CSRF protection is disabled on `/api/**`: a third-party site cannot attach a `Lax`
+cookie to a cross-site POST, and the API's GETs are read-only. A CSRF token would only break
+Postman and Swagger.
+
+---
+
+## Database and migrations
+
+The schema is versioned with **Flyway**. Hibernate runs in `validate` and **fails loudly at boot**
+if the mapping and the database disagree, instead of discovering it at the first INSERT.
+
+```
+src/main/resources/db/migration/
+  V1__schema_inicial.sql          reminder, notification, recurrence, category
+  V2__quartz.sql                  Quartz tables (official 2.3.2 script)
+  V3__sessao_anonima.sql          the visitor's identity
+  V4__cota_de_ia_por_sessao.sql   AI call counter on the session row
+  V5__categorias_do_demo.sql      global category list (superseded by V6)
+  V6__categoria_por_sessao.sql    categories now belong to a session
+```
+
+Two tables carry a double key (`lembrete`, `sessao_anonima`): a sequential `BIGINT` as the internal
+key — B-tree locality and 8-byte foreign keys — and a `uuid` as the business key, which is what the
+API exposes and what identifies the job in Quartz.
+
+**V6 destroys no data**: every global category in use becomes a copy owned by the session using it,
+reminders are repointed, and only then are the globals removed.
+
+---
+
+## Configuration
+
+Everything through environment variables, with development defaults. Fully commented reference in
+[`.env.example`](.env.example).
+
+| Variable | Default | Notes |
+|---|---|---|
+| `DB_URL` | local Postgres | on a managed provider, use the pooler endpoint |
+| `DB_USERNAME` / `DB_PASSWORD` | `postgres` / — | the password is the only variable with no default |
+| `DB_POOL_SIZE` | `10` | Supabase free tier: `5` |
+| `JPA_DDL_AUTO` | `validate` | never `update` with real data |
+| `JPA_SHOW_SQL` | `false` | development machine only |
+| `FLYWAY_ENABLED` | `true` | disabled only in tests |
+| `QUARTZ_THREADS` | `5` | |
+| `QUARTZ_CLUSTERED` | `false` | turn on **together with** the second instance, never before or after |
+| `IA_PROVEDOR` | `gemini` | `gemini` or `anthropic`; only the chosen one becomes a bean |
+| `GEMINI_API_KEY` / `GEMINI_MODEL` | — / `gemini-3.5-flash-lite` | free key at AI Studio, no card required |
+| `ANTHROPIC_API_KEY` / `ANTHROPIC_MODEL` | — / `claude-haiku-4-5` | requires API credit |
+| `CORS_ALLOWED_ORIGINS` | `http://localhost:4200` | exact origins, comma-separated; no wildcard |
+| `PORT` | `8080` | injected by the platform |
+
+Model names leave provider catalogs without notice — `gemini-2.5-flash-lite` stopped being served
+to new accounts mid-project — which is exactly why the model is a variable and not a constant.
+
+---
+
+## Tests
+
+```sh
+./mvnw test
+```
+
+149 tests on H2 (`create-drop`, Flyway off — the migrations are Postgres SQL), covering the
+recurrence engine, business days and holidays, timezones, session scoping, both AI providers'
+schema dialects, the public routes and the architecture rules.
+
+> **A green suite says nothing about the production `application.yml`.** The file at
+> `src/test/resources/application.yml` **shadows** the main one: the real YAML can be broken with
+> the whole suite passing. What catches that is running the image:
+>
+> ```sh
+> docker run --rm --memory=512m -p 8080:8080 --env-file .env.production routine-pusher:latest
+> ```
+
+---
+
+## Known limitations
+
+Scope read as scope, not as oversights:
+
+- **Notifications only arrive with the tab open.** The channel is SSE. Web Push would require a
+  service worker and a persistent identity, both deliberately refused in an anonymous demo.
+- **Reminders carry a time, not a timezone.** The domain works in `LocalDateTime` and the zone is
+  pinned in the container. The real fix is storing the creator's zone per reminder.
+- **The AI quota can be bypassed by clearing the cookie.** On Gemini's free tier the provider's
+  daily ceiling caps the damage at "the chat stops for today"; a paid provider would need a
+  per-IP limit first.
+- **48-hour retention.** A reminder set two weeks out does not survive a visitor who does not come
+  back within two days. Real retention needs accounts, not anonymous sessions.
+- **Nothing stops a visitor from deleting every category**, and without one no reminder can be
+  created. The front end is what prevents it.
+- **A single instance.** With two and `QUARTZ_CLUSTERED=false`, both would fire the same reminder.
+- **No CI.** Deployment is manual, from the development machine.
