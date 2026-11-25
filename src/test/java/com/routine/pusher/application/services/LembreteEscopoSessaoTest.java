@@ -148,4 +148,35 @@ class LembreteEscopoSessaoTest
 
         verify( repository, never( ) ).delete( any( LembreteEntity.class ) );
     }
+
+    @Test
+    @DisplayName("buscar por uuid de outra sessão responde 404, como as demais operações")
+    void buscar_lembreteAlheio_naoEncontrado( )
+    {
+        UUID alheio = UUID.randomUUID( );
+        when( sessaoAtual.uuid( ) ).thenReturn( SESSAO );
+        when( repository.findByUuidAndSessao_Uuid( alheio, SESSAO ) ).thenReturn( Optional.empty( ) );
+
+        assertThatThrownBy( ( ) -> service.buscarPeloId( alheio ) )
+                .isInstanceOf( EntityNotFoundException.class );
+
+        verify( repository, never( ) ).findByUuid( any( ) );
+    }
+
+    @Test
+    @DisplayName("buscar passa pelo domínio: é ele que calcula a prévia das próximas execuções")
+    void buscar_passaPeloDominio( )
+    {
+        UUID meu = UUID.randomUUID( );
+        LembreteEntity entidade = new LembreteEntity( );
+        Lembrete lembrete = new Lembrete( );
+        when( sessaoAtual.uuid( ) ).thenReturn( SESSAO );
+        when( repository.findByUuidAndSessao_Uuid( meu, SESSAO ) ).thenReturn( Optional.of( entidade ) );
+        when( mapper.toDomain( entidade ) ).thenReturn( lembrete );
+
+        service.buscarPeloId( meu );
+
+        verify( mapper ).toOutputDto( lembrete );
+        verify( mapper, never( ) ).toOutputDto( any( LembreteEntity.class ) );
+    }
 }

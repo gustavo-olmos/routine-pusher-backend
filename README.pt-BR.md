@@ -109,6 +109,7 @@ do cookie, e o escopo é aplicado em toda consulta.
 |---|---|---|
 | `POST` | `/lembrete` | cria o lembrete e agenda o primeiro disparo — `201` + `Location` |
 | `GET` | `/lembrete?sortInfo=<campo>&decrescente=<bool>` | lista os da sessão (**os dois parâmetros são obrigatórios**) |
+| `GET` | `/lembrete/{uuid}` | busca um lembrete — o destino do `Location` da criação |
 | `PUT` | `/lembrete/{uuid}` | substitui o lembrete, **refazendo o agendamento** |
 | `PATCH` | `/lembrete/{uuid}/detalhes` | edita título, descrição e categoria **preservando o agendamento** |
 | `PATCH` | `/lembrete/{uuid}` | conclui |
@@ -372,7 +373,7 @@ nasce com credencial (`GoogleOAuthConfig`). Fixado em `SegurancaSemGoogleTest`.
 ./mvnw test
 ```
 
-177 testes em H2 (`create-drop`, Flyway desligado — as migrações são SQL de Postgres), cobrindo o
+180 testes em H2 (`create-drop`, Flyway desligado — as migrações são SQL de Postgres), cobrindo o
 motor de recorrência, dias úteis e feriados, fuso, escopo de sessão, dialeto dos dois provedores de
 IA, as rotas públicas e as regras de arquitetura.
 

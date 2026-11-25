@@ -59,6 +59,14 @@ public class LembreteController
         return ResponseEntity.ok( ).body( crudUseCase.listar( atributo, ordemReversa ) );
     }
 
+    @GetMapping(path = "/{uuid}")
+    @Operation(summary = "Busca lembrete por uuid",
+               description = "Só enxerga lembretes da sessão atual: o de outro visitante responde 404")
+    public ResponseEntity<LembreteOutputDTO> buscar( @PathVariable(value = "uuid") UUID uuid )
+    {
+        return ResponseEntity.ok( crudUseCase.buscarPeloId( uuid ) );
+    }
+
     @PutMapping(path = "/{uuid}")
     @Operation(summary = "Atualiza lembrete")
     public ResponseEntity<LembreteOutputDTO> atualizar( @PathVariable(value = "uuid") UUID uuid,

@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -65,5 +66,18 @@ class LembreteControllerTest
                 .andExpect( jsonPath( "$.titulo" ).value( criado.titulo( ) ) )
                 .andExpect( jsonPath( "$.proximasExecucoes.length()" ).value( 2 ) )
                 .andExpect( jsonPath( "$.proximasExecucoes[0]" ).value( "2025-09-05T16:20:00" ) );
+    }
+
+    @Test
+    @DisplayName("o Location da criação responde: GET por uuid devolve o lembrete com a prévia")
+    void buscar_porUuid( ) throws Exception
+    {
+        LembreteOutputDTO lembrete = LembreteExample.simplesOutput( );
+        when( useCase.buscarPeloId( lembrete.uuid( ) ) ).thenReturn( lembrete );
+
+        mockMvc.perform( get( "/api/v1/lembrete/{uuid}", lembrete.uuid( ) ) )
+                .andExpect( status( ).isOk( ) )
+                .andExpect( jsonPath( "$.uuid" ).value( lembrete.uuid( ).toString( ) ) )
+                .andExpect( jsonPath( "$.proximasExecucoes.length()" ).value( 2 ) );
     }
 }

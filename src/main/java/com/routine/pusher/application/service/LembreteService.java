@@ -122,6 +122,18 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
                 .toList( );
     }
 
+    /**
+     * É o destino do {@code Location} da criação. Passa pelo domínio pela mesma razão que
+     * {@link #listar}: sem isso a resposta sairia sem a prévia das próximas execuções.
+     */
+    @Override
+    public LembreteOutputDTO buscarPeloId( UUID uuid )
+    {
+        LOGGER.debug("Buscando lembrete de uuid {}", uuid);
+
+        return mapper.toOutputDto( mapper.toDomain( buscarPorUuid( uuid ) ) );
+    }
+
     @Override
     public LembreteOutputDTO atualizar( UUID uuid, LembreteInputDTO inputDTO )
     {

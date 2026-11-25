@@ -223,6 +223,7 @@ session carried in a cookie, and every query is scoped by it.
 |---|---|---|
 | `POST` | `/lembrete` | create the reminder and schedule its first firing — `201` + `Location` |
 | `GET` | `/lembrete?sortInfo=<field>&decrescente=<bool>` | list this session's reminders (**both parameters are required**) |
+| `GET` | `/lembrete/{uuid}` | fetch one reminder — the target of the create's `Location` |
 | `PUT` | `/lembrete/{uuid}` | replace the reminder, **rebuilding the schedule** |
 | `PATCH` | `/lembrete/{uuid}/detalhes` | edit title, description and category, **preserving the schedule** |
 | `PATCH` | `/lembrete/{uuid}` | mark as done |
@@ -453,7 +454,7 @@ to new accounts mid-project — which is exactly why the model is a variable and
 ./mvnw test
 ```
 
-177 tests on H2 (`create-drop`, Flyway off — the migrations are Postgres SQL), covering the
+180 tests on H2 (`create-drop`, Flyway off — the migrations are Postgres SQL), covering the
 recurrence engine, business days and holidays, timezones, session scoping, both AI providers'
 schema dialects, the public routes and the architecture rules.
 
