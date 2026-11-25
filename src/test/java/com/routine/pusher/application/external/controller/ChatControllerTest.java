@@ -1,10 +1,8 @@
 package com.routine.pusher.application.external.controller;
 
-import com.routine.pusher.application.usecase.ChatUseCase;
 import com.routine.pusher.application.usecase.InterpretacaoUseCase;
 import com.routine.pusher.core.domain.lembrete.dto.InterpretacaoLembreteOutputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteChatInputDTO;
-import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.example.LembreteExample;
 import com.routine.pusher.infrastructure.exceptions.ConversaoException;
 import com.routine.pusher.infrastructure.exceptions.LimiteDeUsoException;
@@ -43,9 +41,6 @@ class ChatControllerTest
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private ChatUseCase<LembreteOutputDTO> chatUseCase;
 
     @MockBean
     private InterpretacaoUseCase<InterpretacaoLembreteOutputDTO> interpretacaoUseCase;
@@ -112,15 +107,14 @@ class ChatControllerTest
     }
 
     @Test
-    @DisplayName("o endpoint antigo continua respondendo enquanto o front publicado depender dele")
-    void lembreteAntigo_continuaNoAr( ) throws Exception
+    @DisplayName("o endpoint que salvava sem revisão saiu: o modelo não tem rota para persistir")
+    void lembreteAntigo_naoExisteMais( ) throws Exception
     {
-        when( chatUseCase.criarLembreteViaChat( any( ) ) ).thenReturn( LembreteExample.simplesOutput( ) );
-
         mockMvc.perform( post( "/api/v1/chat/lembrete" )
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( FRASE ) )
-                .andExpect( status( ).isOk( ) )
-                .andExpect( jsonPath( "$.uuid" ).exists( ) );
+                // 404 ou 405, conforme o handler de recursos estáticos responda ao POST: o que
+                // importa é que nenhuma rota de chat aceite mais o pedido.
+                .andExpect( status( ).is4xxClientError( ) );
     }
 }

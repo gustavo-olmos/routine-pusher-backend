@@ -1,10 +1,8 @@
 package com.routine.pusher.application.external.controller;
 
-import com.routine.pusher.application.usecase.ChatUseCase;
 import com.routine.pusher.application.usecase.InterpretacaoUseCase;
 import com.routine.pusher.core.domain.lembrete.dto.InterpretacaoLembreteOutputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteChatInputDTO;
-import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Chat IA", description = "Lembretes a partir de linguagem natural: interpretar, revisar e criar")
 public class ChatController
 {
-    private final ChatUseCase<LembreteOutputDTO> useCase;
     private final InterpretacaoUseCase<InterpretacaoLembreteOutputDTO> interpretacaoUseCase;
 
 
@@ -42,21 +39,5 @@ public class ChatController
             @Valid @RequestBody LembreteChatInputDTO entrada )
     {
         return ResponseEntity.ok( interpretacaoUseCase.interpretarLembrete( entrada ) );
-    }
-
-    /**
-     * @deprecated interpreta e salva sem revisão. Use {@code POST /api/v1/chat/interpretacao} e
-     * confirme com {@code POST /api/v1/lembrete}. Removido quando o front publicado migrar.
-     */
-    @Deprecated
-    @PostMapping(path = "/lembrete")
-    @Operation(summary = "Cria um lembrete a partir de uma frase, sem revisão (obsoleto)",
-               description = "Use POST /api/v1/chat/interpretacao para obter o rascunho e "
-                       + "POST /api/v1/lembrete para confirmar.",
-               deprecated = true)
-    public ResponseEntity<LembreteOutputDTO> criarLembreteViaChat(
-            @Valid @RequestBody LembreteChatInputDTO entrada )
-    {
-        return ResponseEntity.ok( ).body( useCase.criarLembreteViaChat( entrada ) );
     }
 }
