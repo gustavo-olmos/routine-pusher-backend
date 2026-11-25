@@ -4,6 +4,7 @@ import com.routine.pusher.application.job.AgendadorJob;
 import com.routine.pusher.application.usecase.AtualizarDetalhesUseCase;
 import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.application.usecase.ConcluirUseCase;
+import com.routine.pusher.application.usecase.SimulacaoUseCase;
 import com.routine.pusher.core.domain.categoria.port.CategoriaQueryPort;
 import com.routine.pusher.core.domain.feriado.port.FeriadoPort;
 import com.routine.pusher.core.domain.lembrete.Lembrete;
@@ -33,7 +34,8 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOutputDTO, UUID>, ConcluirUseCase<UUID>,
-        AtualizarDetalhesUseCase<LembreteDetalhesInputDTO, LembreteOutputDTO, UUID>
+        AtualizarDetalhesUseCase<LembreteDetalhesInputDTO, LembreteOutputDTO, UUID>,
+        SimulacaoUseCase<LembreteInputDTO, List<LocalDateTime>>
 {
     private final Logger LOGGER = LoggerFactory.getLogger( LembreteService.class );
 
@@ -52,14 +54,7 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
 
         validarLimiteDaSessao( );
 
-        Lembrete lembrete = mapper.toDomain( inputDto );
-        lembrete.setSessaoUuid( sessaoAtual.uuid( ) );
-        lembrete.setCategoria( categoriaQueryPort.buscarPorId( inputDto.categoriaId( ) ) );
-
-        validarIntervaloMinimo( lembrete );
-        validarPoliticaDeCalendario( lembrete );
-        lembrete.setExecucao( feriadoPort );
-        validarAgendamento( lembrete );
+        Lembrete lembrete = montarNovo( inputDto );
 
         lembrete = mapper.toDomain( repository.save( mapper.toEntity( lembrete ) ) );
 
@@ -72,6 +67,45 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
         }
 
         return mapper.toOutputDto( lembrete );
+    }
+
+    /**
+     * A prévia sai do mesmo {@link #montarNovo} da criação, então um rascunho que passa aqui só
+     * falha na confirmação se o mundo mudar entre as duas chamadas: a cota de lembretes encher ou a
+     * categoria ser excluída.
+     */
+    @Override
+    public List<LocalDateTime> simular( LembreteInputDTO rascunho )
+    {
+        LOGGER.debug("Simulando lembrete");
+
+        return montarNovo( rascunho )
+                .calcularProximasExecucoes( Lembrete.LIMITE_PROXIMAS_EXECUCOES, feriadoPort );
+    }
+
+    @Override
+    public void validarVagaNaSessao( )
+    {
+        validarLimiteDaSessao( );
+    }
+
+    /**
+     * Monta o lembrete novo já validado e com a próxima execução calculada, sem persistir. Ponto
+     * único para criação e simulação: uma regra a mais aqui vale para as duas, e a prévia não tem
+     * como divergir do que a criação aceitaria.
+     */
+    private Lembrete montarNovo( LembreteInputDTO inputDto )
+    {
+        Lembrete lembrete = mapper.toDomain( inputDto );
+        lembrete.setSessaoUuid( sessaoAtual.uuid( ) );
+        lembrete.setCategoria( categoriaQueryPort.buscarPorId( inputDto.categoriaId( ) ) );
+
+        validarIntervaloMinimo( lembrete );
+        validarPoliticaDeCalendario( lembrete );
+        lembrete.setExecucao( feriadoPort );
+        validarAgendamento( lembrete );
+
+        return lembrete;
     }
 
     @Override
@@ -151,8 +185,9 @@ public class LembreteService implements CRUDUseCase<LembreteInputDTO, LembreteOu
 
     /**
      * Recusa recorrência por intervalo abaixo do piso — ver {@code Recorrencia.INTERVALO_MINIMO}.
-     * Vale para criação e atualização, e também para o que a IA monta: o chat passa pelo mesmo
-     * {@code adicionar}, então uma frase como "me lembra de minuto em minuto" para aqui.
+     * Vale para criação e atualização, e também para o que a IA monta: a interpretação do chat
+     * passa por {@link #simular}, então uma frase como "me lembra de minuto em minuto" já para
+     * aqui, antes de o usuário confirmar.
      */
     private void validarIntervaloMinimo( Lembrete lembrete )
     {

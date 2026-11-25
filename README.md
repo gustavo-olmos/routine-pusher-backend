@@ -59,7 +59,7 @@ how to speak their provider's protocol — the schema, the system prompt and the
 live in the neutral `ContratoLembreteIA`. `IA_PROVEDOR=gemini|anthropic` decides which one becomes
 a bean (`@ConditionalOnProperty`); only the chosen one is instantiated.
 
-The route is `/api/v1/chat/lembrete`, deliberately not named after a vendor. It has already changed
+The routes live under `/api/v1/chat`, deliberately not named after a vendor. It has already changed
 providers once, and the URL did not have to change with it.
 
 ### The AI quota is a single atomic UPDATE
@@ -221,7 +221,7 @@ session carried in a cookie, and every query is scoped by it.
 
 | Method | Route | Purpose |
 |---|---|---|
-| `POST` | `/lembrete` | create the reminder and schedule its first firing |
+| `POST` | `/lembrete` | create the reminder and schedule its first firing — `201` + `Location` |
 | `GET` | `/lembrete?sortInfo=<field>&decrescente=<bool>` | list this session's reminders (**both parameters are required**) |
 | `PUT` | `/lembrete/{uuid}` | replace the reminder, **rebuilding the schedule** |
 | `PATCH` | `/lembrete/{uuid}/detalhes` | edit title, description and category, **preserving the schedule** |
@@ -230,7 +230,8 @@ session carried in a cookie, and every query is scoped by it.
 | `POST` | `/categoria` | create a category in this session's list |
 | `GET` | `/categoria?sortInfo=<field>&decrescente=<bool>` | list |
 | `GET` · `PUT` · `DELETE` | `/categoria/{id}` | fetch, update, delete |
-| `POST` | `/chat/lembrete` | **create a reminder from a sentence** |
+| `POST` | `/chat/interpretacao` | **turn a sentence into a reminder draft, without saving** |
+| `POST` | `/chat/lembrete` | *deprecated:* interpret and save in one call, with no review |
 | `GET` | `/sessao` | inspect the current session (creating one if needed) |
 | `DELETE` | `/sessao` | the "forget me": drops the session, its reminders and their schedules |
 | `GET` | `/notificar/sse` | SSE stream of this session's firings |
@@ -299,20 +300,51 @@ cannot say when it fires is not a reminder.
 }
 ```
 
-`uuid` is the public identity — the table's sequential id never leaves the persistence layer.
+Responds `201 Created`, with `Location` pointing to `/api/v1/lembrete/{uuid}` and the full reminder
+in the body. `uuid` is the public identity — the table's sequential id never leaves the persistence layer.
 `proximaExecucao` is the firing actually registered in Quartz and matches `proximasExecucoes[0]`;
 the rest is projection, since scheduling happens one firing at a time.
 
-### Creating a reminder from a sentence
+### Creating a reminder from a sentence: interpret → review → create
+
+The model never saves anything. It drafts; the user reviews; a regular create confirms.
+
+**1. Interpret.**
 
 ```http
-POST /api/v1/chat/lembrete
+POST /api/v1/chat/interpretacao
 { "frase": "me lembra de beber água a cada 2 horas até as 18h", "agora": "2026-11-23T08:00:00" }
 ```
 
-Returns the same `LembreteOutputDTO` — already created and already scheduled. `agora` is the
+```json
+{
+  "lembrete": { "titulo": "Beber água", "categoriaId": 1, "recorrencia": { … }, "notificacao": { … } },
+  "proximasExecucoes": ["2026-11-23T08:00:00", "2026-11-23T10:00:00", "…"]
+}
+```
+
+`lembrete` is exactly the body `POST /api/v1/lembrete` accepts. `proximasExecucoes` is computed by
+the same domain code a real create uses, over a reminder that was never persisted. `agora` is the
 caller's local clock, so that "tomorrow at 9" resolves in the user's timezone rather than the
 server's.
+
+The draft is held to the full creation rules before it is shown: Bean Validation, the minimum
+interval, the business-day policy and "will this ever fire". Creation and simulation share one
+`montarNovo` in `LembreteService`, so a draft that passes here can only fail on confirmation if the
+world changes in between — the session fills up, or the category is deleted.
+
+The checks run cheapest first: the session's reminder ceiling (one `COUNT`) is checked **before**
+the AI quota is spent, since a draft that cannot be saved is a wasted model call. `429` for either
+limit, `422` when the model produced something invalid or unschedulable.
+
+**2. Review.** The client shows the draft and the projected firings. The user may edit it.
+
+**3. Create.** `POST /api/v1/lembrete` with the `lembrete` object. Confirming does not consume AI
+quota. There is no editing through the chat and no stored conversation: the chat is disposable, and
+edits go through `PUT`.
+
+`POST /api/v1/chat/lembrete`, which interpreted and saved in one call, is still served for the
+published front end and marked deprecated in Swagger. It goes away once the client migrates.
 
 ### Errors
 
@@ -421,7 +453,7 @@ to new accounts mid-project — which is exactly why the model is a variable and
 ./mvnw test
 ```
 
-149 tests on H2 (`create-drop`, Flyway off — the migrations are Postgres SQL), covering the
+177 tests on H2 (`create-drop`, Flyway off — the migrations are Postgres SQL), covering the
 recurrence engine, business days and holidays, timezones, session scoping, both AI providers'
 schema dialects, the public routes and the architecture rules.
 

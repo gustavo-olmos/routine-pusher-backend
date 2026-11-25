@@ -3,7 +3,10 @@ package com.routine.pusher.application.service;
 import com.routine.pusher.application.external.client.ChatClient;
 import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.application.usecase.ChatUseCase;
+import com.routine.pusher.application.usecase.InterpretacaoUseCase;
+import com.routine.pusher.application.usecase.SimulacaoUseCase;
 import com.routine.pusher.core.domain.categoria.port.CategoriaQueryPort;
+import com.routine.pusher.core.domain.lembrete.dto.InterpretacaoLembreteOutputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteChatInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
@@ -20,34 +23,83 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Orquestra a criação de lembrete por linguagem natural. O provedor de IA fica atrás do
- * {@link ChatClient}; aqui moram as regras que não podem depender de modelo nenhum: a cota por
- * sessão (custo), o contexto que o modelo recebe e a validação do que ele devolve.
+ * Orquestra o lembrete por linguagem natural. O provedor de IA fica atrás do {@link ChatClient};
+ * aqui moram as regras que não podem depender de modelo nenhum: a cota por sessão (custo), o
+ * contexto que o modelo recebe e a validação do que ele devolve.
+ *
+ * <p>O fluxo atual é interpretar, revisar e criar: {@link #interpretarLembrete} devolve um rascunho
+ * e não salva nada, e a confirmação é um {@code POST /api/v1/lembrete} comum, que não gasta cota
+ * de IA.</p>
  */
 @Service
 @AllArgsConstructor
-public class LembreteChatService implements ChatUseCase<LembreteOutputDTO>
+public class LembreteChatService implements ChatUseCase<LembreteOutputDTO>,
+        InterpretacaoUseCase<InterpretacaoLembreteOutputDTO>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( LembreteChatService.class );
 
     private final ChatClient<LembreteInputDTO> client;
     private final CRUDUseCase<LembreteInputDTO, LembreteOutputDTO, UUID> useCase;
+    private final SimulacaoUseCase<LembreteInputDTO, List<LocalDateTime>> simulacao;
     private final CategoriaQueryPort categoriaQueryPort;
     private final SessaoAtualPort sessaoAtual;
     private final SessaoAnonimaRepository sessaoRepository;
     private final Validator validator;
 
 
+    /**
+     * A ordem das travas segue o custo: primeiro a vaga de lembrete, que é uma contagem no banco;
+     * depois a cota de IA, que é o recurso caro. Sem vaga, o rascunho não poderia ser confirmado,
+     * e gastar uma chamada de modelo nele seria jogar cota fora.
+     */
+    @Override
+    public InterpretacaoLembreteOutputDTO interpretarLembrete( LembreteChatInputDTO entrada )
+    {
+        LOGGER.debug( "Interpretando lembrete via chat" );
+
+        simulacao.validarVagaNaSessao( );
+
+        LembreteInputDTO lembrete = montarPeloModelo( entrada );
+
+        try {
+            return new InterpretacaoLembreteOutputDTO( lembrete, simulacao.simular( lembrete ) );
+        }
+        catch ( RuntimeException e ) {
+            registrarRecusa( e, lembrete );
+            throw e;
+        }
+    }
+
+    /**
+     * @deprecated interpreta e salva numa chamada só, sem revisão do usuário. Use
+     * {@link #interpretarLembrete} seguido do {@code POST /api/v1/lembrete}. Fica enquanto o front
+     * publicado não migrar.
+     */
+    @Deprecated
     @Override
     public LembreteOutputDTO criarLembreteViaChat( LembreteChatInputDTO entrada )
     {
         LOGGER.debug( "Montando lembrete via chat" );
 
+        LembreteInputDTO lembrete = montarPeloModelo( entrada );
+
+        try {
+            return useCase.adicionar( lembrete );
+        }
+        catch ( RuntimeException e ) {
+            registrarRecusa( e, lembrete );
+            throw e;
+        }
+    }
+
+    private LembreteInputDTO montarPeloModelo( LembreteChatInputDTO entrada )
+    {
         consumirCotaDeIa( );
 
         LocalDateTime agora = entrada.agora( ) != null ? entrada.agora( ) : LocalDateTime.now( );
@@ -57,16 +109,16 @@ public class LembreteChatService implements ChatUseCase<LembreteOutputDTO>
 
         validar( lembrete );
 
-        try {
-            return useCase.adicionar( lembrete );
-        }
-        catch ( RuntimeException e ) {
-            // Sem isto, uma frase que o modelo interpreta mal vira só a mensagem de erro do
-            // domínio, e não há como saber o que ele montou — no demo eu não estarei olhando.
-            LOGGER.warn( "Lembrete montado pela IA recusado pelo domínio ({}): {}",
-                    e.getMessage( ), lembrete );
-            throw e;
-        }
+        return lembrete;
+    }
+
+    /**
+     * Sem isto, uma frase que o modelo interpreta mal vira só a mensagem de erro do domínio, e não
+     * há como saber o que ele montou. No demo eu não estarei olhando.
+     */
+    private void registrarRecusa( RuntimeException e, LembreteInputDTO lembrete )
+    {
+        LOGGER.warn( "Lembrete montado pela IA recusado pelo domínio ({}): {}", e.getMessage( ), lembrete );
     }
 
     /**

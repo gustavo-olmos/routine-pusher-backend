@@ -7,12 +7,15 @@ import com.routine.pusher.core.domain.lembrete.dto.LembreteDetalhesInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,11 +30,25 @@ public class LembreteController
     private final AtualizarDetalhesUseCase<LembreteDetalhesInputDTO, LembreteOutputDTO, UUID> detalhesUseCase;
 
 
+    /**
+     * O {@code Location} é montado a partir da própria requisição, e não de um host fixo: atrás do
+     * proxy do Lightsail, o {@code forward-headers-strategy} faz ele sair com o domínio e o
+     * {@code https} públicos.
+     */
     @PostMapping
-    @Operation(summary = "Adiciona lembrete")
+    @Operation(summary = "Adiciona lembrete",
+               description = "Também é a confirmação do rascunho devolvido por POST /api/v1/chat/interpretacao")
+    @ApiResponse(responseCode = "201", description = "Lembrete criado e agendado; Location aponta para ele")
     public ResponseEntity<LembreteOutputDTO> salvar( @Valid @RequestBody LembreteInputDTO dto )
     {
-        return ResponseEntity.ok( ).body( crudUseCase.adicionar( dto ) );
+        LembreteOutputDTO criado = crudUseCase.adicionar( dto );
+
+        URI local = ServletUriComponentsBuilder.fromCurrentRequest( )
+                .path( "/{uuid}" )
+                .buildAndExpand( criado.uuid( ) )
+                .toUri( );
+
+        return ResponseEntity.created( local ).body( criado );
     }
 
     @GetMapping

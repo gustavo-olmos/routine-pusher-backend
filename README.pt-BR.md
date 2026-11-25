@@ -107,7 +107,7 @@ do cookie, e o escopo é aplicado em toda consulta.
 
 | Método | Rota | O que faz |
 |---|---|---|
-| `POST` | `/lembrete` | cria o lembrete e agenda o primeiro disparo |
+| `POST` | `/lembrete` | cria o lembrete e agenda o primeiro disparo — `201` + `Location` |
 | `GET` | `/lembrete?sortInfo=<campo>&decrescente=<bool>` | lista os da sessão (**os dois parâmetros são obrigatórios**) |
 | `PUT` | `/lembrete/{uuid}` | substitui o lembrete, **refazendo o agendamento** |
 | `PATCH` | `/lembrete/{uuid}/detalhes` | edita título, descrição e categoria **preservando o agendamento** |
@@ -116,7 +116,8 @@ do cookie, e o escopo é aplicado em toda consulta.
 | `POST` | `/categoria` | cria categoria na lista da sessão |
 | `GET` | `/categoria?sortInfo=<campo>&decrescente=<bool>` | lista |
 | `GET` · `PUT` · `DELETE` | `/categoria/{id}` | busca, atualiza, exclui |
-| `POST` | `/chat/lembrete` | **cria um lembrete a partir de uma frase** |
+| `POST` | `/chat/interpretacao` | **transforma uma frase em rascunho de lembrete, sem salvar** |
+| `POST` | `/chat/lembrete` | *obsoleto:* interpreta e salva numa chamada só, sem revisão |
 | `GET` | `/sessao` | consulta a sessão atual (cria uma se ainda não houver) |
 | `DELETE` | `/sessao` | o "esquecer-me": apaga sessão, lembretes e agendamentos; expira o cookie |
 | `GET` | `/notificar/sse` | stream SSE dos disparos da sessão |
@@ -163,6 +164,8 @@ Omitir recorrência **e** datas específicas é recusado com `422` explicativo: 
 sabe quando disparar não é um lembrete.
 
 ### Resposta
+
+`201 Created`, com `Location` apontando para `/api/v1/lembrete/{uuid}` e o lembrete completo no corpo.
 
 ```json
 {
@@ -250,12 +253,44 @@ atrapalharia Postman e Swagger.
 
 ## Chat de IA
 
+O modelo nunca salva nada. Ele rascunha, o usuário revisa, e uma criação comum confirma:
+**interpretar → revisar → criar**.
+
+**1. Interpretar.**
+
 ```http
-POST /api/v1/chat/lembrete
+POST /api/v1/chat/interpretacao
 { "frase": "me lembra de beber água a cada 2 horas até as 18h", "agora": "2026-11-23T08:00:00" }
 ```
 
-Devolve o lembrete já criado e agendado — o mesmo `LembreteOutputDTO` do POST comum.
+```json
+{
+  "lembrete": { "titulo": "Beber água", "categoriaId": 1, "recorrencia": { … }, "notificacao": { … } },
+  "proximasExecucoes": ["2026-11-23T08:00:00", "2026-11-23T10:00:00", "…"]
+}
+```
+
+`lembrete` é exatamente o corpo que o `POST /api/v1/lembrete` aceita. `proximasExecucoes` sai do
+mesmo domínio da criação, calculado sobre um lembrete que nunca foi salvo. `agora` é o relógio de
+quem pede, para "amanhã às 9h" resolver no fuso do usuário e não no do servidor.
+
+O rascunho passa por todas as regras da criação antes de aparecer: Bean Validation, intervalo
+mínimo, política de dia útil e "isto vai disparar algum dia". Criação e simulação usam o mesmo
+`montarNovo` do `LembreteService`, então um rascunho aprovado aqui só falha na confirmação se o
+mundo mudar no meio: a sessão encher, ou a categoria ser excluída.
+
+As travas vão da mais barata para a mais cara: o teto de lembretes da sessão (um `COUNT`) é
+conferido **antes** de gastar a cota de IA, porque rascunho que não pode ser salvo é chamada de
+modelo jogada fora. `429` para qualquer dos dois limites, `422` quando o modelo monta algo inválido
+ou que nunca dispararia.
+
+**2. Revisar.** O cliente mostra o rascunho e a prévia das execuções. O usuário pode ajustar.
+
+**3. Criar.** `POST /api/v1/lembrete` com o objeto `lembrete`. Confirmar não consome cota de IA. Não
+há edição pelo chat nem conversa guardada: o chat é descartável, e edição é pelo `PUT`.
+
+O `POST /api/v1/chat/lembrete`, que interpretava e salvava numa chamada só, continua no ar para o
+front publicado e marcado como obsoleto no Swagger. Sai quando o cliente migrar.
 
 O que o projeto quer mostrar aqui:
 
@@ -337,7 +372,7 @@ nasce com credencial (`GoogleOAuthConfig`). Fixado em `SegurancaSemGoogleTest`.
 ./mvnw test
 ```
 
-149 testes em H2 (`create-drop`, Flyway desligado — as migrações são SQL de Postgres), cobrindo o
+177 testes em H2 (`create-drop`, Flyway desligado — as migrações são SQL de Postgres), cobrindo o
 motor de recorrência, dias úteis e feriados, fuso, escopo de sessão, dialeto dos dois provedores de
 IA, as rotas públicas e as regras de arquitetura.
 
