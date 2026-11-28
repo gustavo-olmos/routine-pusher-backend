@@ -2,13 +2,11 @@ package com.routine.pusher.application.services;
 
 import com.routine.pusher.application.external.client.ChatClient;
 import com.routine.pusher.application.service.LembreteChatService;
-import com.routine.pusher.application.usecase.CRUDUseCase;
 import com.routine.pusher.application.usecase.SimulacaoUseCase;
 import com.routine.pusher.core.domain.categoria.port.CategoriaQueryPort;
 import com.routine.pusher.core.domain.lembrete.dto.InterpretacaoLembreteOutputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteChatInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
-import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.core.domain.sessao.SessaoAnonima;
 import com.routine.pusher.core.domain.sessao.SessaoAnonimaRepository;
 import com.routine.pusher.core.domain.sessao.port.SessaoAtualPort;
@@ -57,9 +55,6 @@ class LembreteChatServiceTest
     private ChatClient<LembreteInputDTO> client;
 
     @Mock
-    private CRUDUseCase<LembreteInputDTO, LembreteOutputDTO, UUID> crudUseCase;
-
-    @Mock
     private SimulacaoUseCase<LembreteInputDTO, List<LocalDateTime>> simulacao;
 
     @Mock
@@ -79,8 +74,8 @@ class LembreteChatServiceTest
     @BeforeEach
     void montarServico( )
     {
-        service = new LembreteChatService( client, crudUseCase, simulacao, categoriaQueryPort,
-                sessaoAtual, sessaoRepository, validator );
+        service = new LembreteChatService( client, simulacao, categoriaQueryPort, sessaoAtual,
+                sessaoRepository, validator );
         // Lenient: a recusa por falta de vaga acontece antes de qualquer consulta à sessão.
         lenient( ).when( sessaoAtual.uuid( ) ).thenReturn( SESSAO );
     }
@@ -92,52 +87,6 @@ class LembreteChatServiceTest
     }
 
     @Test
-    @DisplayName("frase válida vira lembrete: modelo monta, validação aprova, criação segue o fluxo normal")
-    void fraseValida_viraLembrete( )
-    {
-        comCota( );
-        LembreteInputDTO montado = LembreteExample.simplesInput( );
-        when( client.montarLembrete( anyString( ), any( LocalDateTime.class ), anyList( ) ) )
-                .thenReturn( montado );
-
-        service.criarLembreteViaChat( new LembreteChatInputDTO( "beber água a cada 2h", null ) );
-
-        verify( crudUseCase ).adicionar( montado );
-    }
-
-    @Test
-    @DisplayName("sem cota, nada é gasto: o modelo nem chega a ser chamado")
-    void semCota_naoChamaOModelo( )
-    {
-        when( sessaoRepository.consumirChamadaIa( SESSAO, SessaoAnonima.LIMITE_CHAMADAS_IA ) )
-                .thenReturn( 0 );
-
-        assertThatThrownBy( ( ) -> service.criarLembreteViaChat(
-                new LembreteChatInputDTO( "qualquer frase", null ) ) )
-                .isInstanceOf( LimiteDeUsoException.class );
-
-        verify( client, never( ) ).montarLembrete( anyString( ), any( ), anyList( ) );
-        verify( crudUseCase, never( ) ).adicionar( any( ) );
-    }
-
-    @Test
-    @DisplayName("lembrete inválido do modelo é barrado pela mesma régua do controller, sem persistir nada")
-    void lembreteInvalidoDoModelo_ehBarrado( )
-    {
-        comCota( );
-        // Sem título e sem notificação: violações que o Bean Validation do DTO precisa apanhar.
-        when( client.montarLembrete( anyString( ), any( LocalDateTime.class ), anyList( ) ) )
-                .thenReturn( new LembreteInputDTO( "", null, 1L, null, null ) );
-
-        assertThatThrownBy( ( ) -> service.criarLembreteViaChat(
-                new LembreteChatInputDTO( "frase confusa", null ) ) )
-                .isInstanceOf( ConversaoException.class )
-                .hasMessageContaining( "reformular" );
-
-        verify( crudUseCase, never( ) ).adicionar( any( ) );
-    }
-
-    @Test
     @DisplayName("o relógio é o de quem pede: o 'agora' do front chega intacto ao modelo")
     void relogioDoUsuario_chegaAoModelo( )
     {
@@ -146,7 +95,7 @@ class LembreteChatServiceTest
         when( client.montarLembrete( anyString( ), any( LocalDateTime.class ), anyList( ) ) )
                 .thenReturn( LembreteExample.simplesInput( ) );
 
-        service.criarLembreteViaChat( new LembreteChatInputDTO( "amanhã às 9h", relogioDoUsuario ) );
+        service.interpretarLembrete( new LembreteChatInputDTO( "amanhã às 9h", relogioDoUsuario ) );
 
         verify( client ).montarLembrete( eq( "amanhã às 9h" ), eq( relogioDoUsuario ), anyList( ) );
     }
@@ -159,7 +108,7 @@ class LembreteChatServiceTest
         when( client.montarLembrete( anyString( ), any( LocalDateTime.class ), anyList( ) ) )
                 .thenReturn( LembreteExample.simplesInput( ) );
 
-        service.criarLembreteViaChat( new LembreteChatInputDTO( "daqui a 10 minutos", null ) );
+        service.interpretarLembrete( new LembreteChatInputDTO( "daqui a 10 minutos", null ) );
 
         ArgumentCaptor<LocalDateTime> agora = ArgumentCaptor.forClass( LocalDateTime.class );
         verify( client ).montarLembrete( anyString( ), agora.capture( ), anyList( ) );
@@ -167,10 +116,8 @@ class LembreteChatServiceTest
                 org.assertj.core.api.Assertions.within( 5, java.time.temporal.ChronoUnit.SECONDS ) );
     }
 
-    // --- interpretação: interpretar -> revisar -> criar ---------------------------------------
-
     @Test
-    @DisplayName("interpretar devolve o rascunho e a prévia, e não cria nada")
+    @DisplayName("interpretar devolve o rascunho e a prévia das execuções")
     void interpretar_devolveRascunhoSemCriar( )
     {
         comCota( );
@@ -186,7 +133,6 @@ class LembreteChatServiceTest
 
         assertThat( resposta.lembrete( ) ).isSameAs( montado );
         assertThat( resposta.proximasExecucoes( ) ).isEqualTo( previa );
-        verify( crudUseCase, never( ) ).adicionar( any( ) );
     }
 
     @Test

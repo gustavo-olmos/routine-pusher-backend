@@ -118,7 +118,6 @@ do cookie, e o escopo é aplicado em toda consulta.
 | `GET` | `/categoria?sortInfo=<campo>&decrescente=<bool>` | lista |
 | `GET` · `PUT` · `DELETE` | `/categoria/{id}` | busca, atualiza, exclui |
 | `POST` | `/chat/interpretacao` | **transforma uma frase em rascunho de lembrete, sem salvar** |
-| `POST` | `/chat/lembrete` | *obsoleto:* interpreta e salva numa chamada só, sem revisão |
 | `GET` | `/sessao` | consulta a sessão atual (cria uma se ainda não houver) |
 | `DELETE` | `/sessao` | o "esquecer-me": apaga sessão, lembretes e agendamentos; expira o cookie |
 | `GET` | `/notificar/sse` | stream SSE dos disparos da sessão |
@@ -290,8 +289,8 @@ ou que nunca dispararia.
 **3. Criar.** `POST /api/v1/lembrete` com o objeto `lembrete`. Confirmar não consome cota de IA. Não
 há edição pelo chat nem conversa guardada: o chat é descartável, e edição é pelo `PUT`.
 
-O `POST /api/v1/chat/lembrete`, que interpretava e salvava numa chamada só, continua no ar para o
-front publicado e marcado como obsoleto no Swagger. Sai quando o cliente migrar.
+O modelo não tem rota que persista nada: o antigo `POST /api/v1/chat/lembrete`, que interpretava e
+salvava numa chamada só, saiu quando o front passou para o fluxo com revisão.
 
 O que o projeto quer mostrar aqui:
 

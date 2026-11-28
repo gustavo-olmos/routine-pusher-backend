@@ -232,7 +232,6 @@ session carried in a cookie, and every query is scoped by it.
 | `GET` | `/categoria?sortInfo=<field>&decrescente=<bool>` | list |
 | `GET` · `PUT` · `DELETE` | `/categoria/{id}` | fetch, update, delete |
 | `POST` | `/chat/interpretacao` | **turn a sentence into a reminder draft, without saving** |
-| `POST` | `/chat/lembrete` | *deprecated:* interpret and save in one call, with no review |
 | `GET` | `/sessao` | inspect the current session (creating one if needed) |
 | `DELETE` | `/sessao` | the "forget me": drops the session, its reminders and their schedules |
 | `GET` | `/notificar/sse` | SSE stream of this session's firings |
@@ -344,8 +343,8 @@ limit, `422` when the model produced something invalid or unschedulable.
 quota. There is no editing through the chat and no stored conversation: the chat is disposable, and
 edits go through `PUT`.
 
-`POST /api/v1/chat/lembrete`, which interpreted and saved in one call, is still served for the
-published front end and marked deprecated in Swagger. It goes away once the client migrates.
+The model has no route that persists anything: the old `POST /api/v1/chat/lembrete`, which
+interpreted and saved in one call, was removed once the front end moved to the review flow.
 
 ### Errors
 

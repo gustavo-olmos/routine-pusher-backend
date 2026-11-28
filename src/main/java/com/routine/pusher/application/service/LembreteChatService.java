@@ -1,15 +1,12 @@
 package com.routine.pusher.application.service;
 
 import com.routine.pusher.application.external.client.ChatClient;
-import com.routine.pusher.application.usecase.CRUDUseCase;
-import com.routine.pusher.application.usecase.ChatUseCase;
 import com.routine.pusher.application.usecase.InterpretacaoUseCase;
 import com.routine.pusher.application.usecase.SimulacaoUseCase;
 import com.routine.pusher.core.domain.categoria.port.CategoriaQueryPort;
 import com.routine.pusher.core.domain.lembrete.dto.InterpretacaoLembreteOutputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteChatInputDTO;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
-import com.routine.pusher.core.domain.lembrete.dto.LembreteOutputDTO;
 import com.routine.pusher.core.domain.sessao.SessaoAnonima;
 import com.routine.pusher.core.domain.sessao.SessaoAnonimaRepository;
 import com.routine.pusher.core.domain.sessao.port.SessaoAtualPort;
@@ -25,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -33,19 +29,17 @@ import java.util.stream.Collectors;
  * aqui moram as regras que não podem depender de modelo nenhum: a cota por sessão (custo), o
  * contexto que o modelo recebe e a validação do que ele devolve.
  *
- * <p>O fluxo atual é interpretar, revisar e criar: {@link #interpretarLembrete} devolve um rascunho
- * e não salva nada, e a confirmação é um {@code POST /api/v1/lembrete} comum, que não gasta cota
- * de IA.</p>
+ * <p>O fluxo é interpretar, revisar e criar: {@link #interpretarLembrete} devolve um rascunho e
+ * não salva nada, e a confirmação é um {@code POST /api/v1/lembrete} comum, que não gasta cota de
+ * IA. O modelo não tem caminho para persistir: este serviço nem conhece o caso de uso de criação.</p>
  */
 @Service
 @AllArgsConstructor
-public class LembreteChatService implements ChatUseCase<LembreteOutputDTO>,
-        InterpretacaoUseCase<InterpretacaoLembreteOutputDTO>
+public class LembreteChatService implements InterpretacaoUseCase<InterpretacaoLembreteOutputDTO>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( LembreteChatService.class );
 
     private final ChatClient<LembreteInputDTO> client;
-    private final CRUDUseCase<LembreteInputDTO, LembreteOutputDTO, UUID> useCase;
     private final SimulacaoUseCase<LembreteInputDTO, List<LocalDateTime>> simulacao;
     private final CategoriaQueryPort categoriaQueryPort;
     private final SessaoAtualPort sessaoAtual;
@@ -69,28 +63,6 @@ public class LembreteChatService implements ChatUseCase<LembreteOutputDTO>,
 
         try {
             return new InterpretacaoLembreteOutputDTO( lembrete, simulacao.simular( lembrete ) );
-        }
-        catch ( RuntimeException e ) {
-            registrarRecusa( e, lembrete );
-            throw e;
-        }
-    }
-
-    /**
-     * @deprecated interpreta e salva numa chamada só, sem revisão do usuário. Use
-     * {@link #interpretarLembrete} seguido do {@code POST /api/v1/lembrete}. Fica enquanto o front
-     * publicado não migrar.
-     */
-    @Deprecated
-    @Override
-    public LembreteOutputDTO criarLembreteViaChat( LembreteChatInputDTO entrada )
-    {
-        LOGGER.debug( "Montando lembrete via chat" );
-
-        LembreteInputDTO lembrete = montarPeloModelo( entrada );
-
-        try {
-            return useCase.adicionar( lembrete );
         }
         catch ( RuntimeException e ) {
             registrarRecusa( e, lembrete );
