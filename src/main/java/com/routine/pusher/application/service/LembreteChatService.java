@@ -11,6 +11,7 @@ import com.routine.pusher.core.domain.sessao.SessaoAnonima;
 import com.routine.pusher.core.domain.sessao.SessaoAnonimaRepository;
 import com.routine.pusher.core.domain.sessao.port.SessaoAtualPort;
 import com.routine.pusher.infrastructure.exceptions.ConversaoException;
+import com.routine.pusher.infrastructure.exceptions.IaIndisponivelException;
 import com.routine.pusher.infrastructure.exceptions.LimiteDeUsoException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -45,6 +46,7 @@ public class LembreteChatService implements InterpretacaoUseCase<InterpretacaoLe
     private final SessaoAtualPort sessaoAtual;
     private final SessaoAnonimaRepository sessaoRepository;
     private final Validator validator;
+    private final FreioDeIa freio;
 
 
     /**
@@ -70,14 +72,26 @@ public class LembreteChatService implements InterpretacaoUseCase<InterpretacaoLe
         }
     }
 
+    /**
+     * O freio global vem antes da cota: recusar por excesso geral não pode custar tentativa a quem
+     * chegou numa hora ruim. E se o provedor recusar depois de a cota ter sido consumida, ela volta.
+     */
     private LembreteInputDTO montarPeloModelo( LembreteChatInputDTO entrada )
     {
+        freio.autorizar( );
         consumirCotaDeIa( );
 
         LocalDateTime agora = entrada.agora( ) != null ? entrada.agora( ) : LocalDateTime.now( );
 
-        LembreteInputDTO lembrete =
-                client.montarLembrete( entrada.frase( ), agora, categoriaQueryPort.listar( ) );
+        LembreteInputDTO lembrete;
+        try {
+            lembrete = client.montarLembrete( entrada.frase( ), agora, categoriaQueryPort.listar( ) );
+        }
+        catch ( IaIndisponivelException e ) {
+            sessaoRepository.devolverChamadaIa( sessaoAtual.uuid( ) );
+            freio.registrar( e );
+            throw e;
+        }
 
         validar( lembrete );
 

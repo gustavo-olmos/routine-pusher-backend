@@ -1,6 +1,7 @@
 package com.routine.pusher.application.services;
 
 import com.routine.pusher.application.external.client.ChatClient;
+import com.routine.pusher.application.service.FreioDeIa;
 import com.routine.pusher.application.service.LembreteChatService;
 import com.routine.pusher.application.usecase.SimulacaoUseCase;
 import com.routine.pusher.core.domain.categoria.port.CategoriaQueryPort;
@@ -10,6 +11,7 @@ import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.core.domain.sessao.SessaoAnonima;
 import com.routine.pusher.core.domain.sessao.SessaoAnonimaRepository;
 import com.routine.pusher.core.domain.sessao.port.SessaoAtualPort;
+import com.routine.pusher.infrastructure.exceptions.IaIndisponivelException;
 import com.routine.pusher.example.LembreteExample;
 import com.routine.pusher.infrastructure.exceptions.ConversaoException;
 import com.routine.pusher.infrastructure.exceptions.LimiteDeUsoException;
@@ -24,6 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -66,6 +69,9 @@ class LembreteChatServiceTest
     @Mock
     private SessaoAnonimaRepository sessaoRepository;
 
+    @Mock
+    private FreioDeIa freio;
+
     /** Validator real: o teste deve reprovar pelo mesmo motivo que a produção reprovaria. */
     private final Validator validator = Validation.buildDefaultValidatorFactory( ).getValidator( );
 
@@ -75,7 +81,7 @@ class LembreteChatServiceTest
     void montarServico( )
     {
         service = new LembreteChatService( client, simulacao, categoriaQueryPort, sessaoAtual,
-                sessaoRepository, validator );
+                sessaoRepository, validator, freio );
         // Lenient: a recusa por falta de vaga acontece antes de qualquer consulta à sessão.
         lenient( ).when( sessaoAtual.uuid( ) ).thenReturn( SESSAO );
     }
@@ -212,5 +218,35 @@ class LembreteChatServiceTest
         assertThatThrownBy( ( ) -> service.interpretarLembrete(
                 new LembreteChatInputDTO( "de minuto em minuto", null ) ) )
                 .isInstanceOf( StrategyException.class );
+    }
+
+    @Test
+    @DisplayName("freio global fechado: recusa antes de gastar a cota do visitante")
+    void freioFechado_naoGastaCota( )
+    {
+        doThrow( new IaIndisponivelException( "ocupado", Duration.ofSeconds( 5 ), false ) )
+                .when( freio ).autorizar( );
+
+        assertThatThrownBy( ( ) -> service.interpretarLembrete( new LembreteChatInputDTO( "todo dia 10", null ) ) )
+                .isInstanceOf( IaIndisponivelException.class );
+
+        verify( sessaoRepository, never( ) ).consumirChamadaIa( any( ), anyInt( ) );
+        verify( client, never( ) ).montarLembrete( anyString( ), any( ), anyList( ) );
+    }
+
+    @Test
+    @DisplayName("provedor recusou: a cota volta e o freio fica sabendo")
+    void provedorRecusou_devolveCotaEAvisaOFreio( )
+    {
+        comCota( );
+        IaIndisponivelException recusa =
+                new IaIndisponivelException( "limite", Duration.ofSeconds( 60 ), true );
+        when( client.montarLembrete( anyString( ), any( LocalDateTime.class ), anyList( ) ) ).thenThrow( recusa );
+
+        assertThatThrownBy( ( ) -> service.interpretarLembrete( new LembreteChatInputDTO( "todo dia 10", null ) ) )
+                .isSameAs( recusa );
+
+        verify( sessaoRepository ).devolverChamadaIa( SESSAO );
+        verify( freio ).registrar( recusa );
     }
 }

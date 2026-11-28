@@ -5,6 +5,7 @@ import com.routine.pusher.core.domain.lembrete.dto.InterpretacaoLembreteOutputDT
 import com.routine.pusher.core.domain.lembrete.dto.LembreteChatInputDTO;
 import com.routine.pusher.example.LembreteExample;
 import com.routine.pusher.infrastructure.exceptions.ConversaoException;
+import com.routine.pusher.infrastructure.exceptions.IaIndisponivelException;
 import com.routine.pusher.infrastructure.exceptions.LimiteDeUsoException;
 import com.routine.pusher.infrastructure.exceptions.handler.GlobalExceptionHandler;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +19,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,6 +27,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -80,6 +83,20 @@ class ChatControllerTest
         interpretar( )
                 .andExpect( status( ).isTooManyRequests( ) )
                 .andExpect( jsonPath( "$.mensagem" ).value( containsString( "chamadas de IA" ) ) );
+    }
+
+    @Test
+    @DisplayName("IA fora ou freada vira 503 com Retry-After, não erro de regra")
+    void interpretacao_iaIndisponivel_503( ) throws Exception
+    {
+        when( interpretacaoUseCase.interpretarLembrete( any( ) ) )
+                .thenThrow( new IaIndisponivelException( "Muita gente testando a IA agora",
+                        Duration.ofMillis( 4200 ), false ) );
+
+        interpretar( )
+                .andExpect( status( ).isServiceUnavailable( ) )
+                .andExpect( header( ).string( "Retry-After", "5" ) )
+                .andExpect( jsonPath( "$.mensagem" ).value( containsString( "Muita gente" ) ) );
     }
 
     @Test

@@ -349,6 +349,8 @@ Tudo por variável de ambiente, com default de desenvolvimento. Referência comp
 | `QUARTZ_THREADS` | `5` | |
 | `QUARTZ_CLUSTERED` | `false` | ligue **junto** com a segunda instância, nunca antes nem depois |
 | `IA_PROVEDOR` | `gemini` | `gemini` ou `anthropic`; só o escolhido vira bean |
+| `IA_FREIO_POR_MINUTO` | `12` | chamadas de IA por minuto somando todas as sessões (balde de fichas) |
+| `IA_FREIO_PAUSA` | `60s` | depois de um 429 do provedor, ninguém o chama por este tempo (503 + `Retry-After`) |
 | `GEMINI_API_KEY` / `GEMINI_MODEL` | — / `gemini-3.5-flash-lite` | chave gratuita no AI Studio, sem cartão |
 | `ANTHROPIC_API_KEY` / `ANTHROPIC_MODEL` | — / `claude-haiku-4-5` | exige crédito de API |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:4200` | origens exatas, separadas por vírgula; sem curinga |

@@ -3,6 +3,7 @@ package com.routine.pusher.infrastructure.exceptions.handler;
 import com.routine.pusher.infrastructure.exceptions.ConversaoException;
 import com.routine.pusher.infrastructure.exceptions.ExclusaoException;
 import com.routine.pusher.infrastructure.exceptions.LimiteDeUsoException;
+import com.routine.pusher.infrastructure.exceptions.IaIndisponivelException;
 import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import com.routine.pusher.infrastructure.exceptions.SortingException;
 import com.routine.pusher.infrastructure.exceptions.StrategyException;
@@ -90,6 +91,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler
     public ResponseEntity<ErroResposta> tratarLimiteDeUso( LimiteDeUsoException ex, HttpServletRequest req )
     {
         return construir( HttpStatus.TOO_MANY_REQUESTS, ex.getMessage( ), req.getRequestURI( ) );
+    }
+
+    /**
+     * 503 com {@code Retry-After}: a IA está fora ou freada, não há nada errado na frase. O front lê
+     * o cabeçalho para a contagem regressiva e oferece o formulário, que não depende de IA.
+     */
+    @ExceptionHandler(IaIndisponivelException.class)
+    public ResponseEntity<ErroResposta> tratarIaIndisponivel( IaIndisponivelException ex, HttpServletRequest req )
+    {
+        long segundos = ex.tenteEm( ) == null ? 30 : Math.max( 1, ( ex.tenteEm( ).toMillis( ) + 999 ) / 1000 );
+        ErroResposta corpo = ErroResposta.de( HttpStatus.SERVICE_UNAVAILABLE.value( ),
+                HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase( ), ex.getMessage( ), req.getRequestURI( ) );
+
+        return ResponseEntity.status( HttpStatus.SERVICE_UNAVAILABLE )
+                .header( HttpHeaders.RETRY_AFTER, String.valueOf( segundos ) )
+                .body( corpo );
     }
 
     @ExceptionHandler(Exception.class)

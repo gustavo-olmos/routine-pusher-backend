@@ -15,6 +15,7 @@ import com.google.genai.types.ThinkingLevel;
 import com.routine.pusher.core.domain.categoria.Categoria;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.infrastructure.exceptions.ConversaoException;
+import com.routine.pusher.infrastructure.exceptions.IaIndisponivelException;
 import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
@@ -93,8 +95,10 @@ public class GeminiChatClient implements ChatClient<LembreteInputDTO>
     }
 
     /**
-     * 429 é o caso esperado do free tier (cota diária), e é transitório: a mensagem convida a tentar
-     * de novo em vez de sugerir que o site quebrou. Nenhum texto do provedor vaza ao visitante —
+     * 429 é o caso esperado do free tier (cota diária), e é transitório: vira
+     * {@link IaIndisponivelException}, que o {@link com.routine.pusher.application.service.FreioDeIa}
+     * usa para pausar as próximas chamadas, e a mensagem convida a tentar de novo em vez de sugerir
+     * que o site quebrou. Nenhum texto do provedor vaza ao visitante —
      * ele descreve a nossa conta, não o problema de quem digitou a frase.
      */
     private GenerateContentResponse executar( String contexto )
@@ -105,8 +109,14 @@ public class GeminiChatClient implements ChatClient<LembreteInputDTO>
         catch ( ApiException e ) {
             if( e.code( ) == 429 ) {
                 LOGGER.warn( "Cota do provedor de IA esgotada (429)", e );
-                throw new ProcessoException( "Chat de lembrete",
-                        "O serviço de IA atingiu o limite de uso; tente novamente mais tarde" );
+                throw new IaIndisponivelException(
+                        "O serviço de IA atingiu o limite de uso; tente novamente mais tarde",
+                        Duration.ofSeconds( 60 ), true );
+            }
+            if( e.code( ) >= 500 ) {
+                LOGGER.error( "Provedor de IA fora do ar (status {})", e.code( ), e );
+                throw new IaIndisponivelException( "O serviço de IA está indisponível no momento",
+                        Duration.ofSeconds( 30 ), false );
             }
 
             LOGGER.error( "Erro da API de IA (status {})", e.code( ), e );
@@ -115,9 +125,10 @@ public class GeminiChatClient implements ChatClient<LembreteInputDTO>
         }
         catch ( RuntimeException e ) {
             LOGGER.error( "Falha de comunicação com a API de IA", e );
-            throw new ProcessoException( "Chat de lembrete",
-                    "O serviço de IA está indisponível no momento" );
+            throw new IaIndisponivelException( "O serviço de IA está indisponível no momento",
+                    Duration.ofSeconds( 30 ), false );
         }
+    }
     }
 
     private String extrairTexto( GenerateContentResponse resposta )
