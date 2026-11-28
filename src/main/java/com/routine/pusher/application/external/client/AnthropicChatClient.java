@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.routine.pusher.core.domain.categoria.Categoria;
 import com.routine.pusher.core.domain.lembrete.dto.LembreteInputDTO;
 import com.routine.pusher.infrastructure.exceptions.ConversaoException;
+import com.routine.pusher.infrastructure.exceptions.IaIndisponivelException;
 import com.routine.pusher.infrastructure.exceptions.ProcessoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -108,8 +110,9 @@ public class AnthropicChatClient implements ChatClient<LembreteInputDTO>
         }
         catch ( RateLimitException e ) {
             LOGGER.warn( "Limite de taxa da API de IA atingido", e );
-            throw new ProcessoException( "Chat de lembrete",
-                    "O serviço de IA está ocupado; tente novamente em alguns segundos" );
+            throw new IaIndisponivelException(
+                    "O serviço de IA está ocupado; tente novamente em alguns segundos",
+                    Duration.ofSeconds( 60 ), true );
         }
         catch ( AnthropicServiceException e ) {
             LOGGER.error( "Erro da API de IA (status {})", e.statusCode( ), e );
@@ -118,8 +121,8 @@ public class AnthropicChatClient implements ChatClient<LembreteInputDTO>
         }
         catch ( AnthropicException e ) {
             LOGGER.error( "Falha de comunicação com a API de IA", e );
-            throw new ProcessoException( "Chat de lembrete",
-                    "O serviço de IA está indisponível no momento" );
+            throw new IaIndisponivelException( "O serviço de IA está indisponível no momento",
+                    Duration.ofSeconds( 30 ), false );
         }
     }
 

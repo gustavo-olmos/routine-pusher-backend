@@ -30,6 +30,8 @@ public class CorsConfig
         config.setAllowedMethods( List.of( "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS" ) );
         config.setAllowedHeaders( List.of( "*" ) );
         config.setAllowCredentials( true );
+        // Sem isto o navegador esconde o cabeçalho do front, que conta os segundos do 503 da IA.
+        config.setExposedHeaders( List.of( "Retry-After" ) );
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource( );
         source.registerCorsConfiguration( "/api/**", config );

@@ -35,4 +35,14 @@ public interface SessaoAnonimaRepository extends JpaRepository<SessaoAnonimaEnti
     @Query("update SessaoAnonimaEntity s set s.chamadasIa = s.chamadasIa + 1 "
             + "where s.uuid = :uuid and s.chamadasIa < :limite")
     int consumirChamadaIa( UUID uuid, int limite );
+
+    /**
+     * Devolve a chamada que o provedor de IA não atendeu: a cota protege o gasto, e uma recusa do
+     * provedor não gastou nada. Nunca desce de zero.
+     */
+    @Modifying
+    @Transactional
+    @Query("update SessaoAnonimaEntity s set s.chamadasIa = s.chamadasIa - 1 "
+            + "where s.uuid = :uuid and s.chamadasIa > 0")
+    int devolverChamadaIa( UUID uuid );
 }

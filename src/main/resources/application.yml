@@ -83,6 +83,11 @@ ia:
   # Qual adapter de IA sobe: gemini (free tier, sem cartao) ou anthropic (exige credito de API).
   # So o escolhido vira bean — ver @ConditionalOnProperty nos clients.
   provedor: ${IA_PROVEDOR:gemini}
+  # Freio global (FreioDeIa), por cima da cota de cada sessao. O balde fica abaixo do limite por
+  # minuto do free tier; depois de um 429 do provedor ninguem chama durante a pausa.
+  freio:
+    por-minuto: ${IA_FREIO_POR_MINUTO:12}
+    pausa-apos-recusa: ${IA_FREIO_PAUSA:60s}
 
 gemini:
   api-key: ${GEMINI_API_KEY:}

@@ -437,6 +437,8 @@ Everything through environment variables, with development defaults. Fully comme
 | `QUARTZ_THREADS` | `5` | |
 | `QUARTZ_CLUSTERED` | `false` | turn on **together with** the second instance, never before or after |
 | `IA_PROVEDOR` | `gemini` | `gemini` or `anthropic`; only the chosen one becomes a bean |
+| `IA_FREIO_POR_MINUTO` | `12` | global AI calls per minute, across all sessions (token bucket) |
+| `IA_FREIO_PAUSA` | `60s` | after the provider answers 429, nobody calls it for this long (503 + `Retry-After`) |
 | `GEMINI_API_KEY` / `GEMINI_MODEL` | — / `gemini-3.5-flash-lite` | free key at AI Studio, no card required |
 | `ANTHROPIC_API_KEY` / `ANTHROPIC_MODEL` | — / `claude-haiku-4-5` | requires API credit |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:4200` | exact origins, comma-separated; no wildcard |
